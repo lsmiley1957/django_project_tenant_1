@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Your Workspace | MySaaS</title>
+<!-- Bootstrap 5 -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body { background-color: #f8f9fa; }
+.card { border-radius: 15px; border: none; }
+.btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; }
+.btn-primary:hover { opacity: 0.9; }
+.form-control:focus { border-color: #764ba2; box-shadow: 0 0 0 0.25rem rgba(118, 75, 162, 0.25); }
+.form-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #6c757d; }
+</style>
+</head>
+<body>
+<div class="container py-5">
+<div class="row justify-content-center">
+<div class="col-md-6 col-lg-5">
+<div class="card shadow-lg">
+<div class="card-body p-5">
+<div class="text-center mb-4">
+<h2 class="fw-bold">Get Started</h2>
+<p class="text-muted">Create your private business instance.</p>
+</div>
+
+                    <!-- Global Errors (Crucial for debugging schema creation failures) -->
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger mb-4">
+                            {% for error in form.non_field_errors %}
+                                <p class="mb-0 small">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% for field in form %}
+                            <div class="mb-3 {% if field.name == 'on_trial' %}form-check mt-4 mb-4{% endif %}">
+                                {% if field.name != 'on_trial' %}
+                                    <label for="{{ field.id_for_label }}" class="form-label fw-bold">
+                                        {{ field.label }}
+                                    </label>
+                                    {{ field }}
+                                {% else %}
+                                    <!-- Special UI for Checkbox/Trial field -->
+                                    {{ field }}
+                                    <label class="form-check-label fw-semibold" for="{{ field.id_for_label }}">
+                                        {{ field.label }}
+                                    </label>
+                                {% endif %}
+
+                                {% if field.help_text %}
+                                    <div class="form-text small">{{ field.help_text }}</div>
+                                {% endif %}
+
+                                {% for error in field.errors %}
+                                    <div class="text-danger small mt-1">
+                                        <strong>Error:</strong> {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg text-white fw-bold">
+                                Create My Workspace
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-4 pt-3 border-top">
+                        <a href="{% url 'home' %}" class="text-decoration-none small text-muted">
+                            ← Back to Landing Page
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <p class="text-center mt-4 text-muted small">&copy; 2026 MySaaS Platform</p>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,155 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Edit Invoice #{{ invoice.invoice_number }}</h2>
+        <a href="{% url 'invoice_detail' invoice.pk %}" class="btn btn-outline-secondary rounded-pill">Cancel</a>
+    </div>
+
+    <form method="POST" id="invoice-form">
+        {% csrf_token %}
+        <div class="row">
+            <!-- Left Side: Items -->
+            <div class="col-lg-8">
+                <div class="card shadow border-0 rounded-4 mb-4">
+                    <div class="card-header bg-transparent border-0 py-4 d-flex justify-content-between">
+                        <h4 class="mb-0">Line Items</h4>
+                        <button type="button" id="add-item" class="btn btn-sm btn-primary rounded-pill">
+                            <i class="fas fa-plus"></i> Add Item
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table align-items-center" id="items-table">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th style="width: 50%;">Product</th>
+                                        <th style="width: 20%;">Qty</th>
+                                        <th style="width: 20%;">Price</th>
+                                        <th style="width: 10%;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in invoice.items.all %}
+                                    <tr class="item-row">
+                                        <td>
+                                            <select name="product_id[]" class="form-select product-select" required>
+                                                {% for product in products %}
+                                                <option value="{{ product.id }}"
+                                                        data-price="{{ product.sale_price }}"
+                                                        {% if item.product.id == product.id %}selected{% endif %}>
+                                                    {{ product.name }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="number" name="quantity[]" class="form-control qty-input" value="{{ item.quantity }}" min="1" required>
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control price-display" value="{{ item.line_total }}" readonly>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-link text-danger remove-row"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Details -->
+            <div class="col-lg-4">
+                <div class="card shadow border-0 rounded-4 sticky-top" style="top: 20px;">
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label small text-uppercase fw-bold">Customer</label>
+                            <select name="acct_customer" class="form-select" required>
+                                {% for acct_customer in acct_customers %}
+                                <option value="{{ acct_customer.id }}" {% if invoice.acct_customer.id == acct_customer.id %}selected{% endif %}>
+                                    {{ acct_customer.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-uppercase fw-bold">Date Issued</label>
+                            <input type="date" name="date_issued" class="form-control" value="{{ invoice.date_issued|date:'Y-m-d' }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-uppercase fw-bold">Due Date</label>
+                            <input type="date" name="due_date" class="form-control" value="{{ invoice.due_date|date:'Y-m-d' }}" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small text-uppercase fw-bold">Status</label>
+                            <select name="status" class="form-select">
+                                {% for code, label in invoice.STATUS_CHOICES %}
+                                <option value="{{ code }}" {% if invoice.status == code %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <hr>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Total</span>
+                            <span class="fw-bold" id="grand-total">${{ invoice.total_amount }}</span>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill mt-3">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    const tableBody = document.querySelector('#items-table tbody');
+    const addItemBtn = document.querySelector('#add-item');
+
+    function calculateTotals() {
+        let grandTotal = 0;
+        document.querySelectorAll('.item-row').forEach(row => {
+            const select = row.querySelector('.product-select');
+            const qtyInput = row.querySelector('.qty-input');
+            const priceDisplay = row.querySelector('.price-display');
+
+            const price = parseFloat(select.options[select.selectedIndex].dataset.price) || 0;
+            const qty = parseInt(qtyInput.value) || 0;
+            const lineTotal = price * qty;
+
+            priceDisplay.value = lineTotal.toFixed(2);
+            grandTotal += lineTotal;
+        });
+        document.querySelector('#grand-total').innerText = '$' + grandTotal.toFixed(2);
+    }
+
+    addItemBtn.addEventListener('click', () => {
+        const firstRow = document.querySelector('.item-row');
+        const newRow = firstRow.cloneNode(true);
+        newRow.querySelector('.product-select').value = "";
+        newRow.querySelector('.qty-input').value = 1;
+        newRow.querySelector('.price-display').value = "0.00";
+        tableBody.appendChild(newRow);
+    });
+
+    tableBody.addEventListener('change', (e) => {
+        if (e.target.classList.contains('product-select') || e.target.classList.contains('qty-input')) {
+            calculateTotals();
+        }
+    });
+
+    tableBody.addEventListener('click', (e) => {
+        if (e.target.closest('.remove-row')) {
+            const rows = document.querySelectorAll('.item-row');
+            if (rows.length > 1) {
+                e.target.closest('.item-row').remove();
+                calculateTotals();
+            }
+        }
+    });
+</script>
+{% endblock %}

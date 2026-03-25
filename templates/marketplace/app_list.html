@@ -1,0 +1,60 @@
+{% extends "marketplace/dashboard.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+<div>
+<h2 class="fw-bold mb-1">Manage Marketplace</h2>
+<p class="text-muted">Configure the global application catalog for all tenants.</p>
+</div>
+<a href="{% url 'app_create' %}" class="btn btn-primary rounded-pill">
+<i data-lucide="plus" class="me-2"></i>Add New App
+</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+<div class="table-responsive">
+<table class="table table-hover align-middle mb-0">
+<thead class="bg-light">
+<tr>
+<th class="ps-4">App Name</th>
+<th>Slug</th>
+<th>Status</th>
+<th>Installed By</th>
+<th class="text-end pe-4">Actions</th>
+</tr>
+</thead>
+<tbody>
+{% for app in apps %}
+<tr>
+<td class="ps-4">
+<div class="d-flex align-items-center">
+<div class="p-2 bg-light rounded me-3">
+<i data-lucide="{{ app.icon_tag|default:'package' }}" class="text-primary" style="width: 20px;"></i>
+</div>
+<span class="fw-bold">{{ app.name }}</span>
+</div>
+</td>
+<td><code>{{ app.slug }}</code></td>
+<td>
+{% if app.is_active %}
+<span class="badge bg-success-subtle text-success rounded-pill">Live</span>
+{% else %}
+<span class="badge bg-secondary-subtle text-secondary rounded-pill">Draft</span>
+{% endif %}
+</td>
+<td>{{ app.assigned_tenants.count }} Tenants</td>
+<td class="text-end pe-4">
+<a href="{% url 'app_edit' app.slug %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+</td>
+</tr>
+{% empty %}
+<tr>
+<td colspan="5" class="text-center py-5 text-muted">No apps found. Create your first one!</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+</div>
+{% endblock %}

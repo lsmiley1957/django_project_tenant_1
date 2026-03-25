@@ -1,0 +1,245 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+<!-- Tailwind & Icons -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<div class="flex min-h-screen bg-slate-50">
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-slate-900 text-white hidden md:flex flex-col sticky top-0 h-screen shadow-2xl">
+        <div class="p-8">
+            <div class="flex items-center gap-3 mb-10">
+                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center">
+                    <i data-lucide="shield-check" class="w-6 h-6 text-white"></i>
+                </div>
+                <span class="font-black text-lg tracking-tighter uppercase">Tenant Hub</span>
+            </div>
+
+            <nav class="space-y-2">
+                <a href="{% url 'branding:branding_dashboard' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all group">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5 group-hover:text-indigo-400"></i>
+                    <span class="text-[10px] font-black uppercase tracking-widest">Dashboard</span>
+                </a>
+                <a href="{% url 'branding:manage_team' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-900/20 transition-all">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                    <span class="text-[10px] font-black uppercase tracking-widest">Team Access</span>
+                </a>
+                <a href="{% url 'branding:manage_branding' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all group">
+                    <i data-lucide="palette" class="w-5 h-5 group-hover:text-indigo-400"></i>
+                    <span class="text-[10px] font-black uppercase tracking-widest">Branding</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- User Profile Card -->
+        <div class="mt-auto p-8 border-t border-slate-800">
+            <div class="flex items-center gap-3 p-3 bg-slate-800/50 rounded-2xl">
+                <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-black text-[10px]">
+                    {{ request.user.username|slice:":1"|upper }}
+                </div>
+                <div class="overflow-hidden">
+                    <p class="text-[10px] font-black uppercase truncate">{{ request.user.username }}</p>
+                    <p class="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Local Admin</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-6 md:p-12">
+        <div class="max-w-6xl mx-auto">
+
+            <!-- Header with "Global Registry" Context -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="px-2 py-0.5 bg-indigo-100 text-indigo-600 rounded text-[9px] font-black uppercase tracking-widest">SaaS Subscription Active</span>
+                    </div>
+                    <h1 class="text-4xl font-black text-slate-900 uppercase tracking-tight">Staff Assignments</h1>
+                    <p class="text-slate-500 text-sm font-medium mt-1">Assign your team members to the roles defined in the Global App Registry.</p>
+                </div>
+
+                <button class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] hover:bg-indigo-700 transition-all shadow-xl flex items-center gap-3 active:scale-95">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Team Member
+                </button>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-10">
+
+                <!-- Center: User List (Assignments View) -->
+                <div class="lg:col-span-3 space-y-4">
+                    <div class="flex items-center justify-between mb-4 px-2">
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Active Staff Directory</h3>
+                    </div>
+
+                    {% for user in users %}
+                    <div class="bg-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm hover:shadow-xl hover:border-indigo-100 transition-all duration-300 flex flex-col md:flex-row items-center gap-6 group">
+                        <!-- Identity -->
+                        <div class="flex items-center gap-4 min-w-[240px]">
+                            <div class="w-14 h-14 bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center font-black text-slate-400 group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all text-xl">
+                                {{ user.username|slice:":2"|upper }}
+                            </div>
+                            <div class="space-y-1">
+                                <h4 class="font-black text-slate-900 uppercase text-sm leading-none">{{ user.get_full_name|default:user.username }}</h4>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ user.email }}</p>
+                                <div class="flex items-center gap-1.5 pt-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Active Now</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Current Module Access (The "Assignments") -->
+                        <div class="flex flex-wrap gap-2 flex-grow">
+                            {% for assignment in user.app_assignments.all %}
+                            <div class="bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-xl flex items-center gap-3 hover:bg-white hover:border-indigo-300 transition-all group/chip">
+                                <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
+                                <div class="flex flex-col">
+                                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-tighter leading-none mb-0.5">{{ assignment.app_role.app.name }}</span>
+                                    <span class="text-[10px] font-black text-slate-800 uppercase leading-none">{{ assignment.app_role.role_name }}</span>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                                <i data-lucide="lock" class="w-3 h-3 text-slate-300"></i>
+                                <span class="text-[9px] font-bold text-slate-300 uppercase tracking-widest italic">No Global Access Assigned</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <button onclick="openPermissionsModal('{{ user.id }}', '{{ user.username }}')" class="bg-slate-900 text-white px-6 py-3.5 rounded-xl font-black uppercase text-[9px] tracking-[0.15em] hover:bg-indigo-600 transition-all shadow-lg shadow-slate-200 whitespace-nowrap">
+                            Manage Access
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Right: Global Registry Context -->
+                <div class="lg:col-span-1 space-y-6">
+                    <!-- Subscribed Apps Card -->
+                    <div class="bg-white p-8 rounded-[2.5rem] border border-slate-200/60 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-5">
+                            <i data-lucide="globe" class="w-20 h-20"></i>
+                        </div>
+
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Subscribed Registry</h3>
+
+                        <div class="space-y-4 relative z-10">
+                            {% for app in available_apps %}
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex items-center gap-4">
+                                <div class="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center border border-slate-100">
+                                    <i data-lucide="box" class="w-5 h-5 text-indigo-600"></i>
+                                </div>
+                                <div>
+                                    <span class="block text-[11px] font-black text-slate-800 uppercase tracking-tight">{{ app.name }}</span>
+                                    <span class="block text-[9px] font-bold text-indigo-500 uppercase">{{ app.roles.count }} Roles Available</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mt-8 pt-6 border-t border-slate-100">
+                            <p class="text-[10px] font-bold text-slate-400 leading-relaxed italic">
+                                * Roles are restricted to the Global Registry managed by the SaaS Provider.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- SaaS Support -->
+                    <div class="bg-slate-900 p-8 rounded-[2.5rem] text-white">
+                        <h4 class="text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-3">Custom Roles?</h4>
+                        <p class="text-[11px] text-slate-400 leading-relaxed mb-6">
+                            Tenant-level role editing is disabled. Contact your Account Manager to request new global role definitions.
+                        </p>
+                        <a href="#" class="inline-flex items-center gap-2 text-[10px] font-black uppercase text-white hover:text-indigo-400 transition-colors">
+                            Contact Support <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Assignment Modal -->
+<div id="permissionsModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-xl rounded-[3.5rem] shadow-2xl overflow-hidden">
+
+        <div class="px-10 py-10 border-b border-slate-50 bg-slate-50/50 flex justify-between items-center">
+            <div>
+                <p class="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-1">Module Access Control</p>
+                <h2 class="text-2xl font-black text-slate-900 uppercase" id="modalUsername">Permissions</h2>
+            </div>
+            <button onclick="closeModal()" class="w-12 h-12 rounded-full hover:bg-slate-200 flex items-center justify-center text-slate-400 transition-all active:scale-90">
+                <i data-lucide="x" class="w-6 h-6 text-slate-900"></i>
+            </button>
+        </div>
+
+        <form method="POST" class="flex flex-col">
+            {% csrf_token %}
+            <input type="hidden" name="user_id" id="modalUserId">
+            <input type="hidden" name="action" value="update_user_roles">
+
+            <div class="p-10 space-y-6 max-h-[55vh] overflow-y-auto custom-scrollbar">
+                {% for app in available_apps %}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center p-6 bg-slate-50 rounded-3xl border border-slate-100 hover:border-indigo-200 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center">
+                            <i data-lucide="cpu" class="w-5 h-5 text-indigo-600"></i>
+                        </div>
+                        <span class="text-[11px] font-black text-slate-900 uppercase">{{ app.name }}</span>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <div class="relative">
+                            <select name="roles[]" class="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 text-xs font-black outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all appearance-none cursor-pointer uppercase tracking-tight">
+                                <option value="">(No Access)</option>
+                                {% for role in app.roles.all %}
+                                <option value="{{ role.id }}">{{ role.role_name }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="p-10 bg-slate-50/50 flex gap-4 border-t border-slate-100">
+                <button type="button" onclick="closeModal()" class="flex-1 px-8 py-5 rounded-2xl font-black uppercase text-[10px] tracking-widest text-slate-400 hover:text-slate-900 transition-colors">
+                    Cancel
+                </button>
+                <button type="submit" class="flex-[2] bg-indigo-600 text-white px-8 py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100">
+                    Update Team Access
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+</style>
+
+<script>
+    function openPermissionsModal(userId, username) {
+        document.getElementById('modalUserId').value = userId;
+        document.getElementById('modalUsername').innerText = username;
+        document.getElementById('permissionsModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('permissionsModal').classList.add('hidden');
+    }
+
+    lucide.createIcons();
+</script>
+{% endblock %}

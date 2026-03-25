@@ -1,0 +1,91 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-transparent border-0 py-4">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h3 class="mb-0">Product Catalog</h3>
+                </div>
+                <div class="col-md-6">
+                    <form method="GET" class="d-flex">
+                        <div class="input-group input-group-merge shadow-none border rounded-pill px-3 py-1">
+                            <span class="input-group-text border-0 bg-transparent text-muted">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" name="q" class="form-control border-0 bg-transparent shadow-none" placeholder="Search by name or SKU..." value="{{ request.GET.q }}">
+                        </div>
+                    </form>
+                </div>
+                <div class="col text-end">
+                    <a href="{% url 'add_product' %}" class="btn btn-primary rounded-pill px-4" style="background: linear-gradient(87deg, #5e72e4 0, #825ee4 100%); border: none;">
+                        <i class="fas fa-plus me-2"></i> Add Product
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-items-center table-flush">
+                <thead class="thead-light" style="background: #f6f9fc;">
+                    <tr>
+                        <th class="text-uppercase text-xs font-weight-bold">Image</th>
+                        <th class="text-uppercase text-xs font-weight-bold">SKU</th>
+                        <th class="text-uppercase text-xs font-weight-bold">Name</th>
+                        <th class="text-uppercase text-xs font-weight-bold">Cost</th>
+                        <th class="text-uppercase text-xs font-weight-bold">Sale Price</th>
+                        <th class="text-uppercase text-xs font-weight-bold">Stock</th>
+                        <th class="text-uppercase text-xs font-weight-bold text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="list">
+                    {% for product in products %}
+                    <tr>
+                        <td>
+                            {% if product.main_image %}
+                                <img src="{{ product.main_image.url }}" alt="{{ product.name }}" class="rounded shadow-sm" style="width: 50px; height: 50px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center shadow-sm text-muted" style="width: 50px; height: 50px;">
+                                    <i class="fas fa-image fa-xs"></i>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td class="text-xs font-weight-bold text-muted">{{ product.sku }}</td>
+                        <td class="font-weight-600 text-dark">{{ product.name }}</td>
+                        <td class="text-muted small">${{ product.cost_price }}</td>
+                        <td class="font-weight-bold text-dark">${{ product.sale_price }}</td>
+                        <td>
+                            {% if product.is_low_stock %}
+                                <span class="text-danger font-weight-bold">
+                                    <i class="fas fa-arrow-down me-1"></i> {{ product.quantity_in_stock }}
+                                </span>
+                            {% else %}
+                                <span class="text-success font-weight-bold">
+                                    {{ product.quantity_in_stock }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <a href="{% url 'edit_product' product.pk %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                <i class="fas fa-edit me-1"></i> Edit Details
+                            </a>
+                            <a href="{% url 'update_stock' product.pk %}" class="btn btn-sm btn-info rounded-pill px-3 ms-1">
+                                <i class="fas fa-plus-minus me-1"></i> Stock
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">No products found matching your search.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-soft-info { background-color: rgba(17, 205, 239, 0.1); }
+</style>
+{% endblock %}

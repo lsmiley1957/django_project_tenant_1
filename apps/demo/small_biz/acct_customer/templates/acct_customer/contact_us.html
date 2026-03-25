@@ -1,0 +1,36 @@
+{% extends "inventory/base.html" %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-body p-5">
+                    <h3 class="mb-3">Get in Touch</h3>
+                    <p class="text-muted">Fill out the form below and a member of our team will contact you shortly.</p>
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="small fw-bold">Full Name</label>
+                            <input type="text" name="name" class="form-control rounded-pill" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="small fw-bold">Email Address</label>
+                            <input type="email" name="email" class="form-control rounded-pill" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="small fw-bold">Phone (Optional)</label>
+                            <input type="text" name="phone" class="form-control rounded-pill">
+                        </div>
+                        <div class="mb-4">
+                            <label class="small fw-bold">How can we help?</label>
+                            <textarea name="message" class="form-control rounded-4" rows="4"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill py-2">Submit Inquiry</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

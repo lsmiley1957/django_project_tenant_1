@@ -1,0 +1,45 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Software Center{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2 class="fw-bold">Software & License Center</h2>
+    <p class="text-muted">Access your downloads and manage product activation keys.</p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th class="ps-4">Product</th>
+                    <th>License Key</th>
+                    <th>Type</th>
+                    <th>Version</th>
+                    <th class="text-end pe-4">Download</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="ps-4">
+                        <div class="fw-bold">Security Shield Pro</div>
+                        <div class="text-muted small">Windows / macOS</div>
+                    </td>
+                    <td>
+                        <code>XXXX-YYYY-ZZZZ-1234</code>
+                        <button class="btn btn-link btn-sm p-0 ms-1 text-decoration-none" title="Copy"><i data-lucide="copy" style="width:14px"></i></button>
+                    </td>
+                    <td><span class="badge bg-info-subtle text-info">Volume License</span></td>
+                    <td>v4.2.0</td>
+                    <td class="text-end pe-4">
+                        <button class="btn btn-sm btn-primary rounded-pill px-3">
+                            <i data-lucide="download" class="me-1" style="width:14px"></i> Get Installer
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

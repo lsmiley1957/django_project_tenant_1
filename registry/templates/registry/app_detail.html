@@ -1,0 +1,81 @@
+{% extends 'registry/base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8 border-b pb-6">
+        <div>
+            <div class="flex items-center gap-3">
+                {# Updated to 'app' #}
+                <h1 class="text-3xl font-bold text-gray-900">{{ app.name }}</h1>
+                <a href="{% url 'registry:app_edit' app.id %}" class="text-gray-400 hover:text-indigo-600 text-lg" title="Edit App Settings">
+                    <i class="fas fa-edit"></i>
+                </a>
+            </div>
+            {# Updated to 'app' #}
+            <p class="text-gray-600 mt-2">{{ app.description }}</p>
+        </div>
+        {# Updated to 'app' #}
+        <a href="{% url 'registry:app_clone' app.id %}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition">
+            Clone Structure
+        </a>
+    </div>
+
+    <!-- FORM: ADD DEPARTMENT -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-10">
+        <h3 class="text-lg font-semibold mb-4 text-gray-800">Add New Department</h3>
+        {# Updated to 'app' #}
+        <form action="{% url 'registry:add_dept' app.id %}" method="POST" class="flex flex-wrap gap-4 items-end">
+            {% csrf_token %}
+            <div class="flex-1 min-w-[240px]">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Department Name</label>
+                <input type="text" name="name" required
+                       class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none"
+                       placeholder="e.g. Sales, Engineering, Support">
+            </div>
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-semibold transition shadow-md">
+                <i class="fas fa-plus mr-2"></i>Add Department
+            </button>
+        </form>
+    </div>
+
+    <!-- DEPARTMENTS LIST -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {# CRITICAL FIX: Changed 'globalapp.departments.all' to 'app.departments.all' #}
+        {% for dept in app.departments.all %}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+            <div class="p-5 border-b border-gray-50 bg-gray-50/50 flex justify-between items-center">
+                <h3 class="font-bold text-gray-900">{{ dept.name }}</h3>
+                <span class="text-xs font-medium bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
+                    {{ dept.roles.count }} Roles
+                </span>
+            </div>
+
+            <div class="p-5 flex-grow">
+                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Roles</h4>
+                <ul class="space-y-2 mb-4">
+                    {% for role in dept.roles.all %}
+                    <li class="flex items-center text-sm text-gray-600">
+                        <span class="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+                        {{ role.name }}
+                    </li>
+                    {% empty %}
+                    <li class="text-xs text-gray-400 italic">No roles defined yet</li>
+                    {% endfor %}
+                </ul>
+
+                <!-- Quick Add Role Form -->
+                <form action="{% url 'registry:add_role_ajax' dept.id %}" method="POST" class="mt-4 pt-4 border-t border-gray-100 flex gap-2">
+                    {% csrf_token %}
+                    <input type="text" name="name" placeholder="New Role..." class="text-xs border rounded px-2 py-1 w-full outline-none focus:ring-1 focus:ring-blue-400">
+                    <button type="submit" class="text-blue-600 hover:text-blue-800 text-xs font-bold">Add</button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+            <p class="text-gray-500">No departments found for this application.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

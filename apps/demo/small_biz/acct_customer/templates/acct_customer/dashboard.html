@@ -1,0 +1,41 @@
+{% extends "inventory/base.html" %}
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">CRM Sales Pipeline</h2>
+    
+    <div class="row mb-5">
+        {% for stat in pipeline_stats %}
+        <div class="col-md-3">
+            <div class="card shadow border-0 rounded-4 text-center p-3">
+                <h6 class="text-muted text-uppercase small">{{ stat.status }}</h6>
+                <h2 class="mb-0 text-primary">{{ stat.total }}</h2>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0">Recent Sales Activity</h5>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                {% for activity in recent_activities %}
+                <li class="list-group-item px-0 border-0">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <strong>{{ activity.customer.name }}</strong>
+                            <span class="badge bg-light text-dark mx-2">{{ activity.get_activity_type_display }}</span>
+                            <p class="mb-0 text-muted small">{{ activity.description }}</p>
+                        </div>
+                        <small class="text-muted">{{ activity.timestamp|timesince }} ago</small>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-center py-4 text-muted">No recent activities logged.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

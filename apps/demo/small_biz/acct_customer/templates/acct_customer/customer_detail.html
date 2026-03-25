@@ -1,0 +1,262 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+<!-- PDF Generation Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="bg-slate-50 min-h-screen pb-20">
+    <!-- Header / Nav -->
+    <div class="bg-white border-b sticky top-0 z-30 d-print-none">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="{% url 'crm_dashboard' %}" class="text-slate-400 hover:text-slate-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                </a>
+                <h1 class="font-black text-slate-800 uppercase tracking-tight">Customer Profile</h1>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="window.print()" class="bg-slate-100 text-slate-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all">
+                    Print Customer Details
+                </button>
+                <button onclick="generatePDF()" id="pdfBtn" class="bg-indigo-600 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 flex items-center gap-2">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 2l4 4h-4V4zM4 16V4h5v5h5v7H4z"/></svg>
+                    Download PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container captured for PDF -->
+    <div id="pdf-content" class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+
+        <!-- PDF ONLY: Dynamic Brand Header from Branding App -->
+        <div class="hidden show-on-pdf mb-10 border-b-2 border-slate-900 pb-8 flex justify-between items-start">
+            <div class="flex gap-6">
+                {% if site_branding.logo %}
+                <img src="{{ site_branding.logo.url }}" class="w-16 h-16 object-contain shrink-0" alt="Logo">
+                {% else %}
+                <div class="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-white shrink-0">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                {% endif %}
+                <div>
+                    <h2 class="font-black text-2xl text-slate-900 uppercase tracking-tighter">{{ site_branding.company_name|default:"Your Company Name" }}</h2>
+                    <div class="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed mt-1">
+                        {{ site_branding.address_line_1 }}
+                        {% if site_branding.address_line_2 %}, {{ site_branding.address_line_2 }}{% endif %}<br>
+                        {{ site_branding.city }}, {{ site_branding.state_province }} {{ site_branding.postal_code }}<br>
+                        Contact: {{ site_branding.phone_number }} • {{ site_branding.email_address }}<br>
+                        {{ site_branding.website_url }}
+                    </div>
+                </div>
+            </div>
+            <div class="text-right">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Official Document</p>
+                <p class="text-xl font-black text-slate-900 uppercase">Customer Dossier</p>
+                <p class="text-[10px] font-bold text-slate-500 uppercase mt-1">Ref: {{ customer.id|stringformat:"06d" }}</p>
+                {% if site_branding.tax_number %}
+                <p class="text-[9px] font-bold text-slate-400 uppercase mt-1">Tax ID: {{ site_branding.tax_number }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Profile Card -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col md:flex-row gap-8 items-center md:items-start">
+                <div class="w-32 h-32 bg-indigo-100 rounded-3xl flex items-center justify-center text-indigo-600">
+                    <span class="text-4xl font-black">{{ customer.name|slice:":1"|upper }}</span>
+                </div>
+                <div class="flex-1 text-center md:text-left">
+                    <div class="inline-block px-3 py-1 rounded-full bg-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">
+                        {{ customer.get_status_display }}
+                    </div>
+                    <h2 class="text-3xl font-black text-slate-900 mb-1">{{ customer.name }}</h2>
+                    <p class="text-slate-500 mb-4">{{ customer.email }} | {{ customer.phone }}</p>
+                    <div class="flex flex-wrap gap-3 justify-center md:justify-start">
+                        <div class="bg-slate-50 border px-4 py-2 rounded-2xl">
+                            <p class="text-[10px] font-black text-slate-400 uppercase">Lifetime Value</p>
+                            <p class="text-xl font-black text-indigo-600">
+                                {{ site_branding.currency_symbol|default:"$" }}{{ total_revenue|floatformat:2 }}
+                            </p>
+                        </div>
+                        <div class="bg-slate-50 border px-4 py-2 rounded-2xl">
+                            <p class="text-[10px] font-black text-slate-400 uppercase">Transactions</p>
+                            <p class="text-xl font-black text-slate-800">{{ pos_transactions.count|add:invoices.count }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spending Breakdown -->
+            <div class="bg-slate-900 rounded-3xl p-8 text-white shadow-xl category-section">
+                <h3 class="text-[10px] font-black uppercase tracking-[0.2em] mb-6 text-slate-400">Spending by Category</h3>
+                <div class="space-y-4">
+                    {% for cat in category_breakdown %}
+                    <div>
+                        <div class="flex justify-between text-[11px] font-bold mb-1 uppercase tracking-wider">
+                            <span>{{ cat.name }}</span>
+                            <span class="text-indigo-400">{{ cat.percentage }}%</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-indigo-500 h-full rounded-full" style="width: {{ cat.percentage }}%"></div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-slate-500 text-[10px] italic">No sales data yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- POS History -->
+        <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+            <div class="p-6 border-b flex justify-between items-center bg-slate-50/50 d-print-none">
+                <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest">POS Receipt History</h3>
+                <input type="text" id="posSearch" placeholder="SEARCH RECEIPTS..." class="text-[10px] border-0 bg-white shadow-sm rounded-xl px-4 py-2 w-64 font-bold focus:ring-2 focus:ring-indigo-500 uppercase">
+            </div>
+            <div class="hidden show-on-pdf px-6 py-4 bg-slate-50 border-b">
+                <h3 class="font-black text-slate-800 uppercase text-[10px] tracking-[0.2em]">Point of Sale Transactions</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse" id="posTable">
+                    <thead>
+                        <tr class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            <th class="px-6 py-4">Date</th>
+                            <th class="px-6 py-4">Receipt #</th>
+                            <th class="px-6 py-4">Method</th>
+                            <th class="px-6 py-4 text-right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm divide-y">
+                        {% for tx in pos_transactions %}
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-slate-600">{{ tx.timestamp|date:"Y-m-d H:i" }}</td>
+                            <td class="px-6 py-4 font-black text-slate-900">{{ tx.receipt_number }}</td>
+                            <td class="px-6 py-4">
+                                <span class="bg-slate-100 px-2 py-1 rounded text-[9px] font-black uppercase tracking-tighter">{{ tx.payment_method }}</span>
+                            </td>
+                            <td class="px-6 py-4 font-black text-indigo-600 text-right">
+                                {{ site_branding.currency_symbol|default:"$" }}{{ tx.total_price }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Invoices -->
+        <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+            <div class="p-6 border-b flex justify-between items-center bg-slate-50/50 d-print-none">
+                <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest">Invoicing History</h3>
+                <input type="text" id="invSearch" placeholder="SEARCH INVOICES..." class="text-[10px] border-0 bg-white shadow-sm rounded-xl px-4 py-2 w-64 font-bold focus:ring-2 focus:ring-indigo-500 uppercase">
+            </div>
+            <div class="hidden show-on-pdf px-6 py-4 bg-slate-50 border-b">
+                <h3 class="font-black text-slate-800 uppercase text-[10px] tracking-[0.2em]">Formal Invoicing Records</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse" id="invTable">
+                    <thead>
+                        <tr class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            <th class="px-6 py-4">Created</th>
+                            <th class="px-6 py-4">Invoice #</th>
+                            <th class="px-6 py-4">Status</th>
+                            <th class="px-6 py-4 text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm divide-y">
+                        {% for inv in invoices %}
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-slate-600">{{ inv.created_at|date:"Y-m-d" }}</td>
+                            <td class="px-6 py-4 font-black text-slate-900">INV-{{ inv.invoice_number }}</td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 rounded text-[9px] font-black uppercase tracking-tighter
+                                    {% if inv.status == 'PAID' %}bg-emerald-100 text-emerald-700{% else %}bg-amber-100 text-amber-700{% endif %}">
+                                    {{ inv.status }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 font-black text-indigo-600 text-right">
+                                {{ site_branding.currency_symbol|default:"$" }}{{ inv.total_amount }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PDF ONLY: Footer Metadata -->
+        <div class="hidden show-on-pdf mt-12 pt-6 border-t flex justify-between items-center text-[9px] text-slate-400 font-bold uppercase tracking-widest">
+            <div>{{ site_branding.company_name }} • Private & Confidential • Page 1 of 1</div>
+            <div id="pdf-timestamp-footer">Generated on: --</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function generatePDF() {
+        const btn = document.getElementById('pdfBtn');
+        const originalContent = btn.innerHTML;
+
+        btn.innerHTML = 'GENERATING...';
+        btn.disabled = true;
+
+        const now = new Date();
+        const dateString = now.toLocaleDateString();
+        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        document.getElementById('pdf-timestamp-footer').innerText = `Generated on: ${dateString} ${timeString}`;
+
+        const customerName = "{{ customer.name|addslashes }}".replace(/\s+/g, '_');
+        const filename = `${customerName}_Profile.pdf`;
+
+        const element = document.getElementById('pdf-content');
+        document.body.classList.add('is-generating-pdf');
+
+        const opt = {
+            margin:       [10, 10, 10, 10],
+            filename:     filename,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        try {
+            await html2pdf().set(opt).from(element).save();
+        } finally {
+            document.body.classList.remove('is-generating-pdf');
+            btn.innerHTML = originalContent;
+            btn.disabled = false;
+        }
+    }
+
+    function setupSearch(inputId, tableId) {
+        document.getElementById(inputId).addEventListener('keyup', function() {
+            const term = this.value.toUpperCase();
+            const rows = document.getElementById(tableId).getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            for (let row of rows) {
+                row.style.display = row.innerText.toUpperCase().includes(term) ? '' : 'none';
+            }
+        });
+    }
+    setupSearch('posSearch', 'posTable');
+    setupSearch('invSearch', 'invTable');
+</script>
+
+<style>
+.show-on-pdf { display: none !important; }
+
+@media print, .is-generating-pdf {
+    .show-on-pdf { display: flex !important; }
+    .d-print-none { display: none !important; }
+    body { background: white !important; }
+    .bg-slate-900 {
+        background-color: #0f172a !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
+</style>
+{% endblock %}

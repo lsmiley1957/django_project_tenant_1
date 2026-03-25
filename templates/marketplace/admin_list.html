@@ -1,0 +1,69 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Admin Catalog | Marketplace Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <header class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="h2 fw-bold mb-1">Global App Catalog</h1>
+            <p class="text-muted small">Administrative view of all marketplace listings and their global statuses.</p>
+        </div>
+        <a href="{% url 'app_create' %}" class="btn btn-primary fw-bold px-4">
+            + Create New App
+        </a>
+    </header>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">App Name</th>
+                        <th>Slug</th>
+                        <th>Status</th>
+                        <th>Usage</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in apps %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary bg-opacity-10 p-2 rounded me-3">📦</div>
+                                <span class="fw-bold">{{ app.name }}</span>
+                            </div>
+                        </td>
+                        <td><code>{{ app.slug }}</code></td>
+                        <td>
+                            {% if app.is_active %}
+                                <span class="badge bg-success-soft text-success">Public</span>
+                            {% else %}
+                                <span class="badge bg-secondary-soft text-muted">Draft</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="text-muted small">{{ app.assigned_tenants.count }} Tenants</span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'app_edit' app.slug %}" class="btn btn-sm btn-outline-dark me-1">Edit</a>
+                            <a href="{% url 'app_detail' app.slug %}" class="btn btn-sm btn-link text-decoration-none">View</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">No applications found in the global catalog.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-success-soft { background-color: rgba(40, 167, 69, 0.1); }
+    .bg-secondary-soft { background-color: rgba(108, 117, 125, 0.1); }
+</style>
+{% endblock %}

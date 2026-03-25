@@ -1,0 +1,74 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Add Supplier Form -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-body p-4">
+                    <h4 class="mb-4">New Supplier</h4>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label font-weight-bold">Supplier Name</label>
+                            <input type="text" name="name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label font-weight-bold">Contact Email</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label font-weight-bold">Phone</label>
+                            <input type="text" name="phone" class="form-control">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 shadow" style="background: linear-gradient(87deg, #5e72e4 0, #825ee4 100%); border: none;">
+                            <i class="fas fa-plus me-2"></i> Register Supplier
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Supplier List -->
+        <div class="col-lg-8">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h4 class="mb-0">Supplier Directory</h4>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-items-center table-flush">
+                        <thead class="thead-light" style="background: #f6f9fc;">
+                            <tr>
+                                <th class="text-uppercase text-xs font-weight-bold">Supplier</th>
+                                <th class="text-uppercase text-xs font-weight-bold">Contact</th>
+                                <th class="text-uppercase text-xs font-weight-bold">Items</th>
+                                <th class="text-uppercase text-xs font-weight-bold text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sup in suppliers %}
+                            <tr>
+                                <td class="font-weight-bold text-primary">{{ sup.name }}</td>
+                                <td>
+                                    <small class="d-block text-muted"><i class="fas fa-envelope me-1"></i> {{ sup.contact_email }}</small>
+                                    <small class="d-block text-muted"><i class="fas fa-phone me-1"></i> {{ sup.phone|default:"N/A" }}</small>
+                                </td>
+                                <td>{{ sup.product_set.count }}</td>
+                                <td class="text-center">
+                                    <a href="{% url 'edit_supplier' sup.pk %}" class="btn btn-sm btn-outline-info rounded-pill">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center py-4">No suppliers registered.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

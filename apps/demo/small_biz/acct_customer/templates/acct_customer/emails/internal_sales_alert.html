@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<body style="font-family: sans-serif; color: #2d3436;">
+    <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px;">
+        <h2 style="color: #e67e22;">New Lead Received!</h2>
+        <p>A new prospect has submitted a form on the website. Here are the details:</p>
+
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr><td style="padding: 8px; font-weight: bold;">Name:</td><td>{{ name }}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold;">Email:</td><td>{{ email }}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold;">Phone:</td><td>{{ phone }}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold;">Message:</td><td>{{ message }}</td></tr>
+        </table>
+
+        <div style="margin-top: 25px; text-align: center;">
+            <a href="http://yourdomain.com/acct_customer/customer/{{ customer_id }}/"
+               style="background-color: #5e72e4; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+               View in CRM Dashboard
+            </a>
+        </div>
+    </div>
+</body>
+</html>

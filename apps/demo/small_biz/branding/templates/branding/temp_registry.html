@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaaS Global Registry Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#0a0a0c] text-slate-200">
+
+<div class="flex min-h-screen">
+    <!-- Super Admin Sidebar -->
+    <aside class="w-72 bg-[#111114] border-r border-slate-800/50 p-8 flex flex-col">
+        <div class="flex items-center gap-3 mb-12">
+            <div class="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <i data-lucide="layers" class="text-white w-7 h-7"></i>
+            </div>
+            <div>
+                <h1 class="font-black uppercase tracking-tighter text-xl leading-none">Registry</h1>
+                <span class="text-[9px] font-black text-indigo-400 uppercase tracking-[0.3em]">SaaS OS Admin</span>
+            </div>
+        </div>
+
+        <nav class="space-y-1">
+            <a href="#" class="flex items-center gap-4 px-5 py-4 rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                <i data-lucide="layout-grid" class="w-5 h-5"></i>
+                <span class="text-[11px] font-black uppercase tracking-widest">App Catalog</span>
+            </a>
+            <a href="#" class="flex items-center gap-4 px-5 py-4 rounded-2xl text-slate-500 hover:text-white hover:bg-slate-800/30 transition-all">
+                <i data-lucide="building-2" class="w-5 h-5"></i>
+                <span class="text-[11px] font-black uppercase tracking-widest">Active Tenants</span>
+            </a>
+            <a href="#" class="flex items-center gap-4 px-5 py-4 rounded-2xl text-slate-500 hover:text-white hover:bg-slate-800/30 transition-all">
+                <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+                <span class="text-[11px] font-black uppercase tracking-widest">Global Analytics</span>
+            </a>
+        </nav>
+
+        <div class="mt-auto pt-8 border-t border-slate-800/50">
+            <div class="bg-slate-800/20 p-5 rounded-3xl border border-slate-800/50">
+                <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">Registry Health</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-emerald-400">99.9% Sync</span>
+                    <i data-lucide="activity" class="w-4 h-4 text-emerald-400"></i>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Admin Work Area -->
+    <main class="flex-1 p-12 overflow-y-auto">
+        <div class="max-w-6xl mx-auto">
+
+            <header class="flex justify-between items-end mb-16">
+                <div>
+                    <h2 class="text-5xl font-black uppercase tracking-tighter text-white">Master Registry</h2>
+                    <p class="text-slate-500 mt-2 font-medium">Define global departments and roles that propagate to all tenants.</p>
+                </div>
+                <button class="bg-indigo-600 hover:bg-indigo-500 text-white px-10 py-5 rounded-[2rem] font-black uppercase text-[11px] tracking-[0.2em] shadow-2xl shadow-indigo-600/20 transition-all active:scale-95 flex items-center gap-3">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Create New App Module
+                </button>
+            </header>
+
+            <!-- Registry Grid -->
+            <div class="grid grid-cols-1 gap-8">
+
+                <!-- Section: Department & Role Mapping -->
+                <div class="bg-[#111114] rounded-[3rem] border border-slate-800/50 overflow-hidden">
+                    <div class="p-10 border-b border-slate-800/50 bg-gradient-to-r from-indigo-500/5 to-transparent flex justify-between items-center">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center">
+                                <i data-lucide="shopping-cart" class="text-slate-900 w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-black uppercase tracking-tight text-white">Retail POS Module</h3>
+                                <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Module ID: app_pos_v1</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button class="px-6 py-3 bg-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-700 transition-colors">Edit App Info</button>
+                        </div>
+                    </div>
+
+                    <div class="p-10">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                            <!-- Department Column -->
+                            <div class="bg-slate-900/40 p-8 rounded-[2rem] border border-slate-800/50 relative group">
+                                <div class="flex justify-between items-start mb-6">
+                                    <div>
+                                        <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Department</p>
+                                        <h4 class="text-lg font-black uppercase text-white">Sales & Front Desk</h4>
+                                    </div>
+                                    <button class="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-white transition-all">
+                                        <i data-lucide="more-horizontal" class="w-5 h-5"></i>
+                                    </button>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <!-- Role Entry -->
+                                    <div class="bg-[#0a0a0c] p-4 rounded-2xl border border-slate-800 flex justify-between items-center group/role">
+                                        <span class="text-xs font-bold uppercase tracking-tight">Lead Cashier</span>
+                                        <div class="flex gap-2 opacity-0 group-hover/role:opacity-100 transition-all">
+                                            <i data-lucide="shield" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                            <i data-lucide="edit-3" class="w-3.5 h-3.5 text-slate-500"></i>
+                                        </div>
+                                    </div>
+                                    <div class="bg-[#0a0a0c] p-4 rounded-2xl border border-slate-800 flex justify-between items-center group/role">
+                                        <span class="text-xs font-bold uppercase tracking-tight">Staff Associate</span>
+                                        <div class="flex gap-2 opacity-0 group-hover/role:opacity-100 transition-all">
+                                            <i data-lucide="edit-3" class="w-3.5 h-3.5 text-slate-500"></i>
+                                        </div>
+                                    </div>
+                                    <button class="w-full py-4 border border-dashed border-slate-700 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:border-indigo-500 hover:text-indigo-400 transition-all mt-2">
+                                        + Add Global Role
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Department Column -->
+                            <div class="bg-slate-900/40 p-8 rounded-[2rem] border border-slate-800/50 relative group">
+                                <div class="flex justify-between items-start mb-6">
+                                    <div>
+                                        <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Department</p>
+                                        <h4 class="text-lg font-black uppercase text-white">Inventory Mgmt</h4>
+                                    </div>
+                                    <button class="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-white transition-all">
+                                        <i data-lucide="more-horizontal" class="w-5 h-5"></i>
+                                    </button>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <div class="bg-[#0a0a0c] p-4 rounded-2xl border border-slate-800 flex justify-between items-center group/role">
+                                        <span class="text-xs font-bold uppercase tracking-tight">Stock Controller</span>
+                                        <div class="flex gap-2 opacity-0 group-hover/role:opacity-100 transition-all">
+                                            <i data-lucide="edit-3" class="w-3.5 h-3.5 text-slate-500"></i>
+                                        </div>
+                                    </div>
+                                    <button class="w-full py-4 border border-dashed border-slate-700 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:border-indigo-500 hover:text-indigo-400 transition-all mt-2">
+                                        + Add Global Role
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Add Department Action -->
+                            <button class="flex flex-col items-center justify-center gap-4 p-8 rounded-[2rem] border-2 border-dashed border-slate-800 hover:border-indigo-500/50 hover:bg-indigo-500/5 transition-all text-slate-600 hover:text-indigo-400">
+                                <div class="w-12 h-12 rounded-full bg-slate-800/50 flex items-center justify-center">
+                                    <i data-lucide="plus" class="w-6 h-6"></i>
+                                </div>
+                                <span class="text-[11px] font-black uppercase tracking-[0.2em]">New Global Dept</span>
+                            </button>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Another Module -->
+                <div class="bg-[#111114] rounded-[3rem] border border-slate-800/50 overflow-hidden opacity-60 hover:opacity-100 transition-opacity">
+                    <div class="p-10 flex justify-between items-center">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center">
+                                <i data-lucide="database" class="text-white w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-black uppercase tracking-tight text-white">Central Warehouse</h3>
+                                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Module ID: app_warehouse_pro</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-6 h-6 text-slate-700"></i>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

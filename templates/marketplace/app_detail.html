@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app.name }} | Marketplace</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root { --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; }
+
+        /* Header & Breadcrumbs */
+        .app-header { background: white; border-bottom: 1px solid #e9ecef; padding: 40px 0; }
+        .breadcrumb-item a { color: #6c757d; text-decoration: none; font-size: 0.9rem; }
+
+        /* Pricing Cards */
+        .pricing-card { border: none; border-radius: 15px; transition: transform 0.3s; background: white; }
+        .pricing-card.featured { border: 2px solid #764ba2; transform: scale(1.05); z-index: 10; }
+        .pricing-card:hover { transform: translateY(-5px); }
+        .price-val { font-size: 2.5rem; font-weight: 800; color: #1a1c1e; }
+
+        /* Feature List */
+        .feature-item { padding: 10px 0; border-bottom: 1px solid #f1f1f1; display: flex; align-items: center; }
+        .feature-icon { color: #28a745; margin-right: 12px; }
+
+        /* Screenshots Gallery */
+        .screenshot-img { border-radius: 12px; cursor: pointer; transition: 0.3s; width: 100%; object-fit: cover; height: 200px; }
+        .screenshot-img:hover { opacity: 0.8; }
+
+        /* Sticky Purchase Sidebar */
+        .sticky-top { top: 20px; }
+        .btn-purchase { background: var(--primary-gradient); border: none; color: white; font-weight: bold; padding: 15px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="app-header">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard_home' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'marketplace' %}">Marketplace</a></li>
+                <li class="breadcrumb-item active">{{ app.name }}</li>
+            </ol>
+        </nav>
+
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-4">
+                        <i data-lucide="{{ app.icon_tag|default:'box' }}" class="text-primary" style="width: 48px; height: 48px;"></i>
+                    </div>
+                    <div>
+                        <h1 class="display-5 fw-bold mb-1">{{ app.name }}</h1>
+                        <p class="lead text-muted mb-0">{{ app.short_description }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="#pricing" class="btn btn-primary btn-lg px-5 rounded-pill shadow">View Pricing</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- About Section -->
+            <section class="mb-5">
+                <h3 class="fw-bold mb-4">About this App</h3>
+                <div class="card border-0 shadow-sm p-4 rounded-4">
+                    <p class="text-secondary" style="white-space: pre-line; line-height: 1.8;">
+                        {{ app.full_description }}
+                    </p>
+                </div>
+            </section>
+
+            <!-- Screenshots Section -->
+            {% if app.screenshots.all %}
+            <section class="mb-5">
+                <h3 class="fw-bold mb-4">Screenshots</h3>
+                <div class="row g-3">
+                    {% for screen in app.screenshots.all %}
+                    <div class="col-md-6">
+                        <img src="{{ screen.image_url }}" class="screenshot-img shadow-sm" alt="{{ screen.caption }}">
+                        {% if screen.caption %}<p class="small text-muted mt-2 text-center">{{ screen.caption }}</p>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Features Grid -->
+            <section class="mb-5">
+                <h3 class="fw-bold mb-4">Key Features</h3>
+                <div class="row g-4">
+                    {% for feature in app.features.all %}
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start">
+                            <i data-lucide="check-circle-2" class="text-success me-3 mt-1" style="width: 20px;"></i>
+                            <span class="fw-medium">{{ feature.feature_text }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+
+        <!-- Sidebar (Knowledge Base & Quick Stats) -->
+        <div class="col-lg-4">
+            <div class="sticky-top">
+                <div class="card border-0 shadow-sm mb-4 rounded-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">Support & Resources</h5>
+                        <ul class="list-unstyled mb-0">
+                            {% for article in app.kb_articles.all %}
+                            <li class="mb-3">
+                                <a href="#" class="text-decoration-none d-flex align-items-center">
+                                    <i data-lucide="book-open" class="text-muted me-2" style="width: 18px;"></i>
+                                    <span>{{ article.title }}</span>
+                                </a>
+                                <small class="text-muted d-block ms-4">{{ article.category }}</small>
+                            </li>
+                            {% empty %}
+                            <li class="text-muted small italic">Documentation coming soon.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card bg-dark text-white border-0 shadow-sm rounded-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">Developer</h5>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-secondary rounded-circle me-3" style="width: 40px; height: 40px;"></div>
+                            <div>
+                                <p class="mb-0 fw-bold">Internal Labs</p>
+                                <p class="small text-muted mb-0">Verified Integration</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pt-5 mt-5 border-top">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Simple, Transparent Pricing</h2>
+            <p class="text-muted">Choose the plan that fits your workspace needs.</p>
+        </div>
+
+        <div class="row justify-content-center align-items-center g-4">
+            {% for tier in app.tiers.all %}
+            <div class="col-md-4">
+                <div class="card pricing-card shadow-sm p-4 {% if tier.is_featured %}featured{% endif %}">
+                    <div class="text-center">
+                        {% if tier.is_featured %}
+                        <span class="badge bg-primary mb-3">MOST POPULAR</span>
+                        {% endif %}
+                        <h4 class="fw-bold">{{ tier.name }}</h4>
+                        <div class="d-flex justify-content-center align-items-baseline my-4">
+                            <span class="h2 mb-0">$</span>
+                            <span class="price-val">{{ tier.price|floatformat:0 }}</span>
+                            <span class="text-muted ms-2">/{{ tier.billing_cycle }}</span>
+                        </div>
+                    </div>
+
+                    <ul class="list-unstyled mb-4">
+                        <li class="feature-item"><i data-lucide="check" class="feature-icon"></i>Core features included</li>
+                        <li class="feature-item"><i data-lucide="check" class="feature-icon"></i>Standard Support</li>
+                    </ul>
+
+                    <div class="d-grid">
+                        <button class="btn btn-purchase shadow">Activate Plan</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+
+<footer class="bg-white border-top py-5 mt-5">
+    <div class="container text-center">
+        <p class="text-muted small mb-0">&copy; 2026 {{ request.tenant.name }} Workspace Marketplace</p>
+    </div>
+</footer>
+
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

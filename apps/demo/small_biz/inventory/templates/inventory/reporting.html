@@ -1,0 +1,260 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+
+<div class="container-fluid py-4" style="background: #f8f9fe; min-height: 100vh;">
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+<div>
+<h2 class="h3 mb-1 text-gray-800 font-weight-bold">Inventory Performance Reports</h2>
+<p class="text-muted small">Comprehensive analysis of stock efficiency, profitability, and costs.</p>
+</div>
+<div class="dropdown">
+<button class="btn btn-white shadow-sm dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown">
+<i class="fas fa-calendar-alt me-2 text-primary"></i> Last 365 Days
+</button>
+<ul class="dropdown-menu shadow border-0">
+<li><a class="dropdown-item" href="#">Last 30 Days</a></li>
+<li><a class="dropdown-item" href="#">Last 90 Days</a></li>
+<li><a class="dropdown-item" href="#">Year to Date</a></li>
+</ul>
+</div>
+</div>
+
+<!-- Tab Navigation -->
+<div class="card shadow-sm border-0 rounded-4 mb-4">
+    <div class="card-header bg-white border-0 pt-4 pb-0">
+        <ul class="nav nav-tabs nav-fill border-0" id="reportTabs" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active fw-bold border-0 py-3" id="turnover-tab" data-bs-toggle="tab" data-bs-target="#turnover" type="button">
+                    <i class="fas fa-sync-alt me-2"></i>Turnover Ratio
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link fw-bold border-0 py-3" id="dsi-tab" data-bs-toggle="tab" data-bs-target="#dsi" type="button">
+                    <i class="fas fa-hourglass-half me-2"></i>DSI
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link fw-bold border-0 py-3" id="gmroi-tab" data-bs-toggle="tab" data-bs-target="#gmroi" type="button">
+                    <i class="fas fa-chart-line me-2"></i>GMROI
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link fw-bold border-0 py-3" id="costs-tab" data-bs-toggle="tab" data-bs-target="#costs" type="button">
+                    <i class="fas fa-wallet me-2"></i>Carrying Costs
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link fw-bold border-0 py-3 text-danger" id="deadstock-tab" data-bs-toggle="tab" data-bs-target="#deadstock" type="button">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Dead Stock %
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <div class="card-body p-4">
+        <div class="tab-content" id="reportTabsContent">
+
+            <!-- A: Inventory Turnover Ratio -->
+            <div class="tab-pane fade show active" id="turnover" role="tabpanel">
+                <div class="row align-items-center">
+                    <div class="col-lg-5">
+                        <h4 class="font-weight-bold mb-3 text-primary">Inventory Turnover Ratio</h4>
+                        <p class="text-muted">Measures how many times inventory is sold and replaced over a period. A higher ratio indicates efficient management and strong sales.</p>
+                        <div class="display-3 fw-bold text-dark mb-2">{{ turnover_ratio|floatformat:2 }}x</div>
+                        <div class="badge bg-soft-success text-success p-2 px-3 rounded-pill">
+                            <i class="fas fa-arrow-up me-1"></i> 12% vs last period
+                        </div>
+                    </div>
+                    <div class="col-lg-7">
+                        <div class="p-4 bg-light rounded-4 border">
+                            <h6 class="text-uppercase text-muted small fw-bold mb-3">Analysis Snapshot</h6>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Cost of Goods Sold (COGS)</span>
+                                    <span class="fw-bold">${{ cogs|floatformat:2 }}</span>
+                                </div>
+                                <div class="progress rounded-pill" style="height: 8px;">
+                                    <div class="progress-bar bg-primary" style="width: 70%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Average Inventory Value</span>
+                                    <span class="fw-bold">${{ avg_inventory|floatformat:2 }}</span>
+                                </div>
+                                <div class="progress rounded-pill" style="height: 8px;">
+                                    <div class="progress-bar bg-info" style="width: 45%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- B: Days Sales of Inventory (DSI) -->
+            <div class="tab-pane fade" id="dsi" role="tabpanel">
+                <div class="row align-items-center">
+                    <div class="col-lg-5">
+                        <h4 class="font-weight-bold mb-3 text-primary">Days Sales of Inventory (DSI)</h4>
+                        <p class="text-muted">The average time (in days) it takes to turn inventory into sales. Lower DSI indicates faster stock movement and better liquidity.</p>
+                        <div class="display-3 fw-bold text-dark mb-2">{{ dsi|floatformat:1 }} <small class="h4 text-muted">Days</small></div>
+                        <p class="small text-info"><i class="fas fa-info-circle me-1"></i> Target for your industry: Under 45 days.</p>
+                    </div>
+                    <div class="col-lg-7">
+                        <div class="card border-0 bg-soft-primary p-4 rounded-4 text-center">
+                            <h5 class="text-primary mb-3">Efficiency Speed</h5>
+                            <div class="d-flex justify-content-around">
+                                <div class="text-center">
+                                    <div class="h3 mb-0 fw-bold">{{ dsi|floatformat:0 }}</div>
+                                    <div class="small text-muted text-uppercase">Current</div>
+                                </div>
+                                <div class="vr"></div>
+                                <div class="text-center">
+                                    <div class="h3 mb-0 fw-bold text-muted">38</div>
+                                    <div class="small text-muted text-uppercase">Optimal</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- C: GMROI -->
+            <div class="tab-pane fade" id="gmroi" role="tabpanel">
+                <div class="row align-items-center">
+                    <div class="col-lg-5">
+                        <h4 class="font-weight-bold mb-3 text-primary">GMROI</h4>
+                        <p class="text-muted">Gross Margin Return on Investment. Evaluates profitability by calculating how much cash is returned for every dollar invested in stock.</p>
+                        <div class="display-3 fw-bold text-dark mb-2">${{ gmroi|floatformat:2 }}</div>
+                        <p class="text-muted">For every $1.00 spent on inventory, you earn ${{ gmroi|floatformat:2 }} in gross profit.</p>
+                    </div>
+                    <div class="col-lg-7">
+                        <div class="table-responsive bg-white rounded-4 border p-3">
+                            <table class="table table-borderless mb-0">
+                                <tr>
+                                    <td>Gross Margin</td>
+                                    <td class="text-end fw-bold text-success">${{ gross_margin|floatformat:2 }}</td>
+                                </tr>
+                                <tr class="border-bottom">
+                                    <td>Avg Inventory Cost</td>
+                                    <td class="text-end fw-bold text-danger">${{ avg_inventory|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="pt-3 fw-bold">Return Multiplier</td>
+                                    <td class="pt-3 text-end fw-bold text-primary h4">{{ gmroi|floatformat:2 }}x</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- D: Carrying Costs -->
+            <div class="tab-pane fade" id="costs" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <h4 class="font-weight-bold mb-3 text-primary">Carrying Cost of Inventory</h4>
+                        <p class="text-muted small">The total cost of holding inventory including storage, insurance, and opportunity cost.</p>
+                        <div class="p-4 bg-soft-primary rounded-4 text-center">
+                            <div class="h6 text-uppercase text-primary ls-1">Annual Cost</div>
+                            <div class="display-5 fw-bold text-primary">${{ costs.total|floatformat:2 }}</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded-4">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted small">Storage (40%)</span>
+                                        <span class="fw-bold">${{ costs.storage|floatformat:2 }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded-4">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted small">Insurance/Taxes (25%)</span>
+                                        <span class="fw-bold">${{ costs.insurance|floatformat:2 }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded-4">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted small">Opportunity Cost (35%)</span>
+                                        <span class="fw-bold">${{ costs.opportunity|floatformat:2 }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded-4 bg-light">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted small">Holding %</span>
+                                        <span class="fw-bold">25.0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- E: Excess Inventory / Dead Stock -->
+            <div class="tab-pane fade" id="deadstock" role="tabpanel">
+                <div class="row align-items-center text-center text-lg-start">
+                    <div class="col-lg-6">
+                        <h4 class="font-weight-bold mb-3 text-danger">Dead Stock Percentage</h4>
+                        <p class="text-muted">Tracks inventory that has not sold within the last 12 months. Keeping this below 5-10% is critical for cash flow.</p>
+                        <div class="display-2 fw-bold text-danger mb-2">{{ dead_stock_pct }}%</div>
+                        <div class="progress rounded-pill mb-3" style="height: 15px; width: 80%;">
+                            <div class="progress-bar bg-danger" style="width: {{ dead_stock_pct }}%"></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="p-4 bg-soft-danger rounded-4 border border-danger border-opacity-10">
+                            <h5 class="text-danger mb-3">Impact Summary</h5>
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2"><i class="fas fa-times-circle text-danger me-2"></i> <strong>{{ dead_stock_count }}</strong> SKUs categorized as Dead Stock</li>
+                                <li class="mb-2"><i class="fas fa-dollar-sign text-danger me-2"></i> <strong>${{ dead_stock_value|floatformat:2 }}</strong> in tied-up capital</li>
+                                <li><i class="fas fa-warehouse text-danger me-2"></i> Occupying approx. <strong>8%</strong> warehouse space</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+</div>
+
+<style>
+/* Styling for the tab interface */
+.nav-tabs .nav-link {
+color: #8898aa;
+background: transparent;
+transition: all 0.2s;
+border-bottom: 2px solid transparent !important;
+}
+.nav-tabs .nav-link:hover {
+color: #5e72e4;
+}
+.nav-tabs .nav-link.active {
+color: #5e72e4 !important;
+border-bottom: 3px solid #5e72e4 !important;
+background: transparent !important;
+}
+.nav-tabs .nav-link.text-danger.active {
+border-bottom-color: #f5365c !important;
+}
+.bg-soft-primary { background: rgba(94, 114, 228, 0.1); }
+.bg-soft-success { background: rgba(45, 206, 137, 0.1); }
+.bg-soft-danger { background: rgba(245, 54, 92, 0.1); }
+.btn-white { background: #fff; border: 1px solid #e9ecef; }
+</style>
+
+{% endblock %}

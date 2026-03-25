@@ -1,0 +1,167 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <form method="POST" id="invoice-form">
+        {% csrf_token %}
+        <div class="row">
+            <!-- Left Side: Invoice Items -->
+            <div class="col-lg-8">
+                <div class="card shadow border-0 rounded-4 mb-4">
+                    <div class="card-header bg-transparent border-0 py-4">
+                        <h4 class="mb-0">Invoice Items</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table align-items-center" id="items-table">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th style="width: 50%;">Product</th>
+                                        <th style="width: 20%;">Qty</th>
+                                        <th style="width: 20%;">Line Total</th>
+                                        <th style="width: 10%;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body">
+                                    <tr class="item-row">
+                                        <td>
+                                            <select name="product_ids[]" class="form-select product-select" required>
+                                                <option value="" data-price="0">Select Product</option>
+                                                {% for product in products %}
+                                                <option value="{{ product.id }}" data-price="{{ product.sale_price }}">
+                                                    {{ product.name }} (${{ product.sale_price }})
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="number" name="quantities[]" class="form-control qty-input" value="1" min="1" required>
+                                        </td>
+                                        <td>
+                                            <div class="input-group">
+                                                <span class="input-group-text">$</span>
+                                                <input type="text" class="form-control line-total-display" value="0.00" readonly>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-link text-danger remove-row">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm rounded-pill mt-3" id="add-item-btn">
+                            <i class="fas fa-plus me-1"></i> Add Another Item
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Summary & Actions -->
+            <div class="col-lg-4">
+                <div class="card shadow border-0 rounded-4 mb-4">
+                    <div class="card-header bg-transparent border-0 py-4">
+                        <h4 class="mb-0">Details</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <label class="form-label text-uppercase text-xs font-weight-bold text-muted">Customer</label>
+                            <select name="acct_customer" class="form-select" required>
+                                <option value="">Choose Customer...</option>
+                                {% for customer in acct_customers %}
+                                <option value="{{ customer.id }}">{{ customer.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label text-uppercase text-xs font-weight-bold text-muted">Due Date</label>
+                            <input type="date" name="due_date" class="form-control" required value="{{ today|date:'Y-m-d' }}">
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Subtotal</span>
+                            <span class="font-weight-bold" id="grand-total-display">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-4">
+                            <span class="text-muted">Tax</span>
+                            <span class="font-weight-bold">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-4">
+                            <h5 class="mb-0">Total Amount</h5>
+                            <h5 class="mb-0 text-primary" id="final-total">$0.00</h5>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 shadow-lg" style="background: linear-gradient(87deg, #5e72e4 0, #825ee4 100%); border: none;">
+                            Generate Invoice
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    const tableBody = document.getElementById('table-body');
+    const addItemBtn = document.getElementById('add-item-btn');
+    const grandTotalDisplay = document.getElementById('grand-total-display');
+    const finalTotal = document.getElementById('final-total');
+
+    function calculateGrandTotal() {
+        let total = 0;
+        document.querySelectorAll('.line-total-display').forEach(input => {
+            total += parseFloat(input.value) || 0;
+        });
+        grandTotalDisplay.innerText = `$${total.toFixed(2)}`;
+        finalTotal.innerText = `$${total.toFixed(2)}`;
+    }
+
+    function updateRowTotal(row) {
+        const select = row.querySelector('.product-select');
+        const qtyInput = row.querySelector('.qty-input');
+        const display = row.querySelector('.line-total-display');
+
+        const price = parseFloat(select.options[select.selectedIndex]?.dataset?.price) || 0;
+        const qty = parseInt(qtyInput.value) || 0;
+
+        const lineTotal = price * qty;
+        display.value = lineTotal.toFixed(2);
+        calculateGrandTotal();
+    }
+
+    // Event Delegation for inputs
+    tableBody.addEventListener('input', function(e) {
+        if (e.target.classList.contains('product-select') || e.target.classList.contains('qty-input')) {
+            const row = e.target.closest('.item-row');
+            updateRowTotal(row);
+        }
+    });
+
+    // Add Row
+    addItemBtn.addEventListener('click', function() {
+        const firstRow = document.querySelector('.item-row');
+        const newRow = firstRow.cloneNode(true);
+        // Reset values
+        newRow.querySelector('.product-select').value = "";
+        newRow.querySelector('.qty-input').value = 1;
+        newRow.querySelector('.line-total-display').value = "0.00";
+        tableBody.appendChild(newRow);
+    });
+
+    // Remove Row
+    tableBody.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-row')) {
+            const rows = document.querySelectorAll('.item-row');
+            if (rows.length > 1) {
+                e.target.closest('.item-row').remove();
+                calculateGrandTotal();
+            }
+        }
+    });
+</script>
+{% endblock %}

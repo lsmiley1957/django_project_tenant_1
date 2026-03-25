@@ -1,0 +1,201 @@
+{% extends "chores\dashboard.html" %}
+
+{% block title %}{{ child.name }}'s Activity | Family Hub{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header Navigation -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'chores:family_dashboard' %}" class="text-decoration-none">Family Hub</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ child.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div class="d-flex align-items-center">
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3 shadow-sm" style="width: 64px; height: 64px; font-size: 1.5rem;">
+                {{ child.name|first|upper }}
+            </div>
+            <div>
+                <h2 class="fw-bold mb-0">{{ child.name }}</h2>
+                <span class="badge bg-success-subtle text-success rounded-pill px-3">Active Member</span>
+            </div>
+        </div>
+        <div class="btn-group shadow-sm">
+            <button class="btn btn-white border px-3"><i data-lucide="edit-2" class="me-2" size="16"></i>Edit Profile</button>
+            <button class="btn btn-primary px-3"><i data-lucide="plus" class="me-2" size="16"></i>Log Activity</button>
+        </div>
+    </div>
+
+    <!-- Activity Tabs -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-white p-0">
+            <ul class="nav nav-tabs border-0 px-4 pt-3" id="childTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-bold border-0 border-bottom border-3 px-4 pb-3" id="chores-tab" data-bs-toggle="tab" data-bs-target="#chores" type="button" role="tab">Chores</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold border-0 border-bottom border-3 px-4 pb-3" id="screen-tab" data-bs-toggle="tab" data-bs-target="#screen" type="button" role="tab">Screen Time</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold border-0 border-bottom border-3 px-4 pb-3" id="journal-tab" data-bs-toggle="tab" data-bs-target="#journal" type="button" role="tab">Journal</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold border-0 border-bottom border-3 px-4 pb-3" id="todo-tab" data-bs-toggle="tab" data-bs-target="#todo" type="button" role="tab">To-Do List</button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body p-4">
+            <div class="tab-content" id="childTabContent">
+                
+                <!-- Chores Tab -->
+                <div class="tab-pane fade show active" id="chores" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0">Daily & Weekly Chores</h5>
+                        <button class="btn btn-sm btn-outline-primary rounded-pill">Manage List</button>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {% for chore in chores %}
+                        <div class="list-group-item border-0 px-0 py-3 d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <form action="{% url 'toggle_chore' chore.pk %}" method="POST" class="me-3">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn p-0 border-0">
+                                        {% if chore.completed %}
+                                            <i data-lucide="check-circle-2" class="text-success" size="28"></i>
+                                        {% else %}
+                                            <i data-lucide="circle" class="text-muted" size="28"></i>
+                                        {% endif %}
+                                    </button>
+                                </form>
+                                <div>
+                                    <div class="fw-bold {% if chore.completed %}text-decoration-line-through text-muted{% endif %}">
+                                        {{ chore.name }}
+                                    </div>
+                                    <small class="text-muted">
+                                        <i data-lucide="calendar" size="12" class="me-1"></i>
+                                        Due: {{ chore.due_date|default:"Today" }}
+                                    </small>
+                                </div>
+                            </div>
+                            {% if chore.notes %}
+                            <button class="btn btn-sm btn-light rounded-pill" title="{{ chore.notes }}">
+                                <i data-lucide="info" size="14"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-5 text-muted">
+                            <i data-lucide="smile" size="48" class="mb-3 opacity-25"></i>
+                            <p>No chores assigned yet!</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Screen Time Tab -->
+                <div class="tab-pane fade" id="screen" role="tabpanel">
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <div class="p-4 bg-light rounded-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i data-lucide="monitor" class="text-primary me-2"></i>
+                                    <h6 class="fw-bold mb-0">Computer Usage</h6>
+                                </div>
+                                <h2 class="fw-bold mb-1">{% if today_computer %}{{ today_computer }}{% else %}0{% endif %} <small class="h6 text-muted">mins</small></h2>
+                                <p class="text-muted small mb-0">Used today out of 60m limit</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-4 bg-light rounded-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i data-lucide="tv" class="text-danger me-2"></i>
+                                    <h6 class="fw-bold mb-0">TV & Movies</h6>
+                                </div>
+                                <h2 class="fw-bold mb-1">{% if today_tv %}{{ today_tv }}{% else %}0{% endif %} <small class="h6 text-muted">mins</small></h2>
+                                <p class="text-muted small mb-0">Logged for today</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Activity Log Table -->
+                    <h6 class="fw-bold mb-3">Recent Logs</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle">
+                            <thead class="text-muted small">
+                                <tr>
+                                    <th>DATE</th>
+                                    <th>TYPE</th>
+                                    <th>DETAILS</th>
+                                    <th>DURATION</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- This would ideally be a union of ComputerTime and TVTime models -->
+                                <tr class="small text-muted text-center py-3">
+                                    <td colspan="4">Logging history visualization coming soon...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Journal Tab -->
+                <div class="tab-pane fade" id="journal" role="tabpanel">
+                    <div class="d-flex justify-content-between mb-4">
+                        <h5 class="fw-bold mb-0">Daily Journal Logs</h5>
+                        <button class="btn btn-sm btn-primary">New Entry</button>
+                    </div>
+                    {% for entry in journal %}
+                    <div class="mb-4 p-4 border rounded-4 bg-gray-50">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-white border text-dark">{{ entry.date|date:"F d, Y" }}</span>
+                            <span class="text-primary fw-bold small text-uppercase">{{ entry.mood|default:"Neutral" }}</span>
+                        </div>
+                        <p class="mb-0 text-secondary">{{ entry.entry_text }}</p>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-5">
+                        <p class="text-muted">No journal entries found for {{ child.name }}.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- To-Do Tab -->
+                <div class="tab-pane fade" id="todo" role="tabpanel">
+                    <div class="input-group mb-4 shadow-sm">
+                        <input type="text" class="form-control border-end-0" placeholder="Add a quick task...">
+                        <button class="btn btn-primary px-4 border-start-0">Add</button>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {% for todo in todos %}
+                        <div class="list-group-item border-0 px-0 d-flex align-items-center">
+                            <input class="form-check-input me-3" type="checkbox" style="width: 20px; height: 20px;">
+                            <div class="flex-grow-1">
+                                <span class="fw-semibold">{{ todo.task }}</span>
+                                {% if todo.priority == 2 %}
+                                    <span class="badge bg-danger-subtle text-danger ms-2">High</span>
+                                {% endif %}
+                            </div>
+                            <span class="small text-muted">{{ todo.due_date|date:"M d" }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .nav-tabs .nav-link { color: #64748b; border-color: transparent !important; }
+    .nav-tabs .nav-link.active { color: #4f46e5; border-color: #4f46e5 !important; }
+    .bg-gray-50 { background-color: #f9fafb; }
+    .form-check-input:checked { background-color: #4f46e5; border-color: #4f46e5; }
+</style>
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

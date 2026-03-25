@@ -1,0 +1,140 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+<!-- Tailwind CDN for rapid styling -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="bg-slate-50 min-h-screen py-12">
+    <div class="max-w-4xl mx-auto px-4">
+
+        <!-- Header Section -->
+        <div class="mb-8">
+            <h1 class="text-2xl font-black text-slate-900 uppercase tracking-tight">Global Branding & Settings</h1>
+            <p class="text-slate-500 text-sm">Configure company identity, visual assets, and financial defaults for this tenant.</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Company Identity -->
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest flex items-center gap-2">
+                        <span class="w-2 h-2 bg-indigo-600 rounded-full"></span>
+                        Company Identity
+                    </h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2 md:col-span-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Legal Business Name</label>
+                        <input type="text" name="company_name" value="{{ config.company_name|default:'' }}" placeholder="e.g. Acme Corp Services" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-indigo-500 transition-all">
+                    </div>
+
+                    <div class="space-y-2 md:col-span-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Website URL</label>
+                        <input type="url" name="website_url" value="{{ config.website_url|default:'' }}" placeholder="https://www.example.com" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-indigo-500 transition-all">
+                    </div>
+
+                    <!-- Visual Assets -->
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Logo (Dark/Primary)</label>
+                        {% if config.logo %}
+                            <div class="mb-2 flex items-center gap-3 p-2 bg-slate-50 rounded-lg border border-dashed border-slate-200">
+                                <img src="{{ config.logo.url }}" class="h-8 w-auto rounded">
+                                <span class="text-[10px] text-slate-400 truncate">{{ config.logo.name|truncatechars:20 }}</span>
+                            </div>
+                        {% endif %}
+                        <input type="file" name="logo" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Favicon (Browser Icon)</label>
+                        {% if config.favicon %}
+                            <div class="mb-2 flex items-center gap-3 p-2 bg-slate-50 rounded-lg border border-dashed border-slate-200">
+                                <img src="{{ config.favicon.url }}" class="h-5 w-5 rounded">
+                                <span class="text-[10px] text-slate-400 truncate">{{ config.favicon.name|truncatechars:20 }}</span>
+                            </div>
+                        {% endif %}
+                        <input type="file" name="favicon" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact & Address -->
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
+                <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest mb-6 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                    Contact & Address
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase">Address Line 1</label>
+                        <input type="text" name="address_line_1" value="{{ config.address_line_1|default:'' }}" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-sm font-bold">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase">Address Line 2 (Suite/Unit)</label>
+                        <input type="text" name="address_line_2" value="{{ config.address_line_2|default:'' }}" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-sm font-bold">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase">City</label>
+                        <input type="text" name="city" value="{{ config.city|default:'' }}" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-sm font-bold">
+                    </div>
+                    <div class="space-y-2">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-slate-400 uppercase">State</label>
+                                <input type="text" name="state_province" value="{{ config.state_province|default:'' }}" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-sm font-bold">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-slate-400 uppercase">Zip/Postal</label>
+                                <input type="text" name="postal_code" value="{{ config.postal_code|default:'' }}" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-sm font-bold">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase">Phone Number</label>
+                        <input type="text" name="phone_number" value="{{ config.phone_number|default:'' }}" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-sm font-bold">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase">Official Email</label>
+                        <input type="email" name="email_address" value="{{ config.email_address|default:'' }}" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-sm font-bold">
+                    </div>
+                    <input type="hidden" name="country" value="{{ config.country|default:'United States' }}">
+                </div>
+            </div>
+
+            <!-- Localization & Finance -->
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
+                <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest mb-6 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-amber-500 rounded-full"></span>
+                    Localization & Finance
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase">Default Tax Rate (%)</label>
+                        <!-- Updated step to allow high-precision decimals like 0.825 -->
+                        <input type="number" step="0.0001" name="default_tax_rate" value="{{ config.default_tax_rate|default:0 }}" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-sm font-bold">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase">Currency Symbol</label>
+                        <input type="text" name="currency_symbol" value="{{ config.currency_symbol|default:'$' }}" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-sm font-bold text-center">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase">Tax ID / VAT</label>
+                        <input type="text" name="tax_number" value="{{ config.tax_number|default:'' }}" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-sm font-bold">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-4">
+                <a href="{% url 'dashboard_home' %}" class="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors">
+                    Discard Changes
+                </a>
+                <button type="submit" class="bg-slate-900 text-white px-10 py-4 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-black transition-all shadow-xl hover:-translate-y-1 active:scale-95">
+                    Save Configuration
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

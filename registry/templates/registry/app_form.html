@@ -1,0 +1,51 @@
+{% extends 'registry/base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">
+                {% if object %}Edit App: {{ object.name }}{% else %}Add New App{% endif %}
+            </h1>
+            <a href="{% if object %}{% url 'registry:app_detail' object.pk %}{% else %}{% url 'registry:app_list' %}{% endif %}" 
+               class="text-gray-500 hover:text-gray-700">Cancel</a>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <form method="post">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+                    <div class="mt-1">
+                        {% if field.field.widget.input_type == 'checkbox' %}
+                            {{ field }} <span class="text-xs text-gray-500 ml-2">{{ field.help_text }}</span>
+                        {% else %}
+                            <!-- Adding basic Tailwind styling to Django form widgets -->
+                            <div class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                                {{ field }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% if field.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <div class="mt-8 flex gap-3">
+                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors">
+                        {% if object %}Save Changes{% else %}Create App{% endif %}
+                    </button>
+                    <a href="{% url 'registry:app_list' %}" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                        Back to Catalog
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

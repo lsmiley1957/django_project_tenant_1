@@ -1,0 +1,148 @@
+{% extends "chores\dashboard.html" %}
+
+{% block title %}Family Hub | Chores & Activities{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Family Hub</h2>
+            <p class="text-muted">Manage chores, screen time, and daily activities for your children.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary shadow-sm"><i data-lucide="plus-circle" class="me-2"></i>Add Child</button>
+            <button class="btn btn-primary shadow-sm"><i data-lucide="calendar" class="me-2"></i>Schedule Event</button>
+        </div>
+    </div>
+
+    <!-- Child Summary Cards -->
+    <div class="row g-4 mb-5">
+        {% for data in child_summary %}
+        <div class="col-xl-4 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+                <div class="card-header bg-white border-0 p-4 pb-0">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3" style="width: 50px; height: 50px; font-size: 1.2rem;">
+                                {{ data.instance.name|first|upper }}
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">{{ data.instance.name }}</h5>
+                                <small class="text-muted">View full activity</small>
+                            </div>
+                        </div>
+                        <a href="{% url 'child_detail' data.instance.pk %}" class="btn btn-light btn-sm rounded-pill px-3">Open</a>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3 text-center">
+                        <div class="col-4">
+                            <div class="p-2 bg-light rounded-3">
+                                <div class="text-primary fw-bold h5 mb-0">{{ data.pending_chores }}</div>
+                                <div class="small text-muted" style="font-size: 0.7rem;">CHORES</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 bg-light rounded-3">
+                                <div class="text-success fw-bold h5 mb-0">{{ data.today_computer }}m</div>
+                                <div class="small text-muted" style="font-size: 0.7rem;">COMP</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 bg-light rounded-3">
+                                <div class="text-warning fw-bold h5 mb-0">{{ data.today_tv }}m</div>
+                                <div class="small text-muted" style="font-size: 0.7rem;">TV</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-gray-50 border-0 p-3">
+                    <div class="d-grid">
+                        <button class="btn btn-white border btn-sm py-2">Quick Log Activity</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="row g-4">
+        <!-- Upcoming Events -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0">Upcoming Calendar</h5>
+                    <i data-lucide="more-horizontal" class="text-muted cursor-pointer"></i>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr class="small text-muted">
+                                    <th class="ps-4">EVENT</th>
+                                    <th>FOR</th>
+                                    <th>TIME</th>
+                                    <th class="text-end pe-4">ACTION</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for event in upcoming_events %}
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="fw-bold">{{ event.title }}</div>
+                                        <div class="small text-muted">{{ event.location|default:"No Location" }}</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-indigo-subtle text-indigo rounded-pill px-3">{{ event.child.name }}</span>
+                                    </td>
+                                    <td>{{ event.start_time|date:"M d, P" }}</td>
+                                    <td class="text-end pe-4">
+                                        <button class="btn btn-sm btn-light rounded-pill"><i data-lucide="edit-3" size="14"></i></button>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-5 text-muted">No upcoming events scheduled.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System-wide Stats/Notes -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4 text-center">
+                    <i data-lucide="award" class="text-warning mb-3" size="48"></i>
+                    <h5 class="fw-bold">Weekly Star</h5>
+                    <p class="text-muted small">Based on completed chores and positive journal entries.</p>
+                    <div class="h3 fw-bold text-primary">N/A</div>
+                    <small class="text-muted">Leaderboard updates on Sundays</small>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 bg-primary text-white">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3"><i data-lucide="info" class="me-2" size="18"></i> Parent Tip</h6>
+                    <p class="small mb-0 opacity-75">
+                        Consistent logging of computer time helps children learn self-regulation. Try setting daily goals with them!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-indigo { color: #6366f1; }
+    .bg-indigo-subtle { background-color: #eef2ff; }
+    .bg-gray-50 { background-color: #f9fafb; }
+</style>
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

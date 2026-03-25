@@ -1,0 +1,174 @@
+{% extends "chores\dashboard.html" %}
+
+{% block title %}{% if activity %}Edit Activity{% else %}Log New Activity{% endif %} | Family Hub{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="d-flex align-items-center mb-4">
+                <a href="{% url 'family_dashboard' %}" class="btn btn-link text-decoration-none p-0 me-3">
+                    <i data-lucide="chevron-left" class="text-muted"></i>
+                </a>
+                <h2 class="fw-bold mb-0">{% if activity %}Edit Log{% else %}Log New Activity{% endif %}</h2>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-4 p-md-5">
+                    <form method="POST" action="">
+                        {% csrf_token %}
+
+                        <!-- Activity Type Selection -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-muted small text-uppercase mb-3">What are you logging?</label>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <input type="radio" class="btn-check" name="activity_type" id="type_chore" value="chore" checked>
+                                    <label class="btn btn-outline-primary w-100 py-3 rounded-3 d-flex flex-column align-items-center" for="type_chore">
+                                        <i data-lucide="check-square" class="mb-2"></i>
+                                        <span>Chore</span>
+                                    </label>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="radio" class="btn-check" name="activity_type" id="type_screen" value="screen">
+                                    <label class="btn btn-outline-primary w-100 py-3 rounded-3 d-flex flex-column align-items-center" for="type_screen">
+                                        <i data-lucide="monitor" class="mb-2"></i>
+                                        <span>Screen Time</span>
+                                    </label>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="radio" class="btn-check" name="activity_type" id="type_journal" value="journal">
+                                    <label class="btn btn-outline-primary w-100 py-3 rounded-3 d-flex flex-column align-items-center" for="type_journal">
+                                        <i data-lucide="book-open" class="mb-2"></i>
+                                        <span>Journal</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4 opacity-10">
+
+                        <div class="row g-4">
+                            <!-- Child Selection -->
+                            <div class="col-md-6">
+                                <label for="child" class="form-label fw-semibold">Assign to Child</label>
+                                <select class="form-select border-0 bg-light" id="child" name="child_id" required>
+                                    <option value="" selected disabled>Choose a child...</option>
+                                    {% for child in children %}
+                                        <option value="{{ child.id }}" {% if activity.child.id == child.id %}selected{% endif %}>
+                                            {{ child.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Date -->
+                            <div class="col-md-6">
+                                <label for="date" class="form-label fw-semibold">Date</label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-0 bg-light"><i data-lucide="calendar" size="18"></i></span>
+                                    <input type="date" class="form-control border-0 bg-light" id="date" name="date" value="{{ today|date:'Y-m-d' }}">
+                                </div>
+                            </div>
+
+                            <!-- Dynamic Detail Field (Name or Description) -->
+                            <div class="col-12" id="detail_container">
+                                <label for="title" class="form-label fw-semibold">Activity Details</label>
+                                <input type="text" class="form-control border-0 bg-light p-3" id="title" name="name" placeholder="e.g. Cleaned Bedroom or Watched Movie" value="{{ activity.name }}">
+                            </div>
+
+                            <!-- Screen Time Specific: Duration -->
+                            <div class="col-md-6 d-none" id="duration_field">
+                                <label for="duration" class="form-label fw-semibold">Duration (Minutes)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-0 bg-light"><i data-lucide="clock" size="18"></i></span>
+                                    <input type="number" class="form-control border-0 bg-light" id="duration" name="duration" placeholder="60">
+                                </div>
+                            </div>
+
+                            <!-- Journal Specific: Mood -->
+                            <div class="col-md-6 d-none" id="mood_field">
+                                <label for="mood" class="form-label fw-semibold">Mood</label>
+                                <select class="form-select border-0 bg-light" name="mood">
+                                    <option value="Happy">Happy 😊</option>
+                                    <option value="Neutral">Neutral 😐</option>
+                                    <option value="Sad">Sad 😔</option>
+                                    <option value="Tired">Tired 😴</option>
+                                </select>
+                            </div>
+
+                            <!-- Notes -->
+                            <div class="col-12">
+                                <label for="notes" class="form-label fw-semibold">Internal Notes (Optional)</label>
+                                <textarea class="form-control border-0 bg-light p-3" id="notes" name="notes" rows="3" placeholder="Add any details for parents to see...">{{ activity.notes }}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="mt-5 d-flex gap-3">
+                            <button type="submit" class="btn btn-primary px-5 py-3 rounded-pill fw-bold flex-grow-1 shadow">
+                                <i data-lucide="save" class="me-2" size="18"></i>Save Log Entry
+                            </button>
+                            <a href="{% url 'family_dashboard' %}" class="btn btn-light px-4 py-3 rounded-pill border fw-semibold">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-check:checked + .btn-outline-primary {
+        background-color: #4f46e5;
+        border-color: #4f46e5;
+        color: white;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+    }
+    .form-select, .form-control {
+        transition: all 0.2s;
+        border: 1px solid transparent !important;
+    }
+    .form-select:focus, .form-control:focus {
+        background-color: #fff !important;
+        border-color: #4f46e5 !important;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1) !important;
+    }
+</style>
+
+<script>
+    lucide.createIcons();
+
+    // Logic to toggle fields based on activity type
+    const radios = document.querySelectorAll('input[name="activity_type"]');
+    const durationField = document.getElementById('duration_field');
+    const moodField = document.getElementById('mood_field');
+    const detailContainer = document.getElementById('detail_container');
+    const label = detailContainer.querySelector('label');
+
+    radios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            const val = e.target.value;
+            
+            // Hide/Show Screen Time fields
+            if (val === 'screen') {
+                durationField.classList.remove('d-none');
+                moodField.classList.add('d-none');
+                label.innerText = 'What did they watch/play?';
+            } 
+            // Hide/Show Journal fields
+            else if (val === 'journal') {
+                durationField.classList.add('d-none');
+                moodField.classList.remove('d-none');
+                label.innerText = 'Journal Entry Topic';
+            } 
+            // Default (Chore)
+            else {
+                durationField.classList.add('d-none');
+                moodField.classList.add('d-none');
+                label.innerText = 'Chore Name';
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | {{ request.tenant.name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .login-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        .tenant-brand {
+            color: #764ba2;
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card login-card p-4">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h2 class="tenant-brand">{{ request.tenant.name }}</h2>
+                        <p class="text-muted">Please sign in to your workspace</p>
+                    </div>
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger small">
+                            Your username and password didn't match. Please try again.
+                        </div>
+                    {% endif %}
+
+                    {% if next %}
+                        {% if user.is_authenticated %}
+                            <div class="alert alert-warning small">
+                                Your account doesn't have access to this page. To proceed,
+                                please login with an account that has access.
+                            </div>
+                        {% endif %}
+                    {% endif %}
+
+                    <form method="post" action="{% url 'login' %}">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label small fw-bold text-uppercase">Email / Username</label>
+                            <input type="text" name="username" autofocus maxlength="254" class="form-control" required id="id_username" placeholder="name@company.com">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="id_password" class="form-label small fw-bold text-uppercase">Password</label>
+                            <input type="password" name="password" class="form-control" required id="id_password" placeholder="••••••••">
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary shadow-sm">Sign In</button>
+                        </div>
+
+                        <input type="hidden" name="next" value="{{ next }}">
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="small text-muted mb-0">Forgot your password? Contact your administrator.</p>
+                    </div>
+                </div>
+            </div>
+            <p class="text-center mt-4 text-muted small">&copy; 2026 MySaaS Platform</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

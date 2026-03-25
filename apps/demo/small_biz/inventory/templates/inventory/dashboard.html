@@ -1,0 +1,258 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4" style="background: #f8f9fe; min-height: 100vh;">
+    <!-- Stats Summary -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h6 class="text-uppercase text-muted ls-1 mb-1 small fw-bold">Products</h6>
+                            <span class="h2 font-weight-bold mb-0">{{ total_products }}</span>
+                        </div>
+                        <div class="col-auto">
+                            <div class="icon icon-shape bg-primary text-white rounded-circle shadow p-3">
+                                <i class="fas fa-boxes"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h6 class="text-uppercase text-muted ls-1 mb-1 small fw-bold">Categories</h6>
+                            <span class="h2 font-weight-bold mb-0 text-success">{{ total_categories }}</span>
+                        </div>
+                        <div class="col-auto">
+                            <div class="icon icon-shape bg-success text-white rounded-circle shadow p-3">
+                                <i class="fas fa-tags"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h6 class="text-uppercase text-muted ls-1 mb-1 small fw-bold">Suppliers</h6>
+                            <span class="h2 font-weight-bold mb-0 text-info">{{ total_suppliers }}</span>
+                        </div>
+                        <div class="col-auto">
+                            <div class="icon icon-shape bg-info text-white rounded-circle shadow p-3">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h6 class="text-uppercase text-muted ls-1 mb-1 small fw-bold">Low Stock</h6>
+                            <span class="h2 font-weight-bold mb-0 text-danger">{{ low_stock_count }}</span>
+                        </div>
+                        <div class="col-auto">
+                            <div class="icon icon-shape bg-danger text-white rounded-circle shadow p-3">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Sales Chart Section -->
+        <div class="col-xl-5 mb-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Category Sales Breakdown</h5>
+                    </div>
+                    <!-- Timeframe Navigation -->
+                    <div class="btn-group w-100" id="timeframe-selector">
+                        <button class="btn btn-sm btn-outline-primary active" data-time="24h">24h</button>
+                        <button class="btn btn-sm btn-outline-primary" data-time="7d">7d</button>
+                        <button class="btn btn-sm btn-outline-primary" data-time="14d">14d</button>
+                        <button class="btn btn-sm btn-outline-primary" data-time="30d">30d</button>
+                        <button class="btn btn-sm btn-outline-primary" data-time="90d">90d</button>
+                        <button class="btn btn-sm btn-outline-primary" data-time="365d">Year</button>
+                    </div>
+                </div>
+                <div class="card-body px-4">
+                    <div style="height: 280px; position: relative;">
+                        <canvas id="salesChart"></canvas>
+                        <div id="empty-state" class="d-none position-absolute top-50 start-50 translate-middle text-center">
+                            <p class="text-muted mb-0">No sales data for this period</p>
+                        </div>
+                    </div>
+                    <div id="legend-list" class="mt-4" style="max-height: 180px; overflow-y: auto;">
+                        <!-- Legend items injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Table -->
+        <div class="col-xl-7 mb-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between">
+                    <h5 class="mb-0">Recent Activity</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-items-center table-flush">
+                        <thead class="thead-light">
+                            <tr>
+                                <th class="px-4">Product</th>
+                                <th>Category</th>
+                                <th>Qty</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tx in recent_transactions %}
+                            <tr>
+                                <td class="px-4 py-3"><span class="fw-600 text-dark">{{ tx.product.name }}</span></td>
+                                <td><span class="badge bg-light text-muted">{{ tx.product.category.name|default:"None" }}</span></td>
+                                <td>
+                                    <span class="{% if tx.change < 0 %}text-danger{% else %}text-success{% endif %} fw-bold">
+                                        {{ tx.change }}
+                                    </span>
+                                </td>
+                                <td><small class="text-muted">{{ tx.timestamp|date:"M d, H:i" }}</small></td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center py-5 text-muted">No activity found.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-outline-primary { border-color: #e9ecef; color: #8898aa; }
+    .btn-outline-primary:hover, .btn-outline-primary.active {
+        background-color: #5e72e4 !important;
+        border-color: #5e72e4 !important;
+        color: #fff !important;
+    }
+    .icon-shape { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
+    #legend-list::-webkit-scrollbar { width: 4px; }
+    #legend-list::-webkit-scrollbar-thumb { background: #e9ecef; border-radius: 10px; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Safe Parse JSON
+        const allSalesData = JSON.parse('{{ category_sales_json|safe }}');
+        const canvas = document.getElementById('salesChart');
+        const ctx = canvas.getContext('2d');
+        const legend = document.getElementById('legend-list');
+        const emptyState = document.getElementById('empty-state');
+        const buttons = document.querySelectorAll('#timeframe-selector button');
+
+        let myChart = null;
+        const colors = ['#5e72e4', '#2dce89', '#11cdef', '#fb6340', '#f5365c', '#8965e0', '#32325d', '#ffd600'];
+
+        function updateDisplay(timeKey) {
+            const data = allSalesData[timeKey] || [];
+            legend.innerHTML = '';
+
+            if (data.length === 0) {
+                if (myChart) myChart.destroy();
+                canvas.style.display = 'none';
+                emptyState.classList.remove('d-none');
+                return;
+            }
+
+            canvas.style.display = 'block';
+            emptyState.classList.add('d-none');
+
+            // Generate Legend and Chart Data
+            const labels = data.map(d => d.name);
+            const values = data.map(d => d.value);
+
+            data.forEach((item, i) => {
+                const color = colors[i % colors.length];
+                legend.innerHTML += `
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 border-bottom border-light">
+                        <div class="d-flex align-items-center">
+                            <div style="width:10px; height:10px; background:${color}; border-radius:50%; margin-right:10px;"></div>
+                            <span class="small text-dark fw-500">${item.name}</span>
+                        </div>
+                        <span class="small fw-bold text-primary">${item.value}%</span>
+                    </div>`;
+            });
+
+            if (myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors.slice(0, data.length),
+                        borderWidth: 0,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    cutout: '80%',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => ` ${ctx.label}: ${ctx.raw}%`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Setup button listeners
+        buttons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                buttons.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                updateDisplay(this.dataset.time);
+            });
+        });
+
+        // Auto-select timeframe with data
+        const priority = ['24h', '7d', '14d', '30d', '90d', '365d'];
+        let activeKey = '24h';
+        for (const k of priority) {
+            if (allSalesData[k] && allSalesData[k].length > 0) {
+                activeKey = k;
+                buttons.forEach(b => {
+                    b.classList.remove('active');
+                    if (b.dataset.time === k) b.classList.add('active');
+                });
+                break;
+            }
+        }
+
+        updateDisplay(activeKey);
+    });
+</script>
+{% endblock %}

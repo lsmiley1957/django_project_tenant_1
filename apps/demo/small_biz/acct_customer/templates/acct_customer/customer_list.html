@@ -1,0 +1,82 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+
+<div class="container py-5">
+    <div class="card shadow border-0 rounded-4">
+  <div class="card-header bg-transparent border-0 py-4">
+<div class="row align-items-center">
+<div class="col">
+<h3 class="mb-0">Customer Directory</h3>
+</div>
+<div class="col-md-5">
+<form method="GET" class="d-flex">
+<div class="input-group border rounded-pill px-3 py-1 bg-white shadow-sm">
+<span class="input-group-text border-0 bg-transparent text-muted">
+<i class="fas fa-search"></i>
+</span>
+<input type="text" name="q" class="form-control border-0 bg-transparent shadow-none" placeholder="Search by name or email..." value="{{ request.GET.q }}">
+</div>
+</form>
+</div>
+<div class="col text-end">
+<a href="{% url 'add_customer' %}" class="btn btn-primary rounded-pill px-4" style="background: linear-gradient(87deg, #5e72e4 0, #825ee4 100%); border: none;">
+<i class="fas fa-user-plus me-2"></i> New Customer
+</a>
+</div>
+</div>
+</div>
+    <div class="table-responsive">
+<table class="table align-items-center table-flush">
+<thead class="thead-light" style="background: #f6f9fc;">
+<tr>
+<th class="text-uppercase text-xs font-weight-bold">Name</th>
+<th class="text-uppercase text-xs font-weight-bold">Contact</th>
+<th class="text-uppercase text-xs font-weight-bold">Address</th>
+<th class="text-uppercase text-xs font-weight-bold">Balance</th>
+<th class="text-uppercase text-xs font-weight-bold text-center">Actions</th>
+</tr>
+</thead>
+<tbody>
+{% for customer in customers %}
+<tr>
+<td class="font-weight-600 text-dark">{{ customer.name }}</td>
+<td>
+<div class="d-flex flex-column">
+<small class="text-muted"><i class="fas fa-envelope me-1"></i> {{ customer.email }}</small>
+<small class="text-muted"><i class="fas fa-phone me-1"></i> {{ customer.phone|default:"-" }}</small>
+</div>
+</td>
+<td class="text-muted text-xs">{{ customer.address|truncatechars:40|default:"N/A" }}</td>
+<td>
+<span class="font-weight-bold {% if acct_customer.balance > 0 %}text-danger{% else %}text-success{% endif %}">
+${{ customer.balance }}
+</span>
+</td>
+<td class="text-center">
+<a href="{% url 'edit_customer' customer.pk %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+<i class="fas fa-edit me-1"></i> Edit
+</a>
+<a href="{% url 'delete_customer' customer.pk %}" class="btn btn-sm btn-link text-danger ms-2" title="Delete">
+<i class="fas fa-trash"></i>
+</a>
+</td>
+</tr>
+{% empty %}
+<tr>
+<td colspan="5" class="text-center py-5 text-muted">
+<i class="fas fa-users-slash fa-3x mb-3 opacity-25"></i>
+
+
+
+
+No customers found.
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+</div>
+</div>
+{% endblock %}

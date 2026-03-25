@@ -1,0 +1,46 @@
+{% extends "registry/base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="md:flex md:items-center md:justify-between mb-8">
+        <div class="flex-1 min-w-0">
+            <h2 class="text-3xl font-bold leading-7 text-gray-900 sm:text-4xl">Global App Registry</h2>
+            <p class="mt-1 text-sm text-gray-500">Manage the master catalog of applications.</p>
+        </div>
+        <div class="mt-4 flex md:mt-0 md:ml-4">
+            <a href="{% url 'registry:app_add' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                Register New App
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {% for app in apps %}
+        <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200 flex flex-col">
+            <div class="px-4 py-5 sm:p-6 flex-grow">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if app.is_premium %}bg-amber-100 text-amber-800{% else %}bg-green-100 text-green-800{% endif %}">
+                        {% if app.is_premium %}Premium{% else %}Standard{% endif %}
+                    </span>
+                    <!-- Edit Button in List -->
+                    <a href="{% url 'registry:app_edit' app.pk %}" class="text-gray-400 hover:text-indigo-600">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2">{{ app.name }}</h3>
+                <p class="text-sm text-gray-600 line-clamp-3 mb-4">{{ app.description|default:"No description provided." }}</p>
+
+                <div class="border-t border-gray-100 pt-4 flex justify-between items-center">
+                    <div class="text-xs text-gray-500">
+                        <strong>{{ app.departments.count }}</strong> Departments
+                    </div>
+                    <a href="{% url 'registry:app_detail' app.pk %}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                        Manage Structure &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ branding.company_name|default:"App Hub" }} | Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons for a modern look -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="h-full font-sans antialiased text-gray-900">
+
+    <!-- Navigation Header -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    {% if branding.logo %}
+                        <img class="h-8 w-auto" src="{{ branding.logo.url }}" alt="{{ branding.company_name }}">
+                    {% else %}
+                        <div class="h-8 w-8 bg-indigo-600 rounded flex items-center justify-center">
+                            <i data-lucide="layout-grid" class="text-white w-5 h-5"></i>
+                        </div>
+                    {% endif %}
+                    <span class="text-xl font-bold tracking-tight text-gray-900">{{ branding.company_name|default:"App Hub" }}</span>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <div class="hidden md:flex flex-col items-end">
+                        <span class="text-sm font-medium text-gray-700">{{ user.get_full_name|default:user.username }}</span>
+                        <span class="text-xs text-gray-500 uppercase tracking-wider">Internal Member</span>
+                    </div>
+                    <div class="h-10 w-10 rounded-full bg-gray-200 border-2 border-white shadow-sm flex items-center justify-center">
+                        <i data-lucide="user" class="text-gray-500 w-5 h-5"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <!-- Header Section -->
+            <div class="md:flex md:items-center md:justify-between mb-8">
+                <div class="flex-1 min-w-0">
+                    <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                        Your Applications
+                    </h2>
+                    <p class="mt-1 text-sm text-gray-500">
+                        Access the tools and resources assigned to your profile.
+                    </p>
+                </div>
+            </div>
+
+            <!-- App Grid -->
+            {% if assignments %}
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {% for assignment in assignments %}
+                    <div class="group relative bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col">
+                        <div class="p-6 flex-grow">
+                            <div class="flex items-start justify-between">
+                                <div class="p-3 rounded-xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                    <i data-lucide="package" class="w-6 h-6"></i>
+                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    {{ assignment.app_role.role_name }}
+                                </span>
+                            </div>
+
+                            <h3 class="mt-4 text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                                {{ assignment.app.name }}
+                            </h3>
+                            <p class="mt-2 text-sm text-gray-500 line-clamp-2">
+                                {{ assignment.app.description|default:"Standard organizational module for business operations." }}
+                            </p>
+                        </div>
+
+                        <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
+                            <a href="/{{ assignment.app.slug }}/" class="flex items-center justify-center w-full px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm">
+                                Open Application
+                                <i data-lucide="chevron-right" class="ml-2 w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <!-- Empty State -->
+                <div class="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-gray-200">
+                    <div class="mx-auto h-16 w-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                        <i data-lucide="shield-alert" class="w-8 h-8 text-gray-400"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900">No Apps Assigned</h3>
+                    <p class="mt-2 text-sm text-gray-500 max-w-xs mx-auto">
+                        Your account currently doesn't have any application permissions. Please contact your system administrator to request access.
+                    </p>
+                </div>
+            {% endif %}
+
+        </div>
+    </main>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

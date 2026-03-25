@@ -1,0 +1,119 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
+                <a href="{% url 'invoice_list' %}" class="btn btn-outline-secondary rounded-pill">
+                    <i class="fas fa-arrow-left me-2"></i> Back to List
+                </a>
+                <div>
+                    <button onclick="window.print()" class="btn btn-white shadow-sm rounded-pill px-4">
+                        <i class="fas fa-print me-2"></i> Print Invoice
+                    </button>
+                    <a href="{% url 'edit_invoice' invoice.pk %}" class="btn btn-white shadow-sm rounded-pill px-4 me-2">
+                        <i class="fas fa-edit me-2"></i> Edit Invoice
+                    </a>
+                </div>
+            </div>
+
+            <div class="card shadow border-0 rounded-4 p-5 overflow-hidden position-relative">
+                <!-- Watermark -->
+                <div class="position-absolute opacity-25" style="top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 8rem; font-weight: 800; z-index: 0; color: #eee; pointer-events: none; text-transform: uppercase;">
+                    {{ invoice.status }}
+                </div>
+
+                <div class="row mb-5" style="position: relative; z-index: 1;">
+                    <div class="col-6">
+                        <h2 class="text-primary font-weight-800">INVOICE</h2>
+                        <p class="text-muted">#{{ invoice.invoice_number }}</p>
+                    </div>
+                    <div class="col-6 text-end">
+                        <h5 class="mb-1">Your Company Name</h5>
+                        <p class="text-muted small">123 Business Street<br>City, State, Zip</p>
+                    </div>
+                </div>
+
+                <div class="row mb-5" style="position: relative; z-index: 1;">
+                    <div class="col-6">
+                        <p class="text-uppercase text-xs font-weight-bold text-muted mb-1">Billed To</p>
+                        <h5 class="mb-0">{{ invoice.acct_customer.name }}</h5>
+                        <p class="text-muted small">{{ invoice.acct_customer.email }}<br>{{ invoice.acct_customer.phone }}</p>
+                    </div>
+                    <div class="col-6 text-end">
+                        <div class="row">
+                            <div class="col-6">
+                                <p class="text-uppercase text-xs font-weight-bold text-muted mb-1">Date Issued</p>
+                                <p class="font-weight-bold">{{ invoice.date_issued }}</p>
+                            </div>
+                            <div class="col-6">
+                                <p class="text-uppercase text-xs font-weight-bold text-muted mb-1">Due Date</p>
+                                <p class="font-weight-bold text-danger">{{ invoice.due_date }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive mb-5" style="position: relative; z-index: 1;">
+                    <table class="table align-items-center table-flush">
+                        <thead class="thead-light">
+                            <tr>
+                                <th class="text-uppercase text-xs font-weight-bold border-top-0">Description</th>
+                                <th class="text-uppercase text-xs font-weight-bold border-top-0 text-center">Qty</th>
+                                <th class="text-uppercase text-xs font-weight-bold border-top-0 text-end">Price</th>
+                                <th class="text-uppercase text-xs font-weight-bold border-top-0 text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in invoice.items.all %}
+                            <tr>
+                                <td class="font-weight-bold text-dark">{{ item.product.name }}</td>
+                                <td class="text-center">{{ item.quantity }}</td>
+                                <!-- Correctly using the recorded sale_price -->
+                                <td class="text-end">${{ item.sale_price }}</td>
+                                <td class="text-end font-weight-bold">${{ item.line_total }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row justify-content-end" style="position: relative; z-index: 1;">
+                    <div class="col-md-5 col-lg-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Subtotal</span>
+                            <span class="font-weight-bold">${{ invoice.total_amount }}</span>
+                        </div>
+                        <hr class="my-3">
+                        <div class="d-flex justify-content-between">
+                            <h4 class="mb-0">Grand Total</h4>
+                            <h4 class="mb-0 text-primary font-weight-800">${{ invoice.total_amount }}</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-5 pt-5 border-top text-center text-muted">
+                    <p class="small">Thank you for your business! Please pay this invoice within 15 days.</p>
+                </div>
+            </div>
+
+            <!-- Quick Status Actions -->
+            <div class="mt-4 text-center d-print-none">
+                {% if invoice.status != 'PAID' %}
+                <form action="{% url 'update_invoice_status' invoice.pk %}" method="POST" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="PAID">
+                    <button class="btn btn-success rounded-pill px-4 me-2">Mark as Paid</button>
+                </form>
+                {% endif %}
+                <form action="{% url 'update_invoice_status' invoice.pk %}" method="POST" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="CANCELLED">
+                    <button class="btn btn-link text-danger">Cancel Invoice</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

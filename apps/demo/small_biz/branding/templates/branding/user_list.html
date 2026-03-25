@@ -1,0 +1,65 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="bg-slate-50 min-h-screen py-12">
+    <div class="max-w-4xl mx-auto px-4">
+        
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-black text-slate-900 uppercase tracking-tight">Team Management</h1>
+                <p class="text-slate-500 text-sm font-medium">Assign app-specific roles to your staff.</p>
+            </div>
+            <a href="{% url 'branding:branding_dashboard' %}" class="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600">
+                Back to Admin Hub
+            </a>
+        </div>
+
+        <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200">
+                        <th class="px-8 py-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">Team Member</th>
+                        <th class="px-8 py-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">Current Access</th>
+                        <th class="px-8 py-4 text-right"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for user in users %}
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="px-8 py-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-black text-xs uppercase">
+                                    {{ user.username|slice:":2" }}
+                                </div>
+                                <div>
+                                    <p class="font-black text-slate-900 text-sm uppercase">{{ user.username }}</p>
+                                    <p class="text-[11px] text-slate-400">{{ user.email }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-8 py-6">
+                            <div class="flex flex-wrap gap-1">
+                                {% for assignment in user.app_assignments.all %}
+                                <span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-[9px] font-black uppercase border border-indigo-100">
+                                    {{ assignment.app_role.role_name }}
+                                </span>
+                                {% empty %}
+                                <span class="text-slate-300 text-[10px] italic">No App Roles</span>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td class="px-8 py-6 text-right">
+                            <a href="{% url 'branding:manage_user_roles' user.id %}" class="inline-flex items-center justify-center h-10 px-6 rounded-xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all">
+                                Manage Roles
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
