@@ -1,0 +1,37 @@
+<div class="space-y-6">
+<div class="bg-blue-50 p-4 rounded-2xl border border-blue-100">
+<h4 class="text-sm font-black text-blue-800 uppercase tracking-tighter">Task</h4>
+<p class="text-lg font-bold text-slate-800">{{ task.name }}</p>
+</div>
+
+<form hx-post="{% url 'projects:log_time' task.id %}" hx-target="#modal-body" class="space-y-4">
+    {% csrf_token %}
+
+    <div>
+        <label class="block text-xs font-black uppercase text-slate-500 mb-1 ml-1">Hours Worked</label>
+        <input type="number" name="hours" step="0.5" min="0.5" required
+               class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none font-bold"
+               placeholder="e.g. 2.5">
+    </div>
+
+    <div>
+        <label class="block text-xs font-black uppercase text-slate-500 mb-1 ml-1">Work Note (Optional)</label>
+        <textarea name="note" rows="2"
+                  class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none font-medium"
+                  placeholder="What did you work on?"></textarea>
+    </div>
+
+    <div class="flex gap-3 pt-2">
+        <button type="button" onclick="closeModal()"
+                class="flex-1 py-4 bg-slate-100 text-slate-500 rounded-2xl font-black uppercase text-xs hover:bg-slate-200 transition-all">
+            Cancel
+        </button>
+        <button type="submit"
+                class="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-black uppercase text-xs shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all">
+            Save Hours
+        </button>
+    </div>
+</form>
+
+
+</div>

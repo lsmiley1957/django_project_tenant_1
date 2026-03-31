@@ -20,7 +20,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     """
     The main landing page for a tenant showing their active apps.
     """
-    template_name = 'marketplace/dashboard.html'
+    template_name = 'marketplace/project_dashboard.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

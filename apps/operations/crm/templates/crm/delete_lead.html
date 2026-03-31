@@ -1,0 +1,21 @@
+{% extends 'crm/base.html' %}
+
+{% block title %}Delete Lead - {{ lead.name }}{% endblock %}
+
+{% block content %}
+<div class="card max-w-md mx-auto text-center">
+    <h1 class="text-2xl font-bold text-gray-800 mb-4">Confirm Delete</h1>
+    <p class="text-lg text-gray-700 mb-6">Are you sure you want to delete the lead: <span class="font-semibold">{{ lead.name }}</span>?</p>
+    <p class="text-red-600 font-medium mb-8">This action cannot be undone.</p>
+
+    <form method="post" class="flex justify-center space-x-4">
+        {% csrf_token %}
+        <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded-md font-semibold hover:bg-red-700 transition duration-300 shadow-md">
+            Yes, Delete
+        </button>
+        <a href="{% url 'crm_app:lead_detail' lead.pk %}" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md font-semibold hover:bg-gray-400 transition duration-300 shadow-sm">
+            Cancel
+        </a>
+    </form>
+</div>
+{% endblock %}

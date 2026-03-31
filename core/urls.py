@@ -72,6 +72,10 @@ urlpatterns = [
     path('acct_customer/', include('apps.demo.small_biz.acct_customer.urls')),
     path('favicon.ico', favicon_view),  # Handle the favicon request
     path('branding/', include('apps.demo.small_biz.branding.urls')),
+    path('accounting/', include('apps.finance.accounting.urls')),
+    path('payroll/', include('apps.finance.payroll.urls')),
+    path('crm/', include('apps.operations.crm.urls')),
+    path('projects/', include('apps.operations.projects.urls')),
     path('registry', include('registry.urls')),
 
 

@@ -1,0 +1,75 @@
+{% extends "payroll/base.html" %}
+
+{% block title %}{{ employee.first_name }} {{ employee.last_name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3>{{ employee.first_name }} {{ employee.last_name }} Details</h3>
+        <div>
+            <a href="{% url 'employee_edit' employee.pk %}" class="btn btn-warning btn-sm">Edit Employee</a>
+            <a href="{% url 'employee_delete' employee.pk %}" class="btn btn-danger btn-sm">Delete Employee</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <p><strong>Employee ID:</strong> {{ employee.employee_id }}</p>
+        <p><strong>Email:</strong> {{ employee.email }}</p>
+        <p><strong>Date of Hire:</strong> {{ employee.date_of_hire|date:"M d, Y" }}</p>
+        <p><strong>Base Salary:</strong> {% if employee.base_salary %}${{ employee.base_salary }}{% else %}N/A{% endif %}</p>
+        <p><strong>Hourly Rate:</strong> {% if employee.hourly_rate %}${{ employee.hourly_rate }}{% else %}N/A{% endif %}</p>
+        <p><strong>Status:</strong> {% if employee.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-danger">Inactive</span>{% endif %}</p>
+        <p><strong>Bank Account:</strong> {{ employee.bank_account_number|default:"Not provided" }}</p>
+        <p><strong>Tax ID:</strong> {{ employee.tax_id_number|default:"Not provided" }}</p>
+
+        <h4 class="mt-4">Deductions</h4>
+        {% if employee.employeededuction_set.all %}
+        <ul class="list-group">
+            {% for deduction in employee.employeededuction_set.all %}
+                <li class="list-group-item">
+                    {{ deduction.deduction_type.name }}: ${{ deduction.amount }} (Active: {{ deduction.is_active|yesno:"Yes,No" }})
+                </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>No deductions set for this employee.</p>
+        {% endif %}
+
+        <h4 class="mt-4">Recent Payroll Entries</h4>
+        {% if employee.payrollentry_set.all %}
+            <div class="table-responsive">
+                <table class="table table-striped table-sm">
+                    <thead>
+                        <tr>
+                            <th>Pay Period</th>
+                            <th>Gross Pay</th>
+                            <th>Deductions</th>
+                            <th>Net Pay</th>
+                            <th>Payment Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payroll_entry in employee.payrollentry_set.all|slice:":5" %} {# Show last 5 #}
+                        <tr>
+                            <td><a href="{% url 'payrollentry_detail' payroll_entry.pk %}">{{ payroll_entry.pay_period.name|default:payroll_entry.pay_period }}</a></td>
+                            <td>${{ payroll_entry.gross_pay }}</td>
+                            <td>${{ payroll_entry.total_deductions }}</td>
+                            <td>${{ payroll_entry.net_pay }}</td>
+                            <td>{{ payroll_entry.payment_date|date:"M d, Y" }}</td>
+                            <td><span class="badge bg-secondary">{{ payroll_entry.status|capfirst }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p><a href="{% url 'payrollentry_list' %}?employee={{ employee.pk }}">View all payroll entries for this employee</a></p>
+        {% else %}
+            <p>No payroll entries for this employee yet.</p>
+        {% endif %}
+
+    </div>
+    <div class="card-footer">
+        <a href="{% url 'employee_list' %}" class="btn btn-secondary">Back to Employees</a>
+    </div>
+</div>
+{% endblock %}

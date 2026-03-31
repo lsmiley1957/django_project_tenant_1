@@ -1,0 +1,103 @@
+{% extends "accounting/base.html" %}
+
+{% block title %}
+    {% if is_update %}Edit Invoice{% else %}Create Invoice{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <h3>{% if is_update %}Edit Invoice{% else %}Create New Invoice{% endif %}</h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <h4>Invoice Details</h4>
+                    {{ form.as_p }}
+
+                    <h4 class="mt-4">Invoice Items</h4>
+                    {{ formset.management_form }}
+                    <div id="formset-container">
+                        {% for form in formset %}
+                            <div class="form-row row mb-3 border p-3 rounded">
+                                {% for field in form %}
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                            {{ field }}
+                                            {% if field.errors %}
+                                                <div class="text-danger">{{ field.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                                {% if formset.can_delete %}
+                                    <div class="col-md-1 d-flex align-items-end">
+                                        <div class="form-check">
+                                            {{ form.DELETE }}
+                                            <label class="form-check-label" for="{{ form.DELETE.id_for_label }}">Delete</label>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" id="add-more" class="btn btn-outline-secondary btn-sm mt-3">Add Another Item</button>
+
+                    <hr class="my-4">
+                    <button type="submit" class="btn btn-primary">Save Invoice</button>
+                    <a href="{% url 'invoice_list' %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const addMoreBtn = document.getElementById('add-more');
+        const formsetContainer = document.getElementById('formset-container');
+        const totalForms = document.querySelector('#id_invoiceitem_set-TOTAL_FORMS');
+
+        addMoreBtn.addEventListener('click', function() {
+            const currentForms = formsetContainer.querySelectorAll('.form-row').length;
+            const emptyForm = formsetContainer.querySelector('.form-row').cloneNode(true);
+
+            emptyForm.querySelectorAll('input, select, textarea').forEach(input => {
+                if (input.type !== 'hidden') {
+                    input.value = '';
+                }
+                input.id = input.id.replace(`-${currentForms - 1}-`, `-${currentForms}-`);
+                input.name = input.name.replace(`-${currentForms - 1}-`, `-${currentForms}-`);
+            });
+            emptyForm.querySelectorAll('.text-danger').forEach(errorDiv => errorDiv.remove());
+
+            emptyForm.querySelectorAll('label').forEach(label => {
+                const forAttr = label.getAttribute('for');
+                if (forAttr) {
+                    label.setAttribute('for', forAttr.replace(`-${currentForms - 1}-`, `-${currentForms}-`));
+                }
+            });
+
+            const deleteCheckbox = emptyForm.querySelector('input[type="checkbox"][id$="-DELETE"]');
+            if (deleteCheckbox) {
+                deleteCheckbox.checked = false;
+                deleteCheckbox.id = deleteCheckbox.id.replace(`-${currentForms - 1}-`, `-${currentForms}-`);
+                deleteCheckbox.name = deleteCheckbox.name.replace(`-${currentForms - 1}-`, `-${currentForms}-`);
+                const deleteLabel = emptyForm.querySelector(`label[for="${deleteCheckbox.id}"]`);
+                if (deleteLabel) {
+                    deleteLabel.setAttribute('for', deleteCheckbox.id);
+                }
+            }
+
+            formsetContainer.appendChild(emptyForm);
+            totalForms.value = parseInt(totalForms.value) + 1;
+        });
+    });
+</script>
+{% endblock %}

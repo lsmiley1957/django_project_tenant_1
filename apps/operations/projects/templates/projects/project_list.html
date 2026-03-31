@@ -1,0 +1,45 @@
+{% extends 'projects/base.html' %}
+
+{% block title %}Project List{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-4xl font-extrabold text-gray-900">All Projects</h1>
+    <a href="{% url 'projects:project_create' %}" class="btn-primary flex items-center space-x-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+        </svg>
+        <span>Add New Project</span>
+    </a>
+</div>
+
+{% if projects %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for project in projects %}
+            <div class="card p-6 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">{{ project.name }}</h2>
+                    <p class="text-gray-600 mb-4">{{ project.description|truncatechars:100 }}</p>
+                    <div class="text-sm text-gray-500 mb-4">
+                        <p><strong>Start Date:</strong> {{ project.start_date|date:"F d, Y" }}</p>
+                        {% if project.end_date %}
+                            <p><strong>End Date:</strong> {{ project.end_date|date:"F d, Y" }}</p>
+                        {% endif %}
+                        <p><strong>Status:</strong> <span class="font-semibold text-blue-700">{{ project.get_status_display }}</span></p>
+                    </div>
+                </div>
+                <div class="flex justify-end mt-4 space-x-3">
+                    <a href="{% url 'projects:project_detail' project.pk %}" class="btn-secondary text-sm">View Details</a>
+                    <a href="{% url 'projects:project_update' project.pk %}" class="btn-primary text-sm">Edit</a>
+                    <a href="{% url 'projects:project_delete' project.pk %}" class="btn-danger text-sm">Delete</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md" role="alert">
+        <p class="font-bold">No projects found!</p>
+        <p>Start by adding a new project to manage your tasks.</p>
+    </div>
+{% endif %}
+{% endblock %}

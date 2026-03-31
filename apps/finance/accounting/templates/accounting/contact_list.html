@@ -1,0 +1,50 @@
+{% extends "accounting/base.html" %}
+
+{% block title %}Contacts{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Contacts (Customers & Vendors)</h2>
+    <a href="{% url 'contact_add' %}" class="btn btn-success">Add Contact</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Active</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for contact in contacts %}
+            <tr>
+                <td><a href="{% url 'contact_detail' contact.pk %}">{{ contact.name }}</a></td>
+                <td>{{ contact.get_contact_type_display }}</td>
+                <td>{{ contact.email|default:"-" }}</td>
+                <td>{{ contact.phone|default:"-" }}</td>
+                <td>
+                    {% if contact.is_active %}
+                        <span class="badge bg-success">Yes</span>
+                    {% else %}
+                        <span class="badge bg-danger">No</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'contact_edit' contact.pk %}" class="btn btn-sm btn-info">Edit</a>
+                    <a href="{% url 'contact_delete' contact.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No contacts found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

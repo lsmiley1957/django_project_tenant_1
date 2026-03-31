@@ -32,6 +32,6 @@ urlpatterns = [
     path('marketplace/install/<int:app_id>/', views.install_app, name='install_app'),
 
 # --- Placeholders ---
-# path('dashboard/', TemplateView.as_view(template_name='dashboard.html'), name='dashboard')
+# path('dashboard/', TemplateView.as_view(template_name='project_dashboard.html'), name='dashboard')
 
 ]

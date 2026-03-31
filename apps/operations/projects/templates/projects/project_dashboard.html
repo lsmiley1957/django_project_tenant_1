@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ project.name }} | Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/frappe-gantt/0.6.1/frappe-gantt.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/frappe-gantt/0.6.1/frappe-gantt.min.js"></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .kanban-column { min-height: 70vh; width: 280px; flex-shrink: 0; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .nav-tab.active { color: #2563eb; border-bottom: 2px solid #2563eb; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Gantt Customization */
+        .gantt .grid-header { fill: #f8fafc; stroke: #e2e8f0; }
+        .gantt .bar-label { fill: #1e293b; font-weight: 700; font-size: 10px; }
+        .gantt .bar { fill: #3b82f6; }
+        .gantt .bar-progress { fill: #2563eb; }
+
+        /* Calendar Customization */
+        .fc { background: white; padding: 20px; border-radius: 1rem; border: 1px solid #e2e8f0; }
+        .fc-header-toolbar { margin-bottom: 2rem !important; }
+        .fc-button-primary {
+            background-color: #2563eb !important;
+            border-color: #2563eb !important;
+            text-transform: uppercase;
+            font-size: 0.7rem !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.05em;
+            border-radius: 0.75rem !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="bg-white border-b border-slate-200 px-8 py-4 sticky top-0 z-30">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <a href="{% url 'projects:project_list' %}" class="text-xl font-black tracking-tighter text-blue-600">PROMAN.</a>
+                <div class="flex gap-6">
+                    <button onclick="showTab('kanban')" class="nav-tab active px-1 py-2 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-all">Kanban</button>
+                    <button onclick="showTab('gantt')" class="nav-tab px-1 py-2 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-all">Gantt</button>
+                    <button onclick="showTab('calendar')" class="nav-tab px-1 py-2 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-all">Calendar</button>
+                    <button onclick="showTab('team')" class="nav-tab px-1 py-2 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-all">Team</button>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button hx-get="{% url 'projects:member_create' project.pk %}" hx-target="#modal-body" onclick="openModal()" class="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-blue-600">Add Member</button>
+                <button hx-get="{% url 'projects:task_create' project.pk %}" hx-target="#modal-body" onclick="openModal()" class="bg-blue-600 text-white px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all">New Task</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="p-8">
+        <!-- Header -->
+        <header class="mb-10 flex justify-between items-end">
+            <div class="flex items-center">
+                <a href="{% url 'projects:project_list' %}" class="mr-6 p-2.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all" title="Exit to Project List">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                </a>
+                <div>
+                    <h1 class="text-4xl font-black text-slate-900 tracking-tight">{{ project.name }}</h1>
+                    <p class="text-slate-400 font-medium mt-1">{{ project.description|truncatewords:20 }}</p>
+                </div>
+            </div>
+            <div class="flex gap-4">
+                <div class="bg-white px-6 py-3 rounded-2xl border border-slate-200">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Tasks</p>
+                    <p class="text-xl font-black text-slate-800">{{ project.tasks.count }}</p>
+                </div>
+                <div class="bg-white px-6 py-3 rounded-2xl border border-slate-200">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Completion</p>
+                    <p class="text-xl font-black text-blue-600">{{ project.completion_percentage }}%</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Tab: Kanban -->
+        <div id="kanban" class="tab-content active">
+            <div class="flex gap-6 overflow-x-auto pb-8 scrollbar-hide">
+                {% for status_val, status_label in status_choices %}
+                <div class="kanban-column">
+                    <div class="flex items-center space-x-2 mb-6">
+                        <h3 class="text-xs font-black uppercase tracking-widest text-slate-800">{{ status_label }}</h3>
+                        <span class="px-2 py-0.5 bg-slate-100 text-[10px] font-black text-slate-500 rounded-md">
+                            {% if status_val == 'todo' %}{{ project.tasks.todo.count }}
+                            {% elif status_val == 'pending' %}{{ project.tasks.pending.count }}
+                            {% elif status_val == 'in_progress' %}{{ project.tasks.in_progress.count }}
+                            {% elif status_val == 'hold' %}{{ project.tasks.hold.count }}
+                            {% elif status_val == 'blocked' %}{{ project.tasks.blocked.count }}
+                            {% elif status_val == 'done' %}{{ project.tasks.done.count }}
+                            {% else %}0{% endif %}
+                        </span>
+                    </div>
+
+                    <div class="space-y-4">
+                        {% for task in project.tasks.all %}
+                        {% if task.status == status_val %}
+                        <div hx-get="{% url 'projects:task_status_modal' project.pk task.pk %}"
+                             hx-target="#modal-body"
+                             onclick="openModal()"
+                             class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-200 transition-all cursor-pointer group">
+
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded bg-slate-50 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                                    {{ task.get_status_display }}
+                                </span>
+                                <div class="flex -space-x-2">
+                                    {% if task.assigned_to %}
+                                    <div class="w-6 h-6 rounded-full bg-blue-100 border-2 border-white flex items-center justify-center text-[10px] font-black text-blue-600" title="{{ task.assigned_to.name }}">
+                                        {{ task.assigned_to.name|slice:":1" }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <h4 class="text-sm font-bold text-slate-800 leading-tight mb-3">{{ task.name }}</h4>
+
+                            <div class="flex items-center justify-between mt-auto">
+                                <div class="flex items-center gap-3 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                                    <span class="flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                        {{ task.due_date|date:"M d" }}
+                                    </span>
+                                    {% if task.total_hours > 0 %}
+                                    <span class="flex items-center gap-1 text-blue-500">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        {{ task.total_hours }}h
+                                    </span>
+                                    {% endif %}
+                                </div>
+
+                                {% if task.notes.exists %}
+                                <div class="text-slate-300">
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"/></svg>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Tab: Gantt -->
+        <div id="gantt" class="tab-content">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200">
+                <div class="flex justify-end gap-2 mb-6">
+                    <button onclick="changeGanttMode('Day')" class="px-4 py-2 bg-slate-50 text-[10px] font-black uppercase rounded-lg hover:bg-slate-100 transition-colors">Day</button>
+                    <button onclick="changeGanttMode('Week')" class="px-4 py-2 bg-slate-50 text-[10px] font-black uppercase rounded-lg hover:bg-slate-100 transition-colors">Week</button>
+                    <button onclick="changeGanttMode('Month')" class="px-4 py-2 bg-slate-50 text-[10px] font-black uppercase rounded-lg hover:bg-slate-100 transition-colors">Month</button>
+                </div>
+                <div id="gantt-el" class="overflow-x-auto"></div>
+            </div>
+        </div>
+
+        <!-- Tab: Calendar -->
+        <div id="calendar" class="tab-content">
+            <div id="calendar-el"></div>
+        </div>
+
+        <!-- Tab: Team -->
+        <div id="team" class="tab-content">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                {% for member in project.members.all %}
+                <div class="bg-white p-6 rounded-3xl border border-slate-200 flex flex-col items-center justify-between aspect-square group hover:border-blue-300 hover:shadow-xl hover:shadow-blue-50/50 transition-all relative overflow-hidden">
+                    <!-- Edit Action -->
+                    <button hx-get="{% url 'projects:member_update' project.pk member.pk %}"
+                            hx-target="#modal-body"
+                            onclick="openModal()"
+                            class="absolute top-4 right-4 p-2 opacity-0 group-hover:opacity-100 text-slate-300 hover:text-blue-600 transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    </button>
+
+                    <!-- Profile Info -->
+                    <div class="flex flex-col items-center text-center mt-2">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center text-2xl font-black text-blue-600 uppercase shadow-inner mb-3">
+                            {{ member.name|slice:":1" }}
+                        </div>
+                        <h4 class="font-black text-slate-800 text-sm leading-tight px-2">{{ member.name }}</h4>
+                        <p class="text-[9px] font-black text-blue-400 uppercase tracking-[0.2em] mt-1">{{ member.get_role_display }}</p>
+                    </div>
+
+                    <!-- Fixed Stats Grid -->
+                    <div class="w-full grid grid-cols-3 gap-1 bg-slate-50/50 rounded-2xl p-3 border border-slate-100">
+                        <div class="text-center">
+                            <p class="text-[8px] font-black text-slate-400 uppercase tracking-tighter mb-0.5">Open</p>
+                            <p class="text-xs font-black text-slate-700">
+                                <span class="member-open-tasks" data-member="{{ member.id }}">0</span>
+                            </p>
+                        </div>
+                        <div class="text-center border-x border-slate-200/50">
+                            <p class="text-[8px] font-black text-slate-400 uppercase tracking-tighter mb-0.5">Done</p>
+                            <p class="text-xs font-black text-emerald-600">
+                                <span class="member-done-tasks" data-member="{{ member.id }}">0</span>
+                            </p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-[8px] font-black text-slate-400 uppercase tracking-tighter mb-0.5">Hours</p>
+                            <p class="text-xs font-black text-blue-600">
+                                <span class="member-logged-hours" data-member="{{ member.id }}">0</span><span class="text-[8px] ml-0.5">h</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+
+    <!-- Global Modal Structure -->
+    <div id="modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-full max-w-2xl bg-white shadow-2xl animate-in slide-in-from-right duration-300">
+            <div id="modal-body" class="h-full p-8 overflow-y-auto">
+                <div class="flex items-center justify-center h-full">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data for JS components -->
+    <script id="tasks-json" type="application/json">
+        [
+            {% for task in project.tasks.all %}
+            {
+                "id": "task-{{ task.id }}",
+                "name": "{{ task.name|escapejs }}",
+                "start": "{{ task.start_date|default:project.start_date|date:'Y-m-d' }}",
+                "end": "{{ task.due_date|default:project.start_date|date:'Y-m-d' }}",
+                "progress": {% if task.status == 'done' %}100{% elif task.status == 'in_progress' %}50{% else %}0{% endif %},
+                "status": "{{ task.status }}",
+                "assigned_id": "{{ task.assigned_to.id|default:'' }}",
+                "total_hours": {{ task.total_hours|default:0 }}
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]
+    </script>
+
+    <script>
+        // Modal Handlers
+        function openModal() {
+            document.getElementById('modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            document.getElementById('modal-body').innerHTML = '<div class="flex items-center justify-center h-full"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>';
+        }
+
+        // Tab System
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabId === 'gantt') renderGantt();
+            if (tabId === 'calendar') renderCalendar();
+            if (tabId === 'team') calculateTeamStats();
+        }
+
+        // Stats Calculation for Team Tab
+        function calculateTeamStats() {
+            const tasksJsonEl = document.getElementById('tasks-json');
+            if (!tasksJsonEl) return;
+
+            const tasks = JSON.parse(tasksJsonEl.textContent);
+            const stats = {};
+
+            tasks.forEach(task => {
+                if (!task.assigned_id) return;
+                if (!stats[task.assigned_id]) {
+                    stats[task.assigned_id] = { open: 0, done: 0, hours: 0 };
+                }
+
+                if (task.status === 'done') {
+                    stats[task.assigned_id].done += 1;
+                } else {
+                    stats[task.assigned_id].open += 1;
+                }
+                stats[task.assigned_id].hours += (parseFloat(task.total_hours) || 0);
+            });
+
+            // Update UI for each member element
+            document.querySelectorAll('.member-open-tasks').forEach(el => {
+                const mid = el.dataset.member;
+                el.innerText = stats[mid]?.open || 0;
+            });
+            document.querySelectorAll('.member-done-tasks').forEach(el => {
+                const mid = el.dataset.member;
+                el.innerText = stats[mid]?.done || 0;
+            });
+            document.querySelectorAll('.member-logged-hours').forEach(el => {
+                const mid = el.dataset.member;
+                const hours = stats[mid]?.hours || 0;
+                el.innerText = hours.toFixed(1).replace('.0', '');
+            });
+        }
+
+        // Gantt Implementation
+        let gantt_chart;
+        function renderGantt() {
+            const data = JSON.parse(document.getElementById('tasks-json').textContent);
+            if (data.length === 0) {
+                document.getElementById('gantt-el').innerHTML = "<p class='text-center py-20 text-slate-400 font-bold uppercase text-[10px] tracking-widest'>No tasks scheduled yet</p>";
+                return;
+            }
+
+            gantt_chart = new Gantt("#gantt-el", data, {
+                header_height: 50,
+                column_width: 30,
+                step: 24,
+                view_modes: ['Day', 'Week', 'Month'],
+                bar_height: 25,
+                bar_corner_radius: 8,
+                arrow_curve: 5,
+                padding: 18,
+                view_mode: 'Day',
+                custom_popup_html: function(task) {
+                    return `<div class="bg-white p-3 rounded-lg shadow-xl border border-slate-100">
+                        <p class="font-black text-xs text-slate-800">${task.name}</p>
+                        <p class="text-[10px] text-slate-400 mt-1">${task.start} to ${task.end}</p>
+                    </div>`;
+                }
+            });
+        }
+        function changeGanttMode(mode) {
+            if (gantt_chart) gantt_chart.change_view_mode(mode);
+        }
+
+        // Calendar Implementation
+        function renderCalendar() {
+            const data = JSON.parse(document.getElementById('tasks-json').textContent);
+            const events = data.map(t => ({
+                title: t.name,
+                start: t.start,
+                end: t.end,
+                backgroundColor: t.status === 'done' ? '#10b981' : (t.status === 'in_progress' ? '#3b82f6' : '#94a3b8'),
+                borderColor: 'transparent'
+            }));
+
+            const calendarEl = document.getElementById('calendar-el');
+            calendarEl.innerHTML = "";
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                events: events,
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek'
+                },
+                height: 'auto'
+            });
+            calendar.render();
+        }
+
+        // HTMX Listeners
+        document.body.addEventListener('taskUpdated', function() {
+            window.location.reload();
+        });
+
+        // Initialize Stats on load
+        window.addEventListener('load', calculateTeamStats);
+    </script>
+</body>
+</html>

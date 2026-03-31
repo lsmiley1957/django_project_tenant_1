@@ -1,0 +1,26 @@
+{% extends "payroll/base.html" %}
+
+{% block title %}Payroll Entry Details{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Payroll Details for {{ payroll_entry.employee.first_name }} {{ payroll_entry.employee.last_name }} ({{ payroll_entry.pay_period.name|default:payroll_entry.pay_period }})</h3>
+    </div>
+    <div class="card-body">
+        <p><strong>Employee:</strong> <a href="{% url 'employee_detail' payroll_entry.employee.pk %}">{{ payroll_entry.employee }}</a></p>
+        <p><strong>Pay Period:</strong> {{ payroll_entry.pay_period.name|default:payroll_entry.pay_period }}</p>
+        <p><strong>Gross Pay:</strong> ${{ payroll_entry.gross_pay }}</p>
+        <p><strong>Total Deductions:</strong> ${{ payroll_entry.total_deductions }}</p>
+        <p><strong>Net Pay:</strong> ${{ payroll_entry.net_pay }}</p>
+        <p><strong>Payment Date:</strong> {{ payroll_entry.payment_date|date:"M d, Y" }}</p>
+        <p><strong>Status:</strong> <span class="badge bg-secondary">{{ payroll_entry.status|capfirst }}</span></p>
+        {% if payroll_entry.notes %}
+            <p><strong>Notes:</strong> {{ payroll_entry.notes|linebreaksbr }}</p>
+        {% endif %}
+    </div>
+    <div class="card-footer">
+        <a href="{% url 'payrollentry_list' %}" class="btn btn-secondary">Back to Payroll Entries</a>
+    </div>
+</div>
+{% endblock %}
