@@ -1,0 +1,24 @@
+{% extends "accounting/base.html" %}
+
+{% block title %}Delete Account{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card text-center border-danger">
+            <div class="card-header bg-danger text-white">
+                <h3>Confirm Deletion</h3>
+            </div>
+            <div class="card-body">
+                <p>Are you sure you want to delete account <strong>"{{ account.name }}"</strong>?</p>
+                <p class="text-danger">This action cannot be undone and may fail if there are related transactions.</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger me-2">Yes, Delete</button>
+                    <a href="{% url 'accounting:account_detail' account.pk %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

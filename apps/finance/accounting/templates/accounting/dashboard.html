@@ -1,0 +1,85 @@
+{% extends "accounting/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="jumbotron bg-light p-4 rounded mb-4">
+    <h1 class="display-4">Welcome to Your Business Application!</h1>
+    <p class="lead">Manage your payroll and accounting with ease.</p>
+    <hr class="my-4">
+    <p>Use the navigation above to access different sections of the application.</p>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Recent Journal Entries</h4>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for transaction in recent_transactions %}
+                    <li class="list-group-item">
+                        <a href="{% url 'transaction_detail' transaction.pk %}">
+                            {{ transaction.date|date:"M d, Y" }} - {{ transaction.description }}
+                        </a>
+                        <span class="badge bg-secondary float-end">{{ transaction.status }}</span>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item">No recent transactions.</li>
+                {% endfor %}
+            </ul>
+            <div class="card-footer text-end">
+                <a href="{% url 'transaction_list' %}" class="btn btn-sm btn-outline-primary">View All Journal Entries</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Recent Invoices</h4>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for invoice in recent_invoices %}
+                    <li class="list-group-item">
+                        <a href="{% url 'invoice_detail' invoice.pk %}">
+                            Invoice #{{ invoice.invoice_number }} for {{ invoice.customer.name }} - ${{ invoice.total_amount }}
+                        </a>
+                        <span class="badge bg-{% if invoice.is_paid %}success{% else %}warning{% endif %} float-end">
+                            {% if invoice.is_paid %}Paid{% else %}Unpaid{% endif %}
+                        </span>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item">No recent invoices.</li>
+                {% endfor %}
+            </ul>
+            <div class="card-footer text-end">
+                <a href="{% url 'invoice_list' %}" class="btn btn-sm btn-outline-primary">View All Invoices</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Recent Bills</h4>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for bill in recent_bills %}
+                    <li class="list-group-item">
+                        <a href="{% url 'bill_detail' bill.pk %}">
+                            Bill #{{ bill.bill_number }} from {{ bill.vendor.name }} - ${{ bill.total_amount }}
+                        </a>
+                        <span class="badge bg-{% if bill.is_paid %}success{% else %}warning{% endif %} float-end">
+                            {% if bill.is_paid %}Paid{% else %}Unpaid{% endif %}
+                        </span>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item">No recent bills.</li>
+                {% endfor %}
+            </ul>
+            <div class="card-footer text-end">
+                <a href="{% url 'bill_list' %}" class="btn btn-sm btn-outline-primary">View All Bills</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

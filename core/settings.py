@@ -54,6 +54,10 @@ TENANT_APPS = (
     'django.contrib.staticfiles',  # Added to ensure static files are handled
     # Add your tenant-specific apps here
     'chores',
+    'apps.finance.accounting',
+    'apps.finance.payroll',
+    'apps.operations.crm',
+    'apps.operations.projects',
     'apps.demo.small_biz.inventory',
     'apps.demo.small_biz.pos',
     'apps.demo.small_biz.acct_customer',

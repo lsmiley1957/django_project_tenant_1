@@ -75,7 +75,7 @@ def dashboard(request):
         'category_sales_json': json.dumps(category_sales_data),
     }
 
-    return render(request, 'inventory/dashboard.html', context)
+    return render(request, 'inventory/project_dashboard.html', context)
 
 
 @login_required

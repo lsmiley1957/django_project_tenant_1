@@ -1,0 +1,17 @@
+{% extends "accounting/base.html" %}
+
+{% block title %}Error{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading">An Error Occurred!</h4>
+            <p>{{ message }}</p>
+            <hr>
+            <p class="mb-0">Please check the required accounts in your Chart of Accounts or contact support.</p>
+        </div>
+        <a href="{% url 'accounting_dashboard' %}" class="btn btn-primary">Go to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

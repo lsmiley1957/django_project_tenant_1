@@ -33,7 +33,7 @@ urlpatterns = [
     # Only accessible on the main/public domain
     path('registry-admin/', include('registry.urls')),
     # For now, we define 'dashboard' so the templates don't crash.
-    path('dashboard/', TemplateView.as_view(template_name='dashboard.html'), name='dashboard'),
+    path('dashboard/', TemplateView.as_view(template_name='project_dashboard.html'), name='dashboard'),
     path('marketplace-control/', include('marketplace.urls')),
 
 ]
