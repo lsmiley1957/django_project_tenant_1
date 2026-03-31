@@ -1,0 +1,128 @@
+{
+    "categories": [
+        {"name": "Fresh Breads", "description": "Daily baked loaves and rolls"},
+        {"name": "Sweet Pastries", "description": "Croissants, danishes, and turnovers"},
+        {"name": "Cakes & Cupcakes", "description": "Celebration cakes and gourmet cupcakes"},
+        {"name": "Savory Baked Goods", "description": "Quiches, meat pies, and sausage rolls"},
+        {"name": "Artisan Cookies", "description": "Hand-crafted cookies and macarons"}
+    ],
+    "suppliers": [
+        {"name": "Golden Grain Mills", "contact_email": "sales@goldengrain.com", "average_lead_time": 2.0},
+        {"name": "Dairy Delight Co.", "contact_email": "orders@dairydelight.com", "average_lead_time": 1.0},
+        {"name": "Sweet Essence Spices", "contact_email": "wholesale@sweetessence.com", "average_lead_time": 3.5},
+        {"name": "Premium Fruit Fillings", "contact_email": "logistics@fruitfill.com", "average_lead_time": 4.0},
+        {"name": "Baker's Choice Packaging", "contact_email": "info@bakerspack.com", "average_lead_time": 5.0}
+    ],
+    "products": [
+        {
+            "sku": "BK-BRD-SDR-01",
+            "name": "Signature Sourdough Loaf",
+            "category_name": "Fresh Breads",
+            "supplier_name": "Golden Grain Mills",
+            "cost_price": "1.20",
+            "sale_price": "5.50",
+            "quantity_in_stock": 30,
+            "reorder_level": 10,
+            "location": "Rack A"
+        },
+        {
+            "sku": "BK-PAS-CRS-02",
+            "name": "Classic Butter Croissant",
+            "category_name": "Sweet Pastries",
+            "supplier_name": "Dairy Delight Co.",
+            "cost_price": "0.65",
+            "sale_price": "3.25",
+            "quantity_in_stock": 48,
+            "reorder_level": 12,
+            "location": "Display Case 1"
+        },
+        {
+            "sku": "BK-CAK-VNL-03",
+            "name": "Madagascar Vanilla Bean Cupcake",
+            "category_name": "Cakes & Cupcakes",
+            "supplier_name": "Sweet Essence Spices",
+            "cost_price": "0.95",
+            "sale_price": "4.00",
+            "quantity_in_stock": 24,
+            "reorder_level": 8,
+            "location": "Display Case 2"
+        },
+        {
+            "sku": "BK-SAV-QCH-04",
+            "name": "Spinach and Feta Quiche",
+            "category_name": "Savory Baked Goods",
+            "supplier_name": "Dairy Delight Co.",
+            "cost_price": "2.50",
+            "sale_price": "7.50",
+            "quantity_in_stock": 15,
+            "reorder_level": 5,
+            "location": "Heated Cabinet"
+        },
+        {
+            "sku": "BK-COO-CHP-05",
+            "name": "Sea Salt Chocolate Chip Cookie",
+            "category_name": "Artisan Cookies",
+            "supplier_name": "Golden Grain Mills",
+            "cost_price": "0.40",
+            "sale_price": "2.50",
+            "quantity_in_stock": 72,
+            "reorder_level": 24,
+            "location": "Counter Jars"
+        },
+        {
+            "sku": "BK-BRD-RYE-06",
+            "name": "Dark Rye Pumpernickel",
+            "category_name": "Fresh Breads",
+            "supplier_name": "Golden Grain Mills",
+            "cost_price": "1.40",
+            "sale_price": "6.00",
+            "quantity_in_stock": 20,
+            "reorder_level": 5,
+            "location": "Rack B"
+        },
+        {
+            "sku": "BK-PAS-DAN-07",
+            "name": "Apricot Glazed Danish",
+            "category_name": "Sweet Pastries",
+            "supplier_name": "Premium Fruit Fillings",
+            "cost_price": "0.85",
+            "sale_price": "3.75",
+            "quantity_in_stock": 36,
+            "reorder_level": 10,
+            "location": "Display Case 1"
+        },
+        {
+            "sku": "BK-CAK-RED-08",
+            "name": "Red Velvet Celebration Cake (6\")",
+            "category_name": "Cakes & Cupcakes",
+            "supplier_name": "Dairy Delight Co.",
+            "cost_price": "8.00",
+            "sale_price": "28.00",
+            "quantity_in_stock": 6,
+            "reorder_level": 2,
+            "location": "Cake Fridge"
+        },
+        {
+            "sku": "BK-SAV-PIE-09",
+            "name": "Traditional Aussie Meat Pie",
+            "category_name": "Savory Baked Goods",
+            "supplier_name": "Dairy Delight Co.",
+            "cost_price": "1.80",
+            "sale_price": "6.50",
+            "quantity_in_stock": 20,
+            "reorder_level": 6,
+            "location": "Heated Cabinet"
+        },
+        {
+            "sku": "BK-COO-MAC-10",
+            "name": "French Macaron Box (6pc)",
+            "category_name": "Artisan Cookies",
+            "supplier_name": "Sweet Essence Spices",
+            "cost_price": "4.50",
+            "sale_price": "12.50",
+            "quantity_in_stock": 12,
+            "reorder_level": 4,
+            "location": "Display Case 2"
+        }
+    ]
+}

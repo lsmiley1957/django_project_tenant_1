@@ -1,0 +1,175 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="container-fluid py-5" style="background: #f8f9fe; min-height: 100vh;">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-7">
+
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <!-- Header -->
+                <div class="card-header bg-white border-bottom py-4 px-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h4 class="fw-bold text-dark mb-1">Business Setup Wizard</h4>
+                            <p class="text-muted small mb-0">Populate your workspace with industry-standard data</p>
+                        </div>
+                        <div class="bg-soft-primary p-3 rounded-circle">
+                            <i class="fas fa-magic text-primary fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <!-- Step 1: Industry Selection -->
+                    <div id="step1">
+                        <label class="form-label fw-bold text-uppercase small text-muted tracking-wider mb-4">
+                            Step 1: Select Your Industry Profile
+                        </label>
+
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-6 col-lg-4">
+                                <div class="industry-card p-4 border rounded-4 text-center cursor-pointer h-100" onclick="selectProfile('retail', this)">
+                                    <div class="icon-circle bg-soft-primary mx-auto mb-3">
+                                        <i class="fas fa-shopping-bag text-primary fa-lg"></i>
+                                    </div>
+                                    <h6 class="fw-bold mb-1">Bakery Retail</h6>
+                                    <p class="text-muted xxs mb-0">Cakes, Pies & Cookies</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <div class="industry-card p-4 border rounded-4 text-center cursor-pointer h-100" onclick="selectProfile('retail', this)">
+                                    <div class="icon-circle bg-soft-primary mx-auto mb-3">
+                                        <i class="fas fa-shopping-bag text-primary fa-lg"></i>
+                                    </div>
+                                    <h6 class="fw-bold mb-1">Electronics Retail</h6>
+                                    <p class="text-muted xxs mb-0">TVs, Appliances & Accessories</p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-4">
+                                <div class="industry-card p-4 border rounded-4 text-center cursor-pointer h-100" onclick="selectProfile('retail', this)">
+                                    <div class="icon-circle bg-soft-primary mx-auto mb-3">
+                                        <i class="fas fa-shopping-bag text-primary fa-lg"></i>
+                                    </div>
+                                    <h6 class="fw-bold mb-1">General Retail</h6>
+                                    <p class="text-muted xxs mb-0">Clothing & Accessories</p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-4">
+                                <div class="industry-card p-4 border rounded-4 text-center cursor-pointer h-100" onclick="selectProfile('pharmacy', this)">
+                                    <div class="icon-circle bg-soft-success mx-auto mb-3">
+                                        <i class="fas fa-pills text-success fa-lg"></i>
+                                    </div>
+                                    <h6 class="fw-bold mb-1">Pharmacy</h6>
+                                    <p class="text-muted xxs mb-0">Health & Wellness</p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-4">
+                                <div class="industry-card p-4 border rounded-4 text-center cursor-pointer h-100" onclick="selectProfile('grocery', this)">
+                                    <div class="icon-circle bg-soft-danger mx-auto mb-3">
+                                        <i class="fas fa-apple-alt text-danger fa-lg"></i>
+                                    </div>
+                                    <h6 class="fw-bold mb-1">Grocery</h6>
+                                    <p class="text-muted xxs mb-0">Fresh Produce & Food</p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-4">
+                                <div class="industry-card p-4 border rounded-4 text-center cursor-pointer h-100" onclick="selectProfile('hardware', this)">
+                                    <div class="icon-circle bg-soft-warning mx-auto mb-3">
+                                        <i class="fas fa-tools text-warning fa-lg"></i>
+                                    </div>
+                                    <h6 class="fw-bold mb-1">Hardware</h6>
+                                    <p class="text-muted xxs mb-0">Tools & Construction</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end border-top pt-4">
+                            <button id="nextBtn" disabled onclick="showStep(2)" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm">
+                                Continue <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Confirmation -->
+                    <div id="step2" class="d-none text-center">
+                        <label class="form-label fw-bold text-uppercase small text-muted tracking-wider mb-4 d-block">
+                            Step 2: Confirm Deployment
+                        </label>
+
+                        <div class="py-4">
+                            <div class="display-4 text-primary mb-3">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                            <h4 class="fw-bold">Ready to Launch <span id="displayProfile" class="text-primary text-capitalize">...</span></h4>
+                            <p class="text-muted px-md-5">
+                                We are about to generate a complete inventory environment including products, suppliers, and categories tailored for your selection.
+                            </p>
+                        </div>
+
+                        <form method="POST" action="{% url 'initiate_seeding' %}" id="finalForm">
+                            {% csrf_token %}
+                            <input type="hidden" name="business_type" id="business_type_input">
+
+                            <div class="alert alert-soft-warning border-0 rounded-4 mb-5 text-start">
+                                <i class="fas fa-info-circle me-2"></i> This action will add new records to your database.
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <button type="button" onclick="showStep(1)" class="btn btn-link text-muted fw-bold">
+                                    <i class="fas fa-chevron-left me-1"></i> Change Industry
+                                </button>
+                                <button type="submit" class="btn btn-success btn-lg rounded-pill px-5 shadow fw-bold" id="deployBtn">
+                                    <span class="btn-text">Confirm & Deploy</span>
+                                    <span class="spinner-border spinner-border-sm d-none"></span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-soft-primary { background-color: rgba(94, 114, 228, 0.1); }
+    .bg-soft-success { background-color: rgba(45, 206, 137, 0.1); }
+    .bg-soft-danger { background-color: rgba(245, 54, 92, 0.1); }
+    .bg-soft-warning { background-color: rgba(251, 99, 64, 0.1); }
+    .alert-soft-warning { background-color: #fff8e1; color: #856404; }
+
+    .icon-circle { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .industry-card { transition: all 0.25s ease; border: 2px solid #eee !important; background: white; }
+    .industry-card:hover { border-color: #5e72e4 !important; transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+    .industry-card.active { border-color: #5e72e4 !important; background-color: #f8f9ff !important; box-shadow: 0 0 0 4px rgba(94, 114, 228, 0.1); }
+
+    .xxs { font-size: 0.75rem; }
+    .cursor-pointer { cursor: pointer; }
+</style>
+
+<script>
+    function selectProfile(type, element) {
+        document.querySelectorAll('.industry-card').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+        document.getElementById('business_type_input').value = type;
+        document.getElementById('displayProfile').innerText = type;
+        document.getElementById('nextBtn').disabled = false;
+    }
+
+    function showStep(step) {
+        document.getElementById('step1').classList.toggle('d-none', step !== 1);
+        document.getElementById('step2').classList.toggle('d-none', step !== 2);
+    }
+
+    document.getElementById('finalForm').onsubmit = function() {
+        const btn = document.getElementById('deployBtn');
+        btn.disabled = true;
+        btn.querySelector('.btn-text').innerText = 'Deploying...';
+        btn.querySelector('.spinner-border').classList.remove('d-none');
+    };
+</script>
+{% endblock %}

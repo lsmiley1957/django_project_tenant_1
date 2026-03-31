@@ -1,41 +1,126 @@
 {% extends "inventory/base.html" %}
 
 {% block content %}
-<div class="container-fluid py-4 h-100">
+<style>
+    /* 1. COMPACT CARD UI */
+    .product-card {
+        transition: all 0.2s;
+        border: 1px solid #e9ecef !important;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        border-radius: 12px;
+    }
+
+    .product-title {
+        font-size: 0.8rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        height: 2.2rem;
+        line-height: 1.1rem;
+        font-weight: 600;
+    }
+
+    .btn-xs {
+        padding: 0.2rem 0.5rem;
+        font-size: 0.7rem;
+    }
+
+    /* 2. 2-SECOND HOVER IMAGE OVERLAY */
+    .product-image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: white;
+        z-index: 10;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+        transition-delay: 0s; /* Disappear instantly when mouse leaves */
+    }
+
+    .product-card:hover .product-image-overlay {
+        opacity: 1;
+        visibility: visible;
+        transition-delay: 2s; /* Only show after 2 seconds of lingering */
+    }
+
+    .product-image-overlay img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 8px;
+    }
+
+    .no-image-placeholder {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+        color: #adb5bd;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+    }
+
+    /* 3. CART SIDEBAR STYLING */
+    #cartItemsList::-webkit-scrollbar {
+        width: 5px;
+    }
+    #cartItemsList::-webkit-scrollbar-thumb {
+        background: #e2e8f0;
+        border-radius: 10px;
+    }
+</style>
+
+<div class="container-fluid py-3 h-100">
     <div class="row h-100">
-        <!-- Product Selection Area -->
-        <div class="col-lg-8">
-            <div class="card shadow border-0 rounded-4 mb-4">
-                <div class="card-header bg-white border-0 pt-4">
+        <div class="col-lg-9 col-md-8">
+            <div class="card shadow-sm border-0 rounded-4 mb-3">
+                <div class="card-header bg-white border-0 py-3">
                     <div class="row align-items-center">
-                        <div class="col">
-                            <h4 class="mb-0">Select Products</h4>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="input-group rounded-pill border bg-light px-3">
+                        <div class="col"><h5 class="mb-0 fw-bold">POS Terminal</h5></div>
+                        <div class="col-md-5">
+                            <div class="input-group input-group-sm rounded-pill border bg-light px-2">
                                 <span class="input-group-text border-0 bg-transparent text-muted"><i class="fas fa-search"></i></span>
-                                <input type="text" id="productSearch" class="form-control border-0 bg-transparent shadow-none" placeholder="Search by name or SKU...">
+                                <input type="text" id="productSearch" class="form-control border-0 bg-transparent shadow-none" placeholder="Search SKU or Name...">
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="card-body overflow-auto" style="max-height: 70vh;">
-                    <div class="row g-3" id="productGrid">
+                <div class="card-body overflow-auto" style="max-height: 82vh;">
+                    <div class="row g-2" id="productGrid">
                         {% for product in products %}
-                        <div class="col-md-4 col-sm-6 product-item" data-name="{{ product.name|lower }}" data-sku="{{ product.sku|lower }}">
-                            <!-- Added data attributes here to safely store info -->
-                            <div class="card h-100 border rounded-4 product-card cursor-pointer add-to-cart-trigger"
-                                 style="cursor: pointer;"
-                                 data-id="{{ product.id }}"
-                                 data-product-name="{{ product.name }}"
-                                 data-price="{{ product.sale_price }}">
-                                <div class="card-body text-center">
-                                    <div class="bg-light rounded-4 mb-3 d-flex align-items-center justify-content-center" style="height: 100px;">
-                                        <i class="fas fa-box fa-2x text-muted opacity-50"></i>
+                        <div class="col-xl-2 col-lg-3 col-md-4 col-6 product-item"
+                             data-name="{{ product.name|lower }}"
+                             data-sku="{{ product.sku|lower }}">
+
+                            <div class="card product-card h-100 shadow-none text-center">
+                                <div class="product-image-overlay">
+                                    {% if product.main_image %}
+                                        <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
+                                    {% else %}
+                                        <div class="no-image-placeholder">No Image</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <small class="text-muted d-block small mb-1">{{ product.sku }}</small>
+                                        <h6 class="product-title mb-1 text-dark">{{ product.name }}</h6>
                                     </div>
-                                    <h6 class="mb-1 text-truncate">{{ product.name }}</h6>
-                                    <p class="text-primary fw-bold mb-0">${{ product.sale_price }}</p>
-                                    <small class="text-muted">Stock: {{ product.stock_quantity }}</small>
+
+                                    <div class="mt-2">
+                                        <div class="text-primary fw-bold mb-2 small">${{ product.sale_price }}</div>
+                                        <button class="btn btn-primary btn-xs w-100 rounded-pill"
+                                                onclick="addToCart('{{ product.id }}', '{{ product.name|escapejs }}', '{{ product.sale_price }}')">
+                                            <i class="fas fa-plus me-1"></i>Add
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -45,41 +130,46 @@
             </div>
         </div>
 
-        <!-- Checkout Sidebar -->
-        <div class="col-lg-4">
-            <div class="card shadow border-0 rounded-4 h-100">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="mb-4">Current Order</h5>
+        <div class="col-lg-3 col-md-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100 d-flex flex-column">
+                <div class="card-header bg-white py-3">
+                    <h6 class="mb-0 fw-bold"><i class="fas fa-shopping-basket me-2"></i>Current Order</h6>
+                </div>
 
-                    <div class="mb-4">
-                        <label class="small text-muted text-uppercase fw-bold">Customer</label>
-                        <select id="customerSelect" class="form-select border-0 bg-light rounded-3">
-                            {% for acct_customer in acct_customers %}
-                            <option value="{{ acct_customer.id }}">{{ acct_customer.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <!-- Cart Items -->
-                    <div id="cartItems" class="flex-grow-1 overflow-auto mb-4" style="max-height: 40vh;">
-                        <div class="text-center py-5 text-muted empty-cart-msg">
-                            <i class="fas fa-shopping-cart fa-3x mb-3 opacity-20"></i>
-                            <p>Cart is empty</p>
+                <div class="card-body d-flex flex-column flex-grow-1 overflow-hidden">
+                    <div id="cartItemsList" class="flex-grow-1 overflow-auto pe-1">
+                        <div id="emptyCartMsg" class="text-center py-5">
+                            <i class="fas fa-cart-arrow-down fa-3x text-light mb-3"></i>
+                            <p class="text-muted small">Cart is empty</p>
                         </div>
                     </div>
 
-                    <!-- Totals -->
-                    <div class="border-top pt-4">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted">Subtotal</span>
-                            <span id="subtotalLabel">$0.00</span>
+                    <div class="border-top pt-3 mt-auto">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted">Total Amount</span>
+                            <span class="h4 mb-0 fw-bold text-primary">$<span id="cartTotal">0.00</span></span>
                         </div>
-                        <div class="d-flex justify-content-between mb-4">
-                            <h4 class="mb-0">Total</h4>
-                            <h4 class="mb-0 text-primary" id="totalLabel">$0.00</h4>
+
+                        <div class="mb-2">
+                            <label class="small text-muted mb-1">Customer</label>
+                            <select id="customerSelect" class="form-select form-select-sm rounded-pill">
+                                <option value="">Walk-in Customer</option>
+                                {% for cust in acct_customers %}
+                                <option value="{{ cust.id }}">{{ cust.name }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
-                        <button onclick="completeSale()" id="checkoutBtn" class="btn btn-primary w-100 rounded-pill py-3 fw-bold" disabled>
-                            <i class="fas fa-credit-card me-2"></i> Complete Sale
+
+                        <div class="mb-3">
+                            <label class="small text-muted mb-1">Payment</label>
+                            <select id="paymentMethod" class="form-select form-select-sm rounded-pill">
+                                <option value="CASH">Cash Payment</option>
+                                <option value="CARD">Credit/Debit Card</option>
+                            </select>
+                        </div>
+
+                        <button id="checkoutBtn" onclick="processCheckout()" class="btn btn-success w-100 py-2 rounded-pill shadow-sm fw-bold">
+                            COMPLETE SALE
                         </button>
                     </div>
                 </div>
@@ -89,153 +179,131 @@
 </div>
 
 <script>
+// 1. GLOBAL CART STATE
 let cart = [];
 
-// Catch clicks on any product card and pulls data from attributes
-document.getElementById('productGrid').addEventListener('click', function(e) {
-    const trigger = e.target.closest('.add-to-cart-trigger');
-    if (trigger) {
-        const id = trigger.getAttribute('data-id');
-        const name = trigger.getAttribute('data-product-name');
-        const price = parseFloat(trigger.getAttribute('data-price'));
-        addToCart(id, name, price);
-    }
-});
-
 function addToCart(id, name, price) {
-    const existing = cart.find(item => item.id === id);
-    if (existing) {
-        existing.quantity += 1;
+    const itemPrice = parseFloat(price);
+    const existingItem = cart.find(item => item.id === id);
+
+    if (existingItem) {
+        existingItem.quantity += 1;
     } else {
-        cart.push({ id, name, price, quantity: 1 });
+        cart.push({
+            id: id,
+            name: name,
+            price: itemPrice,
+            quantity: 1
+        });
     }
-    renderCart();
+    updateCartUI();
 }
 
-function removeFromCart(id) {
-    cart = cart.filter(item => item.id !== id);
-    renderCart();
-}
-
-function updateQty(id, delta) {
-    const item = cart.find(i => i.id === id);
-    if (item) {
-        item.quantity += delta;
-        if (item.quantity <= 0) removeFromCart(id);
-        else renderCart();
-    }
-}
-
-function renderCart() {
-    const container = document.getElementById('cartItems');
+function updateCartUI() {
+    const listContainer = document.getElementById('cartItemsList');
+    const totalEl = document.getElementById('cartTotal');
+    const emptyMsg = document.getElementById('emptyCartMsg');
     const checkoutBtn = document.getElementById('checkoutBtn');
 
+    listContainer.innerHTML = '';
+    let total = 0;
+
     if (cart.length === 0) {
-        container.innerHTML = `
-            <div class="text-center py-5 text-muted empty-cart-msg">
-                <i class="fas fa-shopping-cart fa-3x mb-3 opacity-20"></i>
-                <p>Cart is empty</p>
-            </div>`;
+        listContainer.appendChild(emptyMsg);
+        totalEl.innerText = "0.00";
         checkoutBtn.disabled = true;
-        document.getElementById('subtotalLabel').innerText = '$0.00';
-        document.getElementById('totalLabel').innerText = '$0.00';
         return;
     }
 
     checkoutBtn.disabled = false;
-    container.innerHTML = '';
-    let total = 0;
 
-    cart.forEach(item => {
-        const lineTotal = item.price * item.quantity;
-        total += lineTotal;
+    cart.forEach((item, index) => {
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
 
-        const safeName = item.name.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-
-        const itemEl = document.createElement('div');
-        itemEl.className = 'd-flex align-items-center mb-3 p-2 bg-light rounded-3';
-        itemEl.innerHTML = `
+        const itemRow = document.createElement('div');
+        itemRow.className = 'd-flex align-items-center mb-2 p-2 bg-light rounded-3 animate__animated animate__fadeIn';
+        itemRow.innerHTML = `
             <div class="flex-grow-1">
-                <h6 class="mb-0 small fw-bold">${safeName}</h6>
-                <small class="text-muted">$${item.price} x ${item.quantity}</small>
+                <div class="small fw-bold text-truncate" style="max-width: 140px;">${item.name}</div>
+                <div class="text-muted small">$${item.price.toFixed(2)} x ${item.quantity}</div>
             </div>
-            <div class="d-flex align-items-center">
-                <button onclick="updateQty('${item.id}', -1)" class="btn btn-sm btn-white border shadow-none p-1 px-2"><i class="fas fa-minus fa-xs"></i></button>
-                <span class="mx-2 small fw-bold">${item.quantity}</span>
-                <button onclick="updateQty('${item.id}', 1)" class="btn btn-sm btn-white border shadow-none p-1 px-2"><i class="fas fa-plus fa-xs"></i></button>
+            <div class="text-end me-2">
+                <div class="small fw-bold text-primary">$${itemTotal.toFixed(2)}</div>
             </div>
-            <div class="ms-3 text-end" style="min-width: 60px;">
-                <span class="small fw-bold">$${lineTotal.toFixed(2)}</span>
-            </div>
+            <button onclick="removeFromCart(${index})" class="btn btn-sm text-danger p-0 border-0">
+                <i class="fas fa-times-circle"></i>
+            </button>
         `;
-        container.appendChild(itemEl);
+        listContainer.appendChild(itemRow);
     });
 
-    document.getElementById('subtotalLabel').innerText = `$${total.toFixed(2)}`;
-    document.getElementById('totalLabel').innerText = `$${total.toFixed(2)}`;
+    totalEl.innerText = total.toFixed(2);
 }
 
-async function completeSale() {
-    const acct_customerId = document.getElementById('customerSelect').value;
-    const checkoutBtn = document.getElementById('checkoutBtn');
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    updateCartUI();
+}
 
-    // Prevent empty sales
+// 2. BACKEND INTEGRATION
+async function processCheckout() {
     if (cart.length === 0) return;
 
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    const originalText = checkoutBtn.innerHTML;
+
     checkoutBtn.disabled = true;
-    checkoutBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Processing...';
+    checkoutBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+
+    const payload = {
+        cart: cart,
+        customer_id: document.getElementById('customerSelect').value,
+        payment_method: document.getElementById('paymentMethod').value
+    };
 
     try {
-        // Use Django's URL tag to ensure we hit the correct endpoint
-        const response = await fetch("{% url 'pos_checkout' %}", {
+        const response = await fetch('/pos/pos/checkout/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': '{{ csrf_token }}'
             },
-            body: JSON.stringify({
-                acct_customer_id: acct_customerId,
-                cart: cart
-            })
+            body: JSON.stringify(payload)
         });
 
         const result = await response.json();
 
-        if (result.status === 'success') {
-            // Success: Redirect to the newly created invoice detail page
+        if (response.ok && result.status === 'success') {
             window.location.href = result.redirect_url;
         } else {
-            // Show error message from backend
-            alert("Error: " + result.message);
+            alert("Checkout Error: " + (result.message || "Unknown error"));
             checkoutBtn.disabled = false;
-            checkoutBtn.innerHTML = '<i class="fas fa-credit-card me-2"></i> Complete Sale';
+            checkoutBtn.innerHTML = originalText;
         }
     } catch (e) {
-        console.error("POS Checkout Error:", e);
-        alert("A system error occurred. Please check the console.");
+        console.error("Fetch Error:", e);
+        alert("Failed to connect to the server.");
         checkoutBtn.disabled = false;
-        checkoutBtn.innerHTML = '<i class="fas fa-credit-card me-2"></i> Complete Sale';
+        checkoutBtn.innerHTML = originalText;
     }
 }
 
-// Search Functionality
+// 3. SEARCH LOGIC
 document.getElementById('productSearch').addEventListener('input', function(e) {
     const term = e.target.value.toLowerCase();
     document.querySelectorAll('.product-item').forEach(el => {
         const name = el.getAttribute('data-name');
         const sku = el.getAttribute('data-sku');
         if (name.includes(term) || sku.includes(term)) {
-            el.classList.remove('d-none');
+            el.style.display = 'block';
         } else {
-            el.classList.add('d-none');
+            el.style.display = 'none';
         }
     });
 });
+
+// Initialization
+document.addEventListener('DOMContentLoaded', updateCartUI);
 </script>
-<style>
-    .product-card { transition: all 0.2s; border: 1px solid #eee !important; }
-    .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-color: #5e72e4 !important; }
-    .cursor-pointer { cursor: pointer; }
-    .btn-white { background: white; color: #333; }
-</style>
 {% endblock %}

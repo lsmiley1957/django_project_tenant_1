@@ -1,0 +1,96 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white py-3">
+                <h3 class="h5 mb-0">Update Performance Review</h3>
+                <p class="mb-0 small opacity-75">Reviewing: {{ review.associate.user.get_full_name }}</p>
+            </div>
+            
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="card-body p-4">
+                    
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="row">
+                        <!-- Column 1: Metadata -->
+                        <div class="col-md-4 border-right">
+                            <h6 class="text-muted font-weight-bold mb-3 text-uppercase small">Review Details</h6>
+                            
+                            <div class="form-group mb-3">
+                                <label class="font-weight-bold">Review Date</label>
+                                {{ form.review_date }}
+                                {% if form.review_date.errors %}<div class="text-danger small">{{ form.review_date.errors }}</div>{% endif %}
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label class="font-weight-bold">Rating</label>
+                                {{ form.rating }}
+                                {% if form.rating.errors %}<div class="text-danger small">{{ form.rating.errors }}</div>{% endif %}
+                            </div>
+
+                            <hr>
+
+                            <div class="form-group mb-3">
+                                <label class="font-weight-bold text-primary">Period Start</label>
+                                {{ form.review_period_start }}
+                                {% if form.review_period_start.errors %}<div class="text-danger small">{{ form.review_period_start.errors }}</div>{% endif %}
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label class="font-weight-bold text-primary">Period End</label>
+                                {{ form.review_period_end }}
+                                {% if form.review_period_end.errors %}<div class="text-danger small">{{ form.review_period_end.errors }}</div>{% endif %}
+                            </div>
+
+                            <div class="custom-control custom-checkbox mt-4 p-3 bg-light rounded">
+                                {{ form.goals_met }}
+                                <label class="custom-control-label font-weight-bold" for="{{ form.goals_met.id_for_label }}">
+                                    All previous goals met?
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Column 2: Feedback -->
+                        <div class="col-md-8 pl-md-4">
+                            <h6 class="text-muted font-weight-bold mb-3 text-uppercase small">Assessment</h6>
+                            
+                            <div class="form-group mb-4">
+                                <label class="font-weight-bold">Performance Feedback</label>
+                                {{ form.feedback }}
+                                {% if form.feedback.errors %}<div class="text-danger small">{{ form.feedback.errors }}</div>{% endif %}
+                                <small class="form-text text-muted">Provide a detailed qualitative assessment of the associate's contributions.</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="font-weight-bold">Goals for Next Period</label>
+                                {{ form.goals_for_next_period }}
+                                {% if form.goals_for_next_period.errors %}<div class="text-danger small">{{ form.goals_for_next_period.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light border-top d-flex justify-content-between align-items-center py-3">
+                    <a href="{% url 'associate:review_detail' review.id %}" class="btn btn-link text-secondary">
+                        <i class="fas fa-times mr-1"></i> Cancel Changes
+                    </a>
+                    <button type="submit" class="btn btn-primary px-5 shadow-sm">
+                        <i class="fas fa-save mr-1"></i> Update Review
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

@@ -1,81 +1,99 @@
 {% extends "inventory/base.html" %}
 
 {% block content %}
-
 <div class="container py-5">
-<div class="row justify-content-center">
-<div class="col-lg-6 col-md-8">
-<div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
-<a href="{% url 'pos_transaction_list' %}" class="btn btn-link text-muted p-0 text-decoration-none">
-<i class="fas fa-arrow-left me-2"></i> Back to History
-</a>
-<button onclick="window.print()" class="btn btn-white shadow-sm rounded-pill px-4">
-<i class="fas fa-print me-2"></i> Print
-</button>
-</div>
-
-        <!-- Receipt Card -->
-        <div class="card shadow border-0 rounded-4 p-4 p-md-5 receipt-paper">
-            <div class="text-center mb-4">
-                <h3 class="mb-1 font-weight-bold">SALES RECEIPT</h3>
-                <p class="text-muted small mb-0">{{ transaction.timestamp|date:"F d, Y @ H:i" }}</p>
-                <p class="text-muted small">ID: {{ transaction.receipt_number }}</p>
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
+                <a href="{% url 'pos:transaction_list' %}" class="btn btn-link text-muted p-0 text-decoration-none">
+                    <i class="fas fa-arrow-left me-2"></i> Back to History
+                </a>
+                <button onclick="window.print()" class="btn btn-white shadow-sm rounded-pill px-4">
+                    <i class="fas fa-print me-2"></i> Print
+                </button>
             </div>
 
-            <div class="border-top border-bottom py-3 mb-4">
-                <div class="row small">
-                    <div class="col-6"><strong>Customer:</strong></div>
-                    <div class="col-6 text-end">{{ transaction.customer.name|default:"Walk-in" }}</div>
-                    <div class="col-6"><strong>Payment:</strong></div>
-                    <div class="col-6 text-end">{{ transaction.payment_method }}</div>
+            <div class="card shadow border-0 rounded-4 p-4 p-md-5 receipt-paper">
+                <div class="text-center mb-4">
+                    <h3 class="mb-1 font-weight-bold">SALES RECEIPT</h3>
+                    <p class="text-muted small mb-0">{{ transaction.timestamp|date:"F d, Y @ H:i" }}</p>
+                    <p class="text-muted small">ID: {{ transaction.receipt_number }}</p>
                 </div>
-            </div>
 
-            <table class="table table-borderless table-sm mb-4">
-                <thead>
-                    <tr class="border-bottom small text-muted">
-                        <th>Item</th>
-                        <th class="text-center">Qty</th>
-                        <th class="text-end">Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in transaction.items.all %}
-                    <tr>
-                        <td>{{ item.product.name }}</td>
-                        <td class="text-center">x{{ item.quantity }}</td>
-                        <td class="text-end">${{ item.unit_price }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-
-            <div class="border-top pt-3">
-                <div class="d-flex justify-content-between h4 font-weight-bold">
-                    <span>Total</span>
-                    <span>${{ transaction.total_price }}</span>
+                <div class="border-top border-bottom py-3 mb-4">
+                    <div class="row small">
+                        <div class="col-6"><strong>Customer:</strong></div>
+                        <div class="col-6 text-end">
+                            {% if transaction.customer %}
+                                {{ transaction.customer.name }}
+                            {% else %}
+                                Walk-in Customer
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row small mt-1">
+                        <div class="col-6"><strong>Payment:</strong></div>
+                        <div class="col-6 text-end">{{ transaction.payment_method }}</div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="text-center mt-5 pt-4 border-top text-muted">
-                <p class="small mb-0">Thank you for shopping with us!</p>
-                <p class="small">Please keep this receipt for your records.</p>
+                <table class="table table-borderless">
+                    <thead>
+                        <tr>
+                            <th colspan="2">Item</th> <th class="text-center">Qty</th>
+                            <th class="text-end">Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in transaction.items.all %}
+                        <tr>
+                            <td style="width: 50px; vertical-align: middle;">
+                                {% if item.product.image %}
+                                    <img src="{{ item.product.image.url }}" alt="" style="width: 40px; height: 40px; object-fit: cover;" class="rounded shadow-sm">
+                                {% else %}
+                                    <div style="width: 40px; height: 40px; background: #f0f0f0;" class="rounded d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-box text-muted" style="font-size: 0.7rem;"></i>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td style="vertical-align: middle;">
+                                <span class="d-block font-weight-bold" style="font-size: 0.9rem;">{{ item.product.name }}</span>
+                                <small class="text-muted">{{ item.product.sku }}</small>
+                            </td>
+                            <td class="text-center" style="vertical-align: middle;">x{{ item.quantity }}</td>
+                            <td class="text-end" style="vertical-align: middle;">${{ item.unit_price }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="border-top pt-3">
+                    <div class="d-flex justify-content-between h4 font-weight-bold">
+                        <span>Total</span>
+                        <span>${{ transaction.total_price }}</span>
+                    </div>
+                </div>
+
+                <div class="text-center mt-5 pt-4 border-top text-muted">
+                    <p class="small mb-0">Thank you for shopping with us!</p>
+                    <p class="small">Please keep this receipt for your records.</p>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-
-</div>
-
 <style>
 @media print {
-body { background: white !important; }
-.navbar, .d-print-none, footer { display: none !important; }
-.container { width: 100% !important; max-width: 100% !important; padding: 0 !important; }
-.card { box-shadow: none !important; border: none !important; }
-.receipt-paper { width: 80mm; margin: 0 auto; font-family: 'Courier New', Courier, monospace; }
+    body { background: white !important; }
+    .navbar, .d-print-none, footer { display: none !important; }
+    .container { width: 100% !important; max-width: 100% !important; padding: 0 !important; }
+    .card { box-shadow: none !important; border: none !important; }
+    .receipt-paper { width: 80mm; margin: 0 auto; padding: 10px !important; }
 }
+.receipt-paper {
+    background: #fff;
+}
+.font-weight-bold { font-weight: 700; }
 </style>
-
 {% endblock %}

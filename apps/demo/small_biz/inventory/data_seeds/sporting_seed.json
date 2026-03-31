@@ -1,0 +1,428 @@
+{
+    "categories": [
+        {
+            "name": "Team Sports",
+            "description": "Equipment for soccer, basketball, baseball, and football"
+        },
+        {
+            "name": "Fitness & Training",
+            "description": "Gym equipment, weights, and yoga gear"
+        },
+        {
+            "name": "Outdoor Recreation",
+            "description": "Camping, hiking, and climbing essentials"
+        },
+        {
+            "name": "Water Sports",
+            "description": "Swimming, kayaking, and surfing gear"
+        },
+        {
+            "name": "Cycling",
+            "description": "Bicycles, helmets, and repair kits"
+        },
+        {
+            "name": "Running",
+            "description": "Performance footwear and athletic apparel"
+        },
+        {
+            "name": "Racquet Sports",
+            "description": "Tennis, badminton, and squash equipment"
+        },
+        {
+            "name": "Winter Sports",
+            "description": "Skis, snowboards, and cold-weather gear"
+        },
+        {
+            "name": "Golf",
+            "description": "Clubs, balls, and course accessories"
+        },
+        {
+            "name": "Fan Shop",
+            "description": "Licensed jerseys and team memorabilia"
+        }
+    ],
+    "suppliers": [
+        {
+            "name": "Apex Athletics",
+            "contact_email": "sales@apexathletics.com",
+            "average_lead_time": 3.0
+        },
+        {
+            "name": "Summit Gear Co.",
+            "contact_email": "orders@summitgear.com",
+            "average_lead_time": 5.5
+        },
+        {
+            "name": "AquaFlow Sports",
+            "contact_email": "wholesale@aquaflow.com",
+            "average_lead_time": 2.5
+        },
+        {
+            "name": "Velocity Cycles",
+            "contact_email": "logistics@velocitycycles.com",
+            "average_lead_time": 4.0
+        },
+        {
+            "name": "IronCore Fitness",
+            "contact_email": "info@ironcore.com",
+            "average_lead_time": 2.0
+        },
+        {
+            "name": "Evergreen Outdoors",
+            "contact_email": "supply@evergreen.com",
+            "average_lead_time": 6.0
+        },
+        {
+            "name": "ProCourt Supply",
+            "contact_email": "sales@procourt.com",
+            "average_lead_time": 3.5
+        },
+        {
+            "name": "Arctic Peak Equipment",
+            "contact_email": "orders@arcticpeak.com",
+            "average_lead_time": 4.5
+        },
+        {
+            "name": "Fairway Greens",
+            "contact_email": "bulk@fairwaygreens.com",
+            "average_lead_time": 5.0
+        },
+        {
+            "name": "Fanatic Apparel",
+            "contact_email": "support@fanaticapparel.com",
+            "average_lead_time": 2.0
+        }
+    ],
+    "products": [
+        {
+            "sku": "SG-TEA-SOC-01",
+            "name": "FIFA Quality Pro Soccer Ball",
+            "category_name": "Team Sports",
+            "supplier_name": "Apex Athletics",
+            "cost_price": "25.00",
+            "sale_price": "55.00",
+            "quantity_in_stock": 40,
+            "reorder_level": 10,
+            "location": "Aisle 1, Rack 3"
+        },
+        {
+            "sku": "SG-TEA-BAS-02",
+            "name": "Official Size Basketball",
+            "category_name": "Team Sports",
+            "supplier_name": "Apex Athletics",
+            "cost_price": "18.50",
+            "sale_price": "39.99",
+            "quantity_in_stock": 25,
+            "reorder_level": 5,
+            "location": "Aisle 1, Rack 1"
+        },
+        {
+            "sku": "SG-FIT-DUM-03",
+            "name": "Adjustable Dumbbell Set (50lb)",
+            "category_name": "Fitness & Training",
+            "supplier_name": "IronCore Fitness",
+            "cost_price": "120.00",
+            "sale_price": "249.99",
+            "quantity_in_stock": 10,
+            "reorder_level": 3,
+            "location": "Aisle 4, Shelf B"
+        },
+        {
+            "sku": "SG-FIT-MAT-04",
+            "name": "Non-Slip Eco Yoga Mat",
+            "category_name": "Fitness & Training",
+            "supplier_name": "IronCore Fitness",
+            "cost_price": "15.00",
+            "sale_price": "34.50",
+            "quantity_in_stock": 35,
+            "reorder_level": 8,
+            "location": "Aisle 4, Shelf E"
+        },
+        {
+            "sku": "SG-OUT-TEN-05",
+            "name": "4-Person Waterproof Camping Tent",
+            "category_name": "Outdoor Recreation",
+            "supplier_name": "Summit Gear Co.",
+            "cost_price": "65.00",
+            "sale_price": "129.99",
+            "quantity_in_stock": 12,
+            "reorder_level": 4,
+            "location": "Aisle 7, Platform 1"
+        },
+        {
+            "sku": "SG-OUT-BAG-06",
+            "name": "65L Internal Frame Backpack",
+            "category_name": "Outdoor Recreation",
+            "supplier_name": "Evergreen Outdoors",
+            "cost_price": "85.00",
+            "sale_price": "175.00",
+            "quantity_in_stock": 8,
+            "reorder_level": 3,
+            "location": "Aisle 7, Rack 4"
+        },
+        {
+            "sku": "SG-WAT-GOG-07",
+            "name": "Anti-Fog Competition Goggles",
+            "category_name": "Water Sports",
+            "supplier_name": "AquaFlow Sports",
+            "cost_price": "8.50",
+            "sale_price": "22.00",
+            "quantity_in_stock": 60,
+            "reorder_level": 15,
+            "location": "Aisle 9, Bin 2"
+        },
+        {
+            "sku": "SG-WAT-KYK-08",
+            "name": "Sit-On-Top Fishing Kayak",
+            "category_name": "Water Sports",
+            "supplier_name": "AquaFlow Sports",
+            "cost_price": "320.00",
+            "sale_price": "599.00",
+            "quantity_in_stock": 4,
+            "reorder_level": 2,
+            "location": "Outdoor Yard A"
+        },
+        {
+            "sku": "SG-CYC-MNT-09",
+            "name": "29-inch Hardtail Mountain Bike",
+            "category_name": "Cycling",
+            "supplier_name": "Velocity Cycles",
+            "cost_price": "450.00",
+            "sale_price": "899.00",
+            "quantity_in_stock": 6,
+            "reorder_level": 2,
+            "location": "Bicycle Rack 2"
+        },
+        {
+            "sku": "SG-CYC-HEL-10",
+            "name": "MIPS Multi-Sport Helmet",
+            "category_name": "Cycling",
+            "supplier_name": "Velocity Cycles",
+            "cost_price": "35.00",
+            "sale_price": "79.99",
+            "quantity_in_stock": 20,
+            "reorder_level": 5,
+            "location": "Aisle 3, Shelf C"
+        },
+        {
+            "sku": "SG-RUN-SHO-11",
+            "name": "Men's Stability Running Shoes",
+            "category_name": "Running",
+            "supplier_name": "Apex Athletics",
+            "cost_price": "60.00",
+            "sale_price": "120.00",
+            "quantity_in_stock": 18,
+            "reorder_level": 6,
+            "location": "Aisle 2, Footwear Wall"
+        },
+        {
+            "sku": "SG-RUN-WAT-12",
+            "name": "GPS Fitness Tracker Watch",
+            "category_name": "Running",
+            "supplier_name": "Apex Athletics",
+            "cost_price": "110.00",
+            "sale_price": "199.99",
+            "quantity_in_stock": 15,
+            "reorder_level": 4,
+            "location": "Secure Case 1"
+        },
+        {
+            "sku": "SG-RAC-TEN-13",
+            "name": "Graphite Tennis Racquet",
+            "category_name": "Racquet Sports",
+            "supplier_name": "ProCourt Supply",
+            "cost_price": "75.00",
+            "sale_price": "159.00",
+            "quantity_in_stock": 12,
+            "reorder_level": 4,
+            "location": "Aisle 5, Rack 2"
+        },
+        {
+            "sku": "SG-RAC-BAL-14",
+            "name": "Championship Tennis Balls (3-can)",
+            "category_name": "Racquet Sports",
+            "supplier_name": "ProCourt Supply",
+            "cost_price": "2.20",
+            "sale_price": "5.99",
+            "quantity_in_stock": 100,
+            "reorder_level": 20,
+            "location": "Aisle 5, Bin 10"
+        },
+        {
+            "sku": "SG-WIN-SKI-15",
+            "name": "All-Mountain Alpine Skis",
+            "category_name": "Winter Sports",
+            "supplier_name": "Arctic Peak Equipment",
+            "cost_price": "280.00",
+            "sale_price": "549.00",
+            "quantity_in_stock": 8,
+            "reorder_level": 2,
+            "location": "Winter Rack 1"
+        },
+        {
+            "sku": "SG-WIN-GOG-16",
+            "name": "Polarized Snow Goggles",
+            "category_name": "Winter Sports",
+            "supplier_name": "Arctic Peak Equipment",
+            "cost_price": "45.00",
+            "sale_price": "98.00",
+            "quantity_in_stock": 25,
+            "reorder_level": 5,
+            "location": "Aisle 6, Shelf A"
+        },
+        {
+            "sku": "SG-GOL-CLU-17",
+            "name": "Titanium Driver Club",
+            "category_name": "Golf",
+            "supplier_name": "Fairway Greens",
+            "cost_price": "150.00",
+            "sale_price": "299.00",
+            "quantity_in_stock": 10,
+            "reorder_level": 3,
+            "location": "Golf Island 1"
+        },
+        {
+            "sku": "SG-GOL-BAL-18",
+            "name": "Pro-Spin Golf Balls (12pk)",
+            "category_name": "Golf",
+            "supplier_name": "Fairway Greens",
+            "cost_price": "18.00",
+            "sale_price": "44.99",
+            "quantity_in_stock": 50,
+            "reorder_level": 12,
+            "location": "Aisle 8, Shelf F"
+        },
+        {
+            "sku": "SG-FAN-JER-19",
+            "name": "Home Team Replica Jersey",
+            "category_name": "Fan Shop",
+            "supplier_name": "Fanatic Apparel",
+            "cost_price": "42.00",
+            "sale_price": "95.00",
+            "quantity_in_stock": 30,
+            "reorder_level": 10,
+            "location": "Aisle 10, Apparel Rack"
+        },
+        {
+            "sku": "SG-FAN-HAT-20",
+            "name": "Adjustable Team Baseball Cap",
+            "category_name": "Fan Shop",
+            "supplier_name": "Fanatic Apparel",
+            "cost_price": "12.00",
+            "sale_price": "29.99",
+            "quantity_in_stock": 45,
+            "reorder_level": 15,
+            "location": "Aisle 10, Display Wall"
+        },
+        {
+            "sku": "SG-TEA-BAT-21",
+            "name": "BBCOR Baseball Bat (-3)",
+            "category_name": "Team Sports",
+            "supplier_name": "Apex Athletics",
+            "cost_price": "140.00",
+            "sale_price": "279.99",
+            "quantity_in_stock": 8,
+            "reorder_level": 2,
+            "location": "Aisle 1, Rack 4"
+        },
+        {
+            "sku": "SG-FIT-KTL-22",
+            "name": "Cast Iron Kettlebell (20kg)",
+            "category_name": "Fitness & Training",
+            "supplier_name": "IronCore Fitness",
+            "cost_price": "32.00",
+            "sale_price": "68.00",
+            "quantity_in_stock": 15,
+            "reorder_level": 5,
+            "location": "Aisle 4, Floor Bin"
+        },
+        {
+            "sku": "SG-OUT-STO-23",
+            "name": "Portable Dual-Burner Camp Stove",
+            "category_name": "Outdoor Recreation",
+            "supplier_name": "Summit Gear Co.",
+            "cost_price": "48.00",
+            "sale_price": "99.00",
+            "quantity_in_stock": 20,
+            "reorder_level": 6,
+            "location": "Aisle 7, Shelf B"
+        },
+        {
+            "sku": "SG-WAT-BRD-24",
+            "name": "Inflatable Stand-Up Paddleboard",
+            "category_name": "Water Sports",
+            "supplier_name": "AquaFlow Sports",
+            "cost_price": "190.00",
+            "sale_price": "399.00",
+            "quantity_in_stock": 7,
+            "reorder_level": 2,
+            "location": "Outdoor Yard A"
+        },
+        {
+            "sku": "SG-CYC-LGT-25",
+            "name": "LED Rechargeable Bike Light Set",
+            "category_name": "Cycling",
+            "supplier_name": "Velocity Cycles",
+            "cost_price": "14.50",
+            "sale_price": "32.00",
+            "quantity_in_stock": 40,
+            "reorder_level": 12,
+            "location": "Aisle 3, Bin 1"
+        },
+        {
+            "sku": "SG-RUN-VET-26",
+            "name": "Hydration Running Vest (1.5L)",
+            "category_name": "Running",
+            "supplier_name": "Evergreen Outdoors",
+            "cost_price": "45.00",
+            "sale_price": "89.99",
+            "quantity_in_stock": 10,
+            "reorder_level": 4,
+            "location": "Aisle 2, Accessories"
+        },
+        {
+            "sku": "SG-RAC-NET-27",
+            "name": "Portable Badminton Net Set",
+            "category_name": "Racquet Sports",
+            "supplier_name": "ProCourt Supply",
+            "cost_price": "28.00",
+            "sale_price": "59.95",
+            "quantity_in_stock": 14,
+            "reorder_level": 4,
+            "location": "Aisle 5, Shelf E"
+        },
+        {
+            "sku": "SG-WIN-BOD-28",
+            "name": "Freestyle All-Mountain Snowboard",
+            "category_name": "Winter Sports",
+            "supplier_name": "Arctic Peak Equipment",
+            "cost_price": "210.00",
+            "sale_price": "425.00",
+            "quantity_in_stock": 5,
+            "reorder_level": 2,
+            "location": "Winter Rack 2"
+        },
+        {
+            "sku": "SG-GOL-BAG-29",
+            "name": "Lightweight Stand Golf Bag",
+            "category_name": "Golf",
+            "supplier_name": "Fairway Greens",
+            "cost_price": "82.00",
+            "sale_price": "165.00",
+            "quantity_in_stock": 12,
+            "reorder_level": 4,
+            "location": "Golf Island 2"
+        },
+        {
+            "sku": "SG-FAN-FLG-30",
+            "name": "Large Team Logo Wall Flag",
+            "category_name": "Fan Shop",
+            "supplier_name": "Fanatic Apparel",
+            "cost_price": "7.50",
+            "sale_price": "19.99",
+            "quantity_in_stock": 50,
+            "reorder_level": 10,
+            "location": "Aisle 10, Bin 5"
+        }
+    ]
+}

@@ -1,81 +1,162 @@
+import os
+from django.conf import settings
+from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from .models import Product, Category, Supplier, ProductImage, StockTransaction
 from django.db import models  # This defines 'models' for models.F
-from django.db.models import Sum, F, ExpressionWrapper, DecimalField, Count, Q
-from django.db.models.functions import Abs # Import Abs function
+from django.db.models import Sum, F, ExpressionWrapper, DecimalField, Count, Q, Value, Avg
+from django.db.models.functions import Abs, Coalesce  # Import Abs function
 from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal
 import json
+import random
+
+from .seeder import TenantDataSeeder
 
 
 @login_required
+def seed_setup(request):
+    """
+    Renders the setup wizard selection page (seed_setup.html or setup_wizard.html).
+    """
+    return render(request, 'inventory/seed_setup.html')
+
+
+# --- PROCESSING VIEW ---
+@login_required
+def initiate_seeding(request):
+    """
+    Handles the POST request from the wizard to populate the database.
+    """
+    if request.method == "POST":
+        # 1. Get the business type from the form
+        business_type = request.POST.get('business_type', '').strip().lower()
+
+        if not business_type:
+            messages.error(request, "Selection required: Please choose a business type.")
+            return redirect('seed_setup')
+
+        # 2. Define supported types (must match keys in your wizard HTML)
+        # Note: seeder_2.py handles the filename mapping internally
+        supported_types = ['bakery',
+                           'electronics',
+                           'retail',
+                           'pharmacy',
+                           'hardware',
+                           'grocery',
+                           'departmentstore',
+                           'sporting']
+
+        if business_type not in supported_types:
+            messages.error(request, f"Configuration for '{business_type}' is not supported.")
+            return redirect('seed_setup')
+
+        try:
+            # 3. Initialize with the business_type string
+            # TenantDataSeeder.__init__ expects 'business_type'
+            seeder = TenantDataSeeder(business_type)
+
+            # 4. Execute the seeding process
+            # TenantDataSeeder.run() handles file pathing and DB insertion
+            success = seeder.run()
+
+            if success:
+                messages.success(request, f"Successfully deployed {business_type.title()} profile!")
+                return redirect('dashboard')
+            else:
+                messages.error(request,
+                               f"Seeding failed: Check if {business_type}_seed.json exists in inventory/data_seeds/")
+                return redirect('seed_setup')
+
+        except Exception as e:
+            # This catches errors like the AttributeError you were likely hitting
+            messages.error(request, f"Seeding error: {str(e)}")
+            return redirect('seed_setup')
+
+    # If accessed via GET, just go to the setup page[cite: 7]
+    return redirect('seed_setup')
+# ... rest of your existing views (inventory_dashboard, etc.)
+
+from django.db.models import Sum, Avg, F, Value, DecimalField, Count, Case, When
+from django.db.models.functions import Coalesce, Abs
+import json
+
+@login_required
 def dashboard(request):
-    """Main overview with fixed data aggregation for charts."""
     products = Product.objects.all()
-    categories = Category.objects.all()
-    suppliers = Supplier.objects.all()
 
-    # Low stock items logic
-    low_stock = products.filter(quantity_in_stock__lte=models.F('reorder_level'))
+    # --- Top Metrics ---
+    total_products = products.count()
+    total_categories = Category.objects.count()
+    total_suppliers = Supplier.objects.count()
+    total_stock_value = sum(p.quantity_in_stock * p.cost_price for p in products)
 
+    # --- Enhanced Stock Distribution (Including Sales Count) ---
+    category_dist = Category.objects.annotate(
+        item_count=Sum('product__quantity_in_stock'),
+        stock_value=Sum(F('product__quantity_in_stock') * F('product__cost_price')),
+        avg_unit_cost=Avg('product__cost_price'),
+        # New: Calculate total units sold (negative changes in StockTransaction)
+        sales_count=Coalesce(
+            Sum(
+                Case(
+                    When(product__stocktransaction__change__lt=0,
+                         then=Abs(F('product__stocktransaction__change'))),
+                    default=0
+                )
+            ), 0
+        ),
+        display_name=Coalesce('name', Value('Uncategorized'))
+    ).filter(item_count__gt=0).order_by('-item_count')[:8]
+
+    # --- Sales Breakdown (Bar Chart Logic) ---
+    CHART_COLORS = ['#5e72e4', '#2dce89', '#11cdef', '#fb6340', '#f5365c', '#8965e0', '#ffd600', '#2bffc6']
     now = timezone.now()
-    timeframes = {
-        '24h': now - timedelta(hours=24),
-        '7d': now - timedelta(days=7),
-        '14d': now - timedelta(days=14),
-        '30d': now - timedelta(days=30),
-        '90d': now - timedelta(days=90),
-        '180d': now - timedelta(days=180),
-        '365d': now - timedelta(days=365),
-    }
+    timeframes = {'24h': 1, '7d': 7, '30d': 30, '365d': 365}
 
     category_sales_data = {}
-
-    for label, delta in timeframes.items():
-        # Querying for 'SALE' or any negative 'change' (which implies stock going out)
-        # This covers both explicit 'SALE' types and any manual 'OUT' adjustments
+    for label, days in timeframes.items():
+        delta = now - timedelta(days=days)
         sales_qs = StockTransaction.objects.filter(
-            Q(type__iexact='SALE') | Q(change__lt=0),
+            change__lt=0,
             timestamp__gte=delta
         ).values('product__category__name').annotate(
-            total_qty=Sum(Abs('change'))
-        ).order_by('-total_qty')[:10]
+            rev=Sum(Abs(F('change')) * F('product__sale_price'), output_field=DecimalField()),
+            cost=Sum(Abs(F('change')) * F('product__cost_price'), output_field=DecimalField()),
+        ).order_by('-rev')[:10]
 
-        # Calculate total volume for this specific timeframe to get percentages
-        grand_total = sum(item['total_qty'] for item in sales_qs if item['total_qty']) or 0
+        total_rev = sum(item['rev'] for item in sales_qs) or Decimal('1')
 
         formatted_list = []
-        for item in sales_qs:
-            cat_name = item['product__category__name'] or "Uncategorized"
-            val = float(item['total_qty'] or 0)
-
-            # Calculate percentage relative to the top 10 total
-            percentage = round((val / float(grand_total)) * 100, 1) if grand_total > 0 else 0
+        for i, item in enumerate(sales_qs):
+            revenue = float(item['rev'])
+            cost = float(item['cost'])
+            margin = round(((revenue - cost) / revenue) * 100, 1) if revenue > 0 else 0
 
             formatted_list.append({
-                'name': cat_name,
-                'value': percentage,
-                'raw': val
+                'name': item['product__category__name'] or "Uncategorized",
+                'value': round((revenue / float(total_rev)) * 100, 1),
+                'margin': margin,
+                'color': CHART_COLORS[i % len(CHART_COLORS)]
             })
-
         category_sales_data[label] = formatted_list
 
-    # Activity Feed
-    recent_transactions = StockTransaction.objects.select_related('product', 'product__category').order_by(
-        '-timestamp')[:10]
-
     context = {
-        'total_products': products.count(),
-        'total_categories': categories.count(),
-        'total_suppliers': suppliers.count(),
-        'low_stock_count': low_stock.count(),
-        'recent_transactions': recent_transactions,
+        'total_products': total_products,
+        'total_categories': total_categories,
+        'total_suppliers': total_suppliers,
+        'total_stock_value': f"{total_stock_value:,.2f}",
+        'category_distribution': category_dist,
         'category_sales_json': json.dumps(category_sales_data),
+        'dist_labels': json.dumps([c.display_name for c in category_dist]),
+        'dist_counts_json': json.dumps([int(c.item_count or 0) for c in category_dist]),
+        'dist_values_json': json.dumps([float(c.stock_value or 0) for c in category_dist]),
+        'recent_transactions': StockTransaction.objects.select_related('product').order_by('-timestamp')[:10]
     }
-
-    return render(request, 'inventory/project_dashboard.html', context)
+    return render(request, 'inventory/dashboard.html', context)
 
 
 @login_required
@@ -123,33 +204,52 @@ def inventory_reporting(request):
 @login_required
 def product_list(request):
     """Full catalog view."""
-    products = Product.objects.all()
+
+
+    products = Product.objects.all().order_by('name')
+
+    # 2. Get the search term 'q' from the URL
+    query = request.GET.get('q')
+
+    # 3. If a search term exists, filter the list
+    if query:
+        products = products.filter(
+            Q(name__icontains=query) |
+            Q(sku__icontains=query)
+        )
+
     return render(request, 'inventory/product_list.html', {'products': products})
 
 
 @login_required
 def add_product(request):
-    """Initial product creation."""
     categories = Category.objects.all()
     suppliers = Supplier.objects.all()
 
     if request.method == "POST":
+        # 1. Capture the intended initial stock
+        initial_qty = int(request.POST.get('quantity_in_stock', 0))
+
+        # 2. Create the product with 0 stock
         product = Product.objects.create(
             sku=request.POST.get('sku'),
             name=request.POST.get('name'),
             category_id=request.POST.get('category') or None,
             supplier_id=request.POST.get('supplier') or None,
-            sale_price=request.POST.get('sale_price'),
-            quantity_in_stock=request.POST.get('quantity_in_stock', 0),
+            cost_price=request.POST.get('cost_price', 0.00),
+            sale_price=request.POST.get('sale_price', 0.00),
+            quantity_in_stock=0,  # Start at zero
             reorder_level=request.POST.get('reorder_level', 10)
         )
-        # Create initial transaction
+
+        # 3. Create the transaction (this will update Product to initial_qty)
         StockTransaction.objects.create(
             product=product,
-            change=product.quantity_in_stock,
+            change=initial_qty,
             type='RESTOCK',
             notes="Initial stock entry"
         )
+
         return redirect('product_list')
 
     return render(request, 'inventory/add_product.html', {
@@ -228,25 +328,28 @@ def edit_product(request, pk):
 
 @login_required
 def update_stock(request, pk):
-    """Quick adjustment view for rapid stock-taking/sales."""
     product = get_object_or_404(Product, pk=pk)
-    if request.method == "POST":
-        adjustment = int(request.POST.get('adjustment', 0))
-        product.quantity_in_stock += adjustment
-        product.save()
+    if request.method == 'POST':
+        # Match 'transaction_type' to the name attribute in your HTML <select>
+        quantity = int(request.POST.get('quantity', 0))
+        transaction_type = request.POST.get('transaction_type') # Changed from 'type'
+        notes = request.POST.get('notes')
 
-        # Record specific transaction type
-        t_type = 'SALE' if adjustment < 0 else 'RESTOCK'
-        StockTransaction.objects.create(
-            product=product,
-            change=adjustment,
-            type=t_type,
-            notes="Dashboard quick-adjustment"
-        )
-        return redirect('dashboard')
+        if transaction_type:
+            StockTransaction.objects.create(
+                product=product,
+                change=quantity,
+                type=transaction_type,
+                notes=notes
+            )
+            messages.success(request, f"Stock updated for {product.name}")
+            return redirect('product_list')
+        else:
+            messages.error(request, "Please select a transaction type.")
+
     return render(request, 'inventory/update_stock.html', {'product': product})
 
-
+    return render(request, 'inventory/update_stock.html', {'product': product})
 @login_required
 def manage_categories(request):
     if request.method == "POST":
@@ -257,6 +360,16 @@ def manage_categories(request):
         return redirect('manage_categories')
     categories = Category.objects.all()
     return render(request, 'inventory/manage_categories.html', {'categories': categories})
+
+def manage_customers(request):
+    if request.method == "POST":
+        Category.objects.create(
+            name=request.POST.get('name'),
+            description=request.POST.get('description')
+        )
+        return redirect('manage_customers')
+    categories = Category.objects.all()
+    return render(request, 'acct_customer:customer_list.html', {'categories': categories})
 
 
 @login_required

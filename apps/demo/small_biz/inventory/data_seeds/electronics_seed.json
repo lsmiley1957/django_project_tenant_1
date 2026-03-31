@@ -1,0 +1,350 @@
+{
+
+    "categories": [
+        {"name": "Fresh Breads", "description": "Daily baked loaves and rolls"},
+        {"name": "Sweet Pastries", "description": "Croissants, danishes, and turnovers"},
+        {"name": "Cakes & Cupcakes", "description": "Celebration cakes and gourmet cupcakes"},
+        {"name": "Savory Baked Goods", "description": "Quiches, meat pies, and sausage rolls"},
+        {"name": "Artisan Cookies", "description": "Hand-crafted cookies and macarons"}
+    ],
+    "suppliers": [
+        {"name": "Golden Grain Mills", "contact_email": "sales@goldengrain.com", "average_lead_time": 2.0},
+        {"name": "Dairy Delight Co.", "contact_email": "orders@dairydelight.com", "average_lead_time": 1.0},
+        {"name": "Sweet Essence Spices", "contact_email": "wholesale@sweetessence.com", "average_lead_time": 3.5},
+        {"name": "Premium Fruit Fillings", "contact_email": "logistics@fruitfill.com", "average_lead_time": 4.0},
+        {"name": "Baker's Choice Packaging", "contact_email": "info@bakerspack.com", "average_lead_time": 5.0},
+
+    ],
+    "products": [
+        {
+        "sku": "EL-PHN-GALA-14",
+        "name": "Galaxy S24 Ultra (256GB)",
+        "category_name": "Smartphones & Accessories",
+        "supplier_name": "Global Tech Distribution",
+        "cost_price": "850.00",
+        "sale_price": "1299.99",
+        "quantity_in_stock": 10,
+        "reorder_level": 3,
+        "location": "Mobile Showcase A"
+        },
+        {
+        "sku": "EL-PHN-CHRG-01",
+        "name": "USB-C 45W Fast Charger",
+        "category_name": "Smartphones & Accessories",
+        "supplier_name": "VoltPower Energy Solutions",
+        "cost_price": "12.50",
+        "sale_price": "34.99",
+        "quantity_in_stock": 50,
+        "reorder_level": 15,
+        "location": "Aisle 1, Bin 04"
+        },
+        {
+        "sku": "EL-LAP-XPS-13",
+        "name": "Dell XPS 13 Laptop",
+        "category_name": "Laptops & Computing",
+        "supplier_name": "Apex Electronics Wholesalers",
+        "cost_price": "900.00",
+        "sale_price": "1399.00",
+        "quantity_in_stock": 5,
+        "reorder_level": 2,
+        "location": "Computing Zone 1"
+        },
+        {
+        "sku": "EL-AUD-WH1000",
+        "name": "Wireless Noise Canceling Headphones",
+        "category_name": "Audio & Headphones",
+        "supplier_name": "Visionary Audio Group",
+        "cost_price": "210.00",
+        "sale_price": "348.00",
+        "quantity_in_stock": 15,
+        "reorder_level": 5,
+        "location": "Audio Wall"
+        },
+        {
+        "sku": "EL-TV-OLED-65",
+        "name": "65-inch 4K OLED Smart TV",
+        "category_name": "Home Entertainment",
+        "supplier_name": "Digital Frontier Co.",
+        "cost_price": "1200.00",
+        "sale_price": "1899.99",
+        "quantity_in_stock": 4,
+        "reorder_level": 2,
+        "location": "TV Display 01"
+        },
+        {
+        "sku": "EL-CAM-MIRR-02",
+        "name": "Mirrorless Camera Body (Black)",
+        "category_name": "Cameras & Photography",
+        "supplier_name": "Precision Optics Corp",
+        "cost_price": "1450.00",
+        "sale_price": "2199.00",
+        "quantity_in_stock": 3,
+        "reorder_level": 1,
+        "location": "Camera Vault"
+        },
+        {
+        "sku": "EL-WRE-WCH-05",
+        "name": "Smart Watch Series 9",
+        "category_name": "Wearable Technology",
+        "supplier_name": "Global Tech Distribution",
+        "cost_price": "240.00",
+        "sale_price": "399.00",
+        "quantity_in_stock": 12,
+        "reorder_level": 4,
+        "location": "Counter Display 2"
+        },
+        {
+        "sku": "EL-SHT-SPK-01",
+        "name": "Smart Voice Assistant Speaker",
+        "category_name": "Smart Home",
+        "supplier_name": "Smart Living Imports",
+        "cost_price": "35.00",
+        "sale_price": "89.99",
+        "quantity_in_stock": 25,
+        "reorder_level": 10,
+        "location": "Aisle 3, Shelf A"
+        },
+        {
+        "sku": "EL-GAM-CON-05",
+        "name": "PlayStation 5 Console",
+        "category_name": "Gaming",
+        "supplier_name": "NextGen Gaming Supplies",
+        "cost_price": "410.00",
+        "sale_price": "499.99",
+        "quantity_in_stock": 8,
+        "reorder_level": 3,
+        "location": "Gaming Zone"
+        },
+        {
+        "sku": "EL-CMP-SSD-01",
+        "name": "1TB NVMe Gen4 SSD",
+        "category_name": "Components & Storage",
+        "supplier_name": "Silicon Valley Components",
+        "cost_price": "65.00",
+        "sale_price": "115.00",
+        "quantity_in_stock": 30,
+        "reorder_level": 10,
+        "location": "Aisle 2, Bin 12"
+        },
+        {
+        "sku": "EL-NET-RTR-02",
+        "name": "Wi-Fi 6 Dual-Band Router",
+        "category_name": "Networking",
+        "supplier_name": "Connectivity Plus",
+        "cost_price": "72.00",
+        "sale_price": "149.00",
+        "quantity_in_stock": 14,
+        "reorder_level": 5,
+        "location": "Aisle 2, Shelf D"
+        },
+        {
+        "sku": "EL-AUD-BAR-01",
+        "name": "Cinema Soundbar with Subwoofer",
+        "category_name": "Home Entertainment",
+        "supplier_name": "Visionary Audio Group",
+        "cost_price": "180.00",
+        "sale_price": "329.99",
+        "quantity_in_stock": 6,
+        "reorder_level": 2,
+        "location": "TV Display 04"
+        },
+        {
+        "sku": "EL-CMP-RAM-08",
+        "name": "16GB DDR5 5600MHz RAM Kit",
+        "category_name": "Components & Storage",
+        "supplier_name": "Silicon Valley Components",
+        "cost_price": "45.00",
+        "sale_price": "98.00",
+        "quantity_in_stock": 20,
+        "reorder_level": 5,
+        "location": "Aisle 2, Bin 13"
+        },
+        {
+        "sku": "EL-PHN-CS-MAG",
+        "name": "MagSafe Silicone Case (iPhone 15)",
+        "category_name": "Smartphones & Accessories",
+        "supplier_name": "Global Tech Distribution",
+        "cost_price": "15.00",
+        "sale_price": "49.00",
+        "quantity_in_stock": 40,
+        "reorder_level": 10,
+        "location": "Aisle 1, Rack 02"
+        },
+        {
+        "sku": "EL-LAP-MAC-14",
+        "name": "MacBook Pro 14 M3 Chip",
+        "category_name": "Laptops & Computing",
+        "supplier_name": "Digital Frontier Co.",
+        "cost_price": "1250.00",
+        "sale_price": "1999.00",
+        "quantity_in_stock": 6,
+        "reorder_level": 2,
+        "location": "Premium Island"
+        },
+        {
+        "sku": "EL-AUD-PODS-02",
+        "name": "Pro Wireless Earbuds",
+        "category_name": "Audio & Headphones",
+        "supplier_name": "Global Tech Distribution",
+        "cost_price": "165.00",
+        "sale_price": "249.00",
+        "quantity_in_stock": 22,
+        "reorder_level": 8,
+        "location": "Secure Case 1"
+        },
+        {
+        "sku": "EL-SHT-CAM-01",
+        "name": "Outdoor Security Camera 2-Pack",
+        "category_name": "Smart Home",
+        "supplier_name": "Smart Living Imports",
+        "cost_price": "110.00",
+        "sale_price": "219.00",
+        "quantity_in_stock": 10,
+        "reorder_level": 4,
+        "location": "Aisle 3, Shelf B"
+        },
+        {
+        "sku": "EL-GAM-MOU-01",
+        "name": "RGB Wireless Gaming Mouse",
+        "category_name": "Gaming",
+        "supplier_name": "NextGen Gaming Supplies",
+        "cost_price": "42.00",
+        "sale_price": "89.99",
+        "quantity_in_stock": 18,
+        "reorder_level": 6,
+        "location": "Aisle 4, Bin 05"
+        },
+        {
+        "sku": "EL-WRE-FIT-02",
+        "name": "Fitness Tracker Pro",
+        "category_name": "Wearable Technology",
+        "supplier_name": "Global Tech Distribution",
+        "cost_price": "65.00",
+        "sale_price": "129.99",
+        "quantity_in_stock": 15,
+        "reorder_level": 5,
+        "location": "Counter Display 2"
+        },
+        {
+        "sku": "EL-CAM-LENS-50",
+        "name": "50mm f/1.8 Prime Lens",
+        "category_name": "Cameras & Photography",
+        "supplier_name": "Precision Optics Corp",
+        "cost_price": "140.00",
+        "sale_price": "249.00",
+        "quantity_in_stock": 7,
+        "reorder_level": 2,
+        "location": "Camera Vault"
+        },
+        {
+        "sku": "EL-NET-MSH-03",
+        "name": "Whole Home Mesh Wi-Fi (3-pack)",
+        "category_name": "Networking",
+        "supplier_name": "Connectivity Plus",
+        "cost_price": "190.00",
+        "sale_price": "349.00",
+        "quantity_in_stock": 5,
+        "reorder_level": 2,
+        "location": "Aisle 2, Shelf D"
+        },
+        {
+        "sku": "EL-CMP-HDD-04",
+        "name": "4TB External Portable HDD",
+        "category_name": "Components & Storage",
+        "supplier_name": "Digital Frontier Co.",
+        "cost_price": "55.00",
+        "sale_price": "109.00",
+        "quantity_in_stock": 25,
+        "reorder_level": 8,
+        "location": "Aisle 2, Bin 10"
+        },
+        {
+        "sku": "EL-PHN-STND-01",
+        "name": "Aluminum Phone Desk Stand",
+        "category_name": "Smartphones & Accessories",
+        "supplier_name": "Apex Electronics Wholesalers",
+        "cost_price": "6.50",
+        "sale_price": "19.99",
+        "quantity_in_stock": 45,
+        "reorder_level": 10,
+        "location": "Aisle 1, Bin 08"
+        },
+        {
+        "sku": "EL-LAP-PAD-01",
+        "name": "Laptop Cooling Pad (RGB)",
+        "category_name": "Laptops & Computing",
+        "supplier_name": "Apex Electronics Wholesalers",
+        "cost_price": "14.00",
+        "sale_price": "34.50",
+        "quantity_in_stock": 20,
+        "reorder_level": 5,
+        "location": "Computing Zone 1"
+        },
+        {
+        "sku": "EL-GAM-KYB-01",
+        "name": "Mechanical Gaming Keyboard",
+        "category_name": "Gaming",
+        "supplier_name": "NextGen Gaming Supplies",
+        "cost_price": "68.00",
+        "sale_price": "129.99",
+        "quantity_in_stock": 12,
+        "reorder_level": 4,
+        "location": "Aisle 4, Shelf C"
+        },
+        {
+        "sku": "EL-AUD-REC-01",
+        "name": "Portable Voice Recorder",
+        "category_name": "Audio & Headphones",
+        "supplier_name": "Visionary Audio Group",
+        "cost_price": "45.00",
+        "sale_price": "99.00",
+        "quantity_in_stock": 10,
+        "reorder_level": 3,
+        "location": "Audio Wall"
+        },
+        {
+        "sku": "EL-SHT-BLB-04",
+        "name": "Smart LED Bulb (Color) 4-pk",
+        "category_name": "Smart Home",
+        "supplier_name": "Smart Living Imports",
+        "cost_price": "22.00",
+        "sale_price": "49.99",
+        "quantity_in_stock": 35,
+        "reorder_level": 12,
+        "location": "Aisle 3, Shelf A"
+        },
+        {
+        "sku": "EL-CAM-SD-128",
+        "name": "128GB Extreme SD Card",
+        "category_name": "Cameras & Photography",
+        "supplier_name": "Silicon Valley Components",
+        "cost_price": "18.00",
+        "sale_price": "44.00",
+        "quantity_in_stock": 60,
+        "reorder_level": 20,
+        "location": "Aisle 2, Bin 15"
+        },
+        {
+        "sku": "EL-TV-MNT-FLG",
+        "name": "Full Motion TV Wall Mount",
+        "category_name": "Home Entertainment",
+        "supplier_name": "Apex Electronics Wholesalers",
+        "cost_price": "35.00",
+        "sale_price": "89.00",
+        "quantity_in_stock": 15,
+        "reorder_level": 5,
+        "location": "Aisle 5, Shelf G"
+        },
+        {
+        "sku": "EL-NET-SWT-08",
+        "name": "8-Port Gigabit Desktop Switch",
+        "category_name": "Networking",
+        "supplier_name": "Connectivity Plus",
+        "cost_price": "12.00",
+        "sale_price": "29.99",
+        "quantity_in_stock": 18,
+        "reorder_level": 6,
+        "location": "Aisle 2, Shelf E"
+        }
+        ]
+        }

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Workspace | Editor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .nav-step.active { border-left: 4px solid #0f172a; background-color: #f1f5f9; color: #0f172a; }
+        .step-content { display: none; }
+        .step-content.active { display: flex; flex-direction: column; }
+        .ck-editor__editable { min-height: 450px; border-radius: 0 0 1rem 1rem !important; border: 1px solid #e2e8f0 !important; }
+        select, input[type="date"], input[type="text"] {
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            width: 100%;
+            background-color: #ffffff;
+            font-weight: 500;
+        }
+        .template-card { transition: all 0.2s ease; border: 2px solid transparent; }
+        .template-card.selected { border-color: #0f172a; background-color: #f8fafc; }
+    </style>
+</head>
+<body class="h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white font-bold text-xl">P</div>
+            <div>
+                <h1 class="text-lg font-bold text-slate-900 leading-tight">Performance Review</h1>
+                <p class="text-xs text-slate-500 font-semibold" id="progress-text">Step 1 of 4</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <button onclick="window.history.back()" class="text-sm font-bold text-slate-400 hover:text-slate-600 px-4">Exit</button>
+            <button onclick="saveReview('submitted')" id="btn-submit-top" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-full text-sm font-bold transition-all shadow-lg shadow-blue-100">
+                Submit Review
+            </button>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <nav class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0">
+            <div class="p-6">
+                <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-blue-600 transition-all duration-500" style="width: 25%"></div>
+                </div>
+            </div>
+            <div class="flex flex-col">
+                <button onclick="goToStep(1)" id="nav-1" class="nav-step active px-8 py-4 flex items-center gap-4 text-left">
+                    <span class="text-sm font-bold">1. Select Template</span>
+                </button>
+                <button onclick="goToStep(2)" id="nav-2" class="nav-step px-8 py-4 flex items-center gap-4 text-left">
+                    <span class="text-sm font-bold">2. Metadata</span>
+                </button>
+                <button onclick="goToStep(3)" id="nav-3" class="nav-step px-8 py-4 flex items-center gap-4 text-left">
+                    <span class="text-sm font-bold">3. Review Content</span>
+                </button>
+                <button onclick="goToStep(4)" id="nav-4" class="nav-step px-8 py-4 flex items-center gap-4 text-left">
+                    <span class="text-sm font-bold">4. Finalize</span>
+                </button>
+            </div>
+        </nav>
+
+        <main class="flex-1 overflow-y-auto p-12">
+
+            <!-- Step 1: Frameworks -->
+            <div id="step-1" class="step-content active max-w-5xl">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-900">Select a Framework</h2>
+                    <p class="text-slate-500 mt-1">Start with a template or a blank document.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for t in templates %}
+                    <div onclick="selectTemplate('{{ t.id }}', this)"
+                         data-content="{{ t.content|escapejs }}"
+                         class="template-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100 cursor-pointer hover:shadow-md">
+                        <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center mb-4">📄</div>
+                        <h3 class="text-md font-bold text-slate-900 mb-1">{{ t.title }}</h3>
+                        <p class="text-slate-500 text-xs line-clamp-2">{{ t.description|default:"Standard evaluation template." }}</p>
+                    </div>
+                    {% endfor %}
+                    <div onclick="useBlankTemplate()" class="template-card bg-slate-50 p-6 rounded-2xl border-2 border-dashed border-slate-200 cursor-pointer flex flex-col items-center justify-center text-center">
+                        <span class="text-2xl mb-2">➕</span>
+                        <h3 class="text-md font-bold text-slate-900">Blank Review</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Model Metadata -->
+            <div id="step-2" class="step-content max-w-4xl">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-900">Review Metadata</h2>
+                    <p class="text-slate-500 mt-1">These fields map directly to the <b>PerformanceReview</b> model.</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 space-y-6">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Associate (Target)</label>
+                            <select id="associate-id" required>
+                                <option value="">-- Select Associate --</option>
+                                {% for a in associates %}
+                                <option value="{{ a.id }}">{{ a.user.get_full_name|default:a.user.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Reviewer (Manager)</label>
+                            <select id="reviewer-id" required>
+                                <option value="{{ request.user.id }}">Self ({{ request.user.get_full_name|default:request.user.username }})</option>
+                                {% for r in reviewers %}
+                                    <option value="{{ r.id }}">{{ r.get_full_name|default:r.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-6 pt-6 border-t border-slate-50">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Period Start</label>
+                            <input type="date" id="review_period_start" value="2024-01-01">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Period End</label>
+                            <input type="date" id="review_period_end" value="2024-12-31">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Overall Rating (1-5)</label>
+                            <select id="overall_rating">
+                                <option value="1">1 - Unsatisfactory</option>
+                                <option value="2">2 - Below Expectations</option>
+                                <option value="3" selected>3 - Meets Expectations</option>
+                                <option value="4">4 - Exceeds Expectations</option>
+                                <option value="5">5 - Outstanding</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="nextStep()" class="mt-8 bg-slate-900 text-white px-10 py-4 rounded-2xl font-bold shadow-xl">
+                    Edit Performance Comments
+                </button>
+            </div>
+
+            <!-- Step 3: The Editor (Comments Field) -->
+            <div id="step-3" class="step-content h-full">
+                <div class="mb-6 flex justify-between items-end">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900">Review Comments</h2>
+                        <p class="text-slate-500">Provide detailed qualitative feedback.</p>
+                    </div>
+                    <button onclick="saveReview('draft')" class="bg-white border border-slate-200 px-6 py-2 rounded-xl text-slate-600 text-sm font-bold">
+                        Save Draft
+                    </button>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex-1">
+                    <div id="editor"></div>
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <button onclick="nextStep()" class="bg-blue-600 text-white px-10 py-4 rounded-2xl font-bold">
+                        Review Summary
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 4: Final Summary -->
+            <div id="step-4" class="step-content items-center">
+                <div class="max-w-xl w-full bg-white p-10 rounded-[2rem] shadow-xl border border-slate-100">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-6">Final Confirmation</h2>
+
+                    <div class="space-y-4 mb-8">
+                        <div class="flex justify-between py-2 border-b border-slate-100">
+                            <span class="text-slate-400 text-sm">Associate</span>
+                            <span id="sum-assoc" class="font-bold">--</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-slate-100">
+                            <span class="text-slate-400 text-sm">Reviewer</span>
+                            <span id="sum-rev" class="font-bold">--</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-slate-100">
+                            <span class="text-slate-400 text-sm">Period</span>
+                            <span id="sum-dates" class="font-bold">--</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-slate-100">
+                            <span class="text-slate-400 text-sm">Overall Rating</span>
+                            <span id="sum-rating" class="font-bold text-blue-600">--</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <button onclick="goToStep(3)" class="flex-1 bg-slate-100 py-4 rounded-xl font-bold">Edit Content</button>
+                        <button onclick="saveReview('submitted')" class="flex-[2] bg-blue-600 text-white py-4 rounded-xl font-bold">Final Submit</button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let editor;
+
+        ClassicEditor.create(document.querySelector('#editor')).then(newEditor => {
+            editor = newEditor;
+        });
+
+        function selectTemplate(id, el) {
+            document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            editor.setData(el.getAttribute('data-content'));
+            nextStep();
+        }
+
+        function useBlankTemplate() {
+            editor.setData('<h3>Performance Feedback</h3><p>Enter notes here...</p>');
+            nextStep();
+        }
+
+        function goToStep(s) {
+            currentStep = s;
+            if(s === 4) {
+                const assoc = document.getElementById('associate-id');
+                const rev = document.getElementById('reviewer-id');
+                const rate = document.getElementById('overall_rating');
+
+                document.getElementById('sum-assoc').innerText = assoc.options[assoc.selectedIndex]?.text || 'None';
+                document.getElementById('sum-rev').innerText = rev.options[rev.selectedIndex]?.text || 'None';
+                document.getElementById('sum-rating').innerText = rate.options[rate.selectedIndex]?.text || '--';
+                document.getElementById('sum-dates').innerText = `${document.getElementById('review_period_start').value} to ${document.getElementById('review_period_end').value}`;
+            }
+
+            document.querySelectorAll('.nav-step').forEach((el, i) => el.classList.toggle('active', (i+1) === s));
+            document.querySelectorAll('.step-content').forEach((el, i) => el.classList.toggle('active', (i+1) === s));
+            document.getElementById('progress-bar').style.width = (s/4*100) + '%';
+            document.getElementById('progress-text').innerText = `Step ${s} of 4`;
+        }
+
+        function nextStep() {
+            if(currentStep < 4) goToStep(currentStep + 1);
+        }
+
+        async function saveReview(status) {
+            const associateId = document.getElementById('associate-id').value;
+            if(!associateId) return alert("Select an associate first.");
+
+            const payload = {
+                associate_id: associateId,
+                reviewer_id: document.getElementById('reviewer-id').value,
+                overall_rating: document.getElementById('overall_rating').value,
+                review_period_start: document.getElementById('review_period_start').value,
+                review_period_end: document.getElementById('review_period_end').value,
+                comments: editor.getData(), // Maps to PerformanceReview.comments
+                status: status
+            };
+
+            try {
+                const response = await fetch('/associate/api/save_performance_review/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                if(data.status === 'success') {
+                    window.location.href = '/associate/dashboard/';
+                } else {
+                    alert("Error: " + data.message);
+                }
+            } catch (e) {
+                alert("Connection error.");
+            }
+        }
+    </script>
+</body>
+</html>

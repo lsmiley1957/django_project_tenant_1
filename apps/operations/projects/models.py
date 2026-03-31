@@ -28,6 +28,7 @@ ROLE_CHOICES = [
     ('vendor', 'Vendor/Contractor'),
 ]
 
+
 class Project(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
@@ -41,52 +42,18 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
-    @property
-    def completion_percentage(self):
-        total = self.tasks.count()
-        if total == 0: return 0
-        completed = self.tasks.filter(status='done').count()
-        return int((completed / total) * 100)
-
-    @property
-    def total_logged_hours(self):
-        total = TimeLog.objects.filter(task__project=self).aggregate(Sum('hours'))['hours__sum']
-        return total or 0
-
-    def total_effort(self):
-        """Calculates total hours logged across all tasks in this project"""
-        from django.db.models import Sum
-        # Accessing all tasks, then all time_logs for those tasks
-        return TimeLog.objects.filter(task__project=self).aggregate(total=Sum('hours'))['total'] or 0
-
 
 class ProjectMember(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='members')
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField(max_length=100)
-    email = models.EmailField()
-    role = models.CharField(max_length=30, choices=ROLE_CHOICES, default='member')
+    email = models.EmailField(blank=True)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='member')
 
-    def task_stats(self):
-        tasks = self.assigned_tasks.all()
-        total = tasks.count()
-        open_tasks = tasks.exclude(status='done').count()
-        completed = total - open_tasks
-
-        # Calculate percentage safely
-        percent = 0
-        if total > 0:
-            percent = (completed / total) * 100
-
-        return {
-            'total': total,
-            'open': open_tasks,
-            'completed': completed,
-            'percent': round(percent)
-        }
     def __str__(self):
         # This fixes "ProjectMember object(1)" showing in the dropdown
         return f"{self.name} ({self.get_role_display()})"
+
 
 class Task(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='tasks')
@@ -98,11 +65,43 @@ class Task(models.Model):
     status = models.CharField(max_length=20, choices=TASK_STATUS_CHOICES, default='todo')
     created_at = models.DateTimeField(auto_now_add=True, null=True)
 
+    # Task-to-Task linking (Predecessors)
+    dependencies = models.ManyToManyField(
+        'self',
+        symmetrical=False,
+        related_name='dependent_tasks',
+        blank=True
+    )
+
     def __str__(self):
         return self.name
 
     def total_hours(self):
         return self.time_logs.aggregate(total=Sum('hours'))['total'] or 0
+
+    @property
+    def completion_percentage(self):
+        """Calculates progress based on checklist items, or status if no checklist exists."""
+        steps = self.checklist_items.all()
+        if not steps.exists():
+            return 100 if self.status == 'done' else 0
+
+        completed_count = steps.filter(is_completed=True).count()
+        return int((completed_count / steps.count()) * 100)
+
+
+class TaskChecklistItem(models.Model):
+    """Handles step-by-step requirements within a single task."""
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='checklist_items')
+    description = models.CharField(max_length=255)
+    is_completed = models.BooleanField(default=False)
+    position = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['position']
+
+    def __str__(self):
+        return f"{self.task.name} - {self.description}"
 
 
 class TaskNote(models.Model):
@@ -111,9 +110,13 @@ class TaskNote(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
+
 class TimeLog(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='time_logs')
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     hours = models.DecimalField(max_digits=5, decimal_places=2)
     date = models.DateField()
     description = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.hours}h on {self.task.name}"

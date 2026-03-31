@@ -1,0 +1,154 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="container-fluid py-5" style="background: #f8f9fe; min-height: 100vh;">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+
+            <!-- Wizard Card -->
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <!-- Header -->
+                <div class="card-header bg-white border-bottom py-4 px-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h4 class="fw-bold text-dark mb-1">Inventory Setup Wizard</h4>
+                            <p class="text-muted small mb-0">Prepare your workspace with industry-specific data.</p>
+                        </div>
+                        <div class="bg-soft-primary p-3 rounded-circle">
+                            <i class="fas fa-magic text-primary fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <form method="POST" action="{% url 'initiate_seeding' %}" id="setupForm">
+                        {% csrf_token %}
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-uppercase small text-muted tracking-wider mb-3">
+                                1. Select Your Business Type
+                            </label>
+
+                            <div class="row g-3">
+                                <!-- Industry Options -->
+
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="business_type" id="bakery" value="bakery">
+                                    <label class="btn btn-outline-light border-2 py-4 w-100 rounded-4 text-dark industry-option" for="bakery">
+                                        <i class="fas fa-birthday-cake fa-2x mb-2 text-info"></i>
+                                        <div class="fw-bold">Bakery</div>
+                                    </label>
+                                </div>
+
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="business_type" id="departmentstore" value="departmentstore">
+                                    <label class="btn btn-outline-light border-2 py-4 w-100 rounded-4 text-dark industry-option" for="departmentstore">
+                                        <i class="fas fa-store fa-2x mb-2 text-warning"></i>
+                                        <div class="fw-bold">Department Store</div>
+                                    </label>
+                                </div>
+
+
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="business_type" id="electronics" value="electronics" required>
+                                    <label class="btn btn-outline-light border-2 py-4 w-100 rounded-4 text-dark industry-option" for="electronics">
+                                        <i class="fas fa-tv fa-2x mb-2 text-primary"></i>
+                                        <div class="fw-bold">Electronics Retail</div>
+                                    </label>
+                                </div>
+
+
+
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="business_type" id="retail" value="retail" required>
+                                    <label class="btn btn-outline-light border-2 py-4 w-100 rounded-4 text-dark industry-option" for="retail">
+                                        <i class="fas fa-shopping-bag fa-2x mb-2 text-primary"></i>
+                                        <div class="fw-bold">General Retail</div>
+                                    </label>
+                                </div>
+
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="business_type" id="grocery" value="grocery">
+                                    <label class="btn btn-outline-light border-2 py-4 w-100 rounded-4 text-dark industry-option" for="grocery">
+                                        <i class="fas fa-apple-alt fa-2x mb-2 text-danger"></i>
+                                        <div class="fw-bold">Grocery Store</div>
+                                    </label>
+                                </div>
+
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="business_type" id="hardware" value="hardware">
+                                    <label class="btn btn-outline-light border-2 py-4 w-100 rounded-4 text-dark industry-option" for="hardware">
+                                        <i class="fas fa-tools fa-2x mb-2 text-warning"></i>
+                                        <div class="fw-bold">Hardware</div>
+                                    </label>
+                                </div>
+
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="business_type" id="pharmacy" value="pharmacy">
+                                    <label class="btn btn-outline-light border-2 py-4 w-100 rounded-4 text-dark industry-option" for="pharmacy">
+                                        <i class="fas fa-pills fa-2x mb-2 text-success"></i>
+                                        <div class="fw-bold">Pharmacy</div>
+                                    </label>
+                                </div>
+
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="business_type" id="sporting" value="sporting">
+                                    <label class="btn btn-outline-light border-2 py-4 w-100 rounded-4 text-dark industry-option" for="sporting">
+                                        <i class="fas fa-running fa-2x mb-2 text-secondary"></i>
+                                        <div class="fw-bold">Sporting Goods</div>
+                                    </label>
+                                </div>
+
+
+
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning border-0 rounded-4 p-3 mb-4 shadow-sm">
+                            <div class="d-flex">
+                                <i class="fas fa-info-circle mt-1 me-3"></i>
+                                <div class="small">
+                                    <strong>Ready to deploy?</strong> This will create standard categories, suppliers, and initial stock items for the selected profile.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid mt-5">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm py-3" id="submitBtn">
+                                <span class="btn-text">Generate My Inventory</span>
+                                <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{% url 'dashboard' %}" class="text-decoration-none text-muted small">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-soft-primary { background-color: rgba(94, 114, 228, 0.1); }
+    .industry-option { transition: all 0.2s ease; background: white; }
+    .industry-option:hover { border-color: #5e72e4 !important; transform: translateY(-3px); }
+    .btn-check:checked + .industry-option {
+        border-color: #5e72e4 !important;
+        background-color: #f8f9ff !important;
+        box-shadow: 0 0 0 3px rgba(94, 114, 228, 0.1);
+    }
+</style>
+
+<script>
+    document.getElementById('setupForm').onsubmit = function() {
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.querySelector('.btn-text').innerText = 'Seeding Database...';
+        btn.querySelector('.spinner-border').classList.remove('d-none');
+    };
+</script>
+{% endblock %}

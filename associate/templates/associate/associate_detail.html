@@ -1,0 +1,409 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+
+<style>
+:root {
+--primary-gradient: linear-gradient(135deg, #5e72e4 0%, #825ee4 100%);
+--soft-bg: #f8f9fe;
+}
+
+body { background-color: var(--soft-bg); }
+
+/* Premium Header Design */
+.profile-header-premium {
+    background: var(--primary-gradient);
+    padding: 80px 0 60px 0;
+    border-radius: 0 0 50px 50px;
+    margin-top: -20px;
+    color: white;
+    position: relative;
+}
+
+.profile-avatar-premium {
+    width: 150px;
+    height: 150px;
+    border-radius: 40px;
+    border: 6px solid white;
+    background: white;
+    margin-bottom: -75px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    overflow: hidden;
+    position: relative;
+    z-index: 10;
+}
+
+.status-badge-floating {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 50px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    border: 3px solid white;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Tab Navigation Styling */
+.nav-tabs-profile {
+    border: none;
+    margin-top: 80px;
+    justify-content: center;
+    gap: 10px;
+}
+
+.nav-tabs-profile .nav-link {
+    border: none;
+    border-radius: 15px;
+    padding: 12px 25px;
+    font-weight: 700;
+    color: #8898aa;
+    background: white;
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.05);
+    transition: all 0.2s;
+}
+
+.nav-tabs-profile .nav-link.active {
+    background: #5e72e4;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Content Cards */
+.info-card {
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    background: white;
+    padding: 30px;
+    height: 100%;
+}
+
+.info-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #adb5bd;
+    margin-bottom: 5px;
+}
+
+.info-value {
+    font-weight: 600;
+    color: #32325d;
+    font-size: 1rem;
+}
+
+.stat-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 8px solid #f6f9fc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+}
+
+.review-mini-card {
+    padding: 15px;
+    border-radius: 15px;
+    background: #fff;
+    border: 1px solid #e9ecef;
+    margin-bottom: 15px;
+    transition: transform 0.2s;
+}
+.review-mini-card:hover { transform: scale(1.02); }
+
+.document-row {
+    padding: 15px;
+    border-radius: 15px;
+    background: #f6f9fc;
+    margin-bottom: 10px;
+    border-left: 4px solid #5e72e4;
+}
+
+
+</style>
+
+<!-- HEADER SECTION -->
+
+<div class="profile-header-premium text-center">
+<div class="container">
+<div class="d-flex flex-column align-items-center">
+<div class="profile-avatar-premium">
+{% if associate.profile_picture %}
+<img src="{{ associate.profile_picture.url }}" alt="{{ associate.user.get_full_name }}" class="w-100 h-100 object-fit-cover">
+{% else %}
+<div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light text-primary">
+<i class="fas fa-user fa-4x"></i>
+</div>
+{% endif %}
+<div class="status-badge-floating" style="background-color: {{ associate.status.color_code|default:'#2dce89' }};">
+{{ associate.status.name }}
+</div>
+</div>
+
+        <div class="mt-4 pt-5">
+            <div class="d-flex align-items-center justify-content-center">
+                <h1 class="fw-bold mb-1 text-white">{{ associate.user.get_full_name }}</h1>
+                {% if associate.is_manager %}
+                    <span class="badge bg-white text-primary ms-3 rounded-pill px-3 py-1 small fw-bold">MANAGER</span>
+                {% endif %}
+            </div>
+            <p class="mb-0 opacity-8 text-white">
+                <i class="fas fa-briefcase me-2"></i>{{ associate.position.title }} • {{ associate.department.name }}
+            </p>
+            <div class="mt-3 d-flex gap-2 justify-content-center">
+                <span class="badge bg-white text-primary rounded-pill px-3 py-2 shadow-sm">ID: {{ associate.associate_id }}</span>
+                <span class="badge bg-white text-primary rounded-pill px-3 py-2 shadow-sm">Joined: {{ associate.hire_date|date:"M Y" }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</div>
+
+<div class="container mb-5">
+<div class="col-md-12 text-center mt-4">
+<a href="{% url 'associate:associate_dashboard' %}" class="btn btn-white btn-sm rounded-pill px-4 bg-white text-primary fw-bold shadow-sm me-2">
+<i class="fas fa-th-large me-2"></i>Dashboard
+</a>
+<a href="{% url 'associate:associate_list' %}" class="btn btn-outline-white btn-sm rounded-pill px-4 text-blue border-white fw-bold shadow-sm" style="border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1);">
+<i class="fas fa-users me-2"></i>Directory
+</a>
+</div>
+
+<!-- TAB NAVIGATION -->
+<ul class="nav nav-tabs nav-tabs-profile" id="profileTabs" role="tablist">
+    <li class="nav-item">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#overview">Overview</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#performance">Performance</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#org">Organization</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#payroll">Compensation</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#docs">Documents</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#emergency">Safety</button>
+    </li>
+</ul>
+
+<div class="tab-content mt-4">
+    <!-- TAB 1: OVERVIEW -->
+    <div class="tab-pane fade show active" id="overview">
+        <div class="row g-4">
+            <div class="col-md-8">
+                <div class="info-card">
+                    <h5 class="fw-bold mb-4 text-dark"><i class="fas fa-id-card me-2 text-primary"></i>Personal Profile</h5>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="info-label">Full Name</label>
+                            <div class="info-value">{{ associate.user.get_full_name }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="info-label">Corporate Email</label>
+                            <div class="info-value">{{ associate.user.email }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="info-label">Phone</label>
+                            <div class="info-value">{{ associate.phone|default:"Not Provided" }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="info-label">Home Address</label>
+                            <div class="info-value">{{ associate.address|default:"Not Provided" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="info-card text-center">
+                    <h5 class="fw-bold mb-4">Quick Stats</h5>
+                    <div class="stat-circle">
+                        <h3 class="fw-bold mb-0 text-primary">{{ associate.hire_date|timesince|truncatewords:1 }}</h3>
+                        <small class="text-muted" style="font-size: 0.6rem;">TENURE</small>
+                    </div>
+                    <p class="small text-muted mb-4">Total time contributing to the organization.</p>
+                    <div class="p-3 bg-light rounded-4 text-start">
+                        <div class="small-caps text-muted mb-1">Status Tracking</div>
+                        <div class="fw-bold small mb-1">
+                            <i class="fas fa-circle text-success me-2" style="font-size: 8px;"></i>System Access: Active
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: PERFORMANCE -->
+    <div class="tab-pane fade" id="performance">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="info-card text-center">
+                    <h5 class="fw-bold mb-4">Performance Action</h5>
+                    <div class="stat-circle" style="border-color: #5e72e4;">
+                        <h3 class="fw-bold mb-0 text-primary">{{ avg_rating|default:"N/A" }}</h3>
+                        <small class="text-muted" style="font-size: 0.6rem;">AVG SCORE</small>
+                    </div>
+                    <p class="small text-muted mb-4">Manage performance reviews and evaluations.</p>
+                    <!-- FIXED LINK: Assuming review_list doesn't take an ID in your urls.py -->
+                    <a href="{% url 'associate:review_list' associate.id %}" class="btn btn-primary w-100 rounded-pill py-2 shadow-sm">
+                        <i class="fas fa-plus-circle me-2"></i>Performance Reviews
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="info-card">
+                    <h5 class="fw-bold mb-4"><i class="fas fa-history me-2 text-primary"></i>Recent History</h5>
+                    {% if reviews %}
+                        {% for review in reviews|slice:":3" %}
+                            <div class="review-mini-card d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-bold text-dark">Review Cycle: {{ review.review_date|date:"F Y" }}</div>
+                                    <small class="text-muted">By {{ review.reviewer.get_full_name }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-soft-primary text-primary rounded-pill px-3">Score: {{ review.rating }}</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <div class="text-center mt-3">
+                            <a href="{% url 'associate:review_list' %}" class="small fw-bold text-primary">View Full Dashboard <i class="fas fa-arrow-right ms-1"></i></a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-clipboard-list fa-3x text-light mb-3"></i>
+                            <p class="text-muted">No reviews recorded yet for this associate.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: ORG CHART -->
+    <div class="tab-pane fade" id="org">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="info-card">
+                    <h5 class="fw-bold mb-4">Reports To</h5>
+                    {% if associate.reports_to %}
+                        <div class="d-flex align-items-center p-3 border rounded-4 bg-light">
+                            <div class="bg-primary text-white rounded-circle p-2 me-3">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">{{ associate.reports_to.user.get_full_name }}</div>
+                                <div class="small text-muted">{{ associate.reports_to.position.title }}</div>
+                            </div>
+                            <a href="{% url 'associate:associate_detail' associate.reports_to.pk %}" class="ms-auto btn btn-sm btn-white rounded-pill">Profile</a>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No direct supervisor assigned.</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-card">
+                    <h5 class="fw-bold mb-4">Direct Reports ({{ direct_reports.count }})</h5>
+                    <div class="list-group list-group-flush">
+                        {% for report in direct_reports %}
+                            <a href="{% url 'associate:associate_detail' report.pk %}" class="list-group-item list-group-item-action border-0 px-0 d-flex align-items-center mb-2">
+                                <i class="fas fa-user-friends text-muted me-3"></i>
+                                <div>
+                                    <div class="fw-bold small">{{ report.user.get_full_name }}</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">{{ report.position.title }}</div>
+                                </div>
+                                <i class="fas fa-chevron-right ms-auto text-muted small"></i>
+                            </a>
+                        {% empty %}
+                            <p class="small text-muted">No direct reports found.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 4: COMPENSATION -->
+    <div class="tab-pane fade" id="payroll">
+        <div class="info-card">
+            <h5 class="fw-bold mb-4">Compensation Structure</h5>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <label class="info-label">Pay Band</label>
+                    <div class="info-value text-primary">{{ associate.pay_band.name|default:"Not Assigned" }}</div>
+                </div>
+                <div class="col-md-4">
+                    <label class="info-label">Salary Range</label>
+                    <div class="info-value">
+                        {% if associate.pay_band %}
+                            {{ associate.pay_band.currency }} {{ associate.pay_band.min_salary|floatformat:0 }} - {{ associate.pay_band.max_salary|floatformat:0 }}
+                        {% else %}
+                            --
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 5: DOCUMENTS -->
+    <div class="tab-pane fade" id="docs">
+        <div class="info-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0">Employment Documents</h5>
+            </div>
+            <div class="document-list">
+                {% for doc in documents %}
+                    <div class="document-row d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold small">{{ doc.doc_type }}</div>
+                            <small class="text-muted">Uploaded {{ doc.uploaded_at|date:"M d, Y" }}</small>
+                        </div>
+                        <a href="{{ doc.file.url }}" class="btn btn-sm btn-link text-primary"><i class="fas fa-download"></i></a>
+                    </div>
+                {% empty %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-folder-open fa-3x text-light mb-3"></i>
+                        <p class="text-muted">No documents uploaded.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 6: SAFETY -->
+    <div class="tab-pane fade" id="emergency">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="info-card">
+                    <h5 class="fw-bold mb-4 text-danger"><i class="fas fa-phone-alt me-2"></i>Emergency Contact</h5>
+                    <div class="mb-3">
+                        <label class="info-label">Primary Contact</label>
+                        <div class="info-value">{{ associate.emergency_contact_name|default:"Not Provided" }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="info-label">Emergency Phone</label>
+                        <div class="info-value text-danger fw-bold">{{ associate.emergency_contact_phone|default:"Not Provided" }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</div>
+{% endblock %}

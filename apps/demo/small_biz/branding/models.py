@@ -88,7 +88,7 @@ class UserAppAssignment(models.Model):
     Connects a User to a specific App, and now specifically
     to a Department and Role defined in the Global Registry.
     """
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='app_assignments')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='branding_app_assignments')
 
     global_app = models.ForeignKey('registry.GlobalApp', on_delete=models.CASCADE)  # The new field
 

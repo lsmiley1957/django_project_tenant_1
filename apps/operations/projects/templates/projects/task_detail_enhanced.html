@@ -1,0 +1,289 @@
+<div class="flex justify-between items-start mb-6">
+<div>
+<h2 class="text-2xl font-black text-slate-900">{{ task.name }}</h2>
+<div class="flex items-center space-x-2 mt-1 flex-wrap gap-y-2">
+<span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold rounded uppercase tracking-wider">Project: {{ project.name }}</span>
+<span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-bold rounded uppercase tracking-wider">ID: #{{ task.pk }}</span>
+
+        <!-- Read-Only Task Owner Display -->
+        <div class="flex items-center bg-slate-50 border border-slate-200 rounded px-2 py-0.5 ml-2">
+            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mr-1.5">Owner:</span>
+            <span class="text-[10px] font-bold text-slate-700 uppercase">
+                {% if task.assigned_to %}
+                    {{ task.assigned_to.get_full_name|default:task.assigned_to }}
+                {% else %}
+                    System
+                {% endif %}
+            </span>
+        </div>
+
+        <!-- Assigned To Dropdown -->
+        <div class="relative inline-block ml-2">
+            <select name="assigned_to"
+                    form="task-detail-form"
+                    class="appearance-none bg-purple-50 text-purple-600 text-[10px] font-bold rounded uppercase tracking-wider px-3 py-0.5 pr-8 border-none cursor-pointer focus:ring-2 focus:ring-purple-200 outline-none min-w-[140px]">
+                <option value="">Unassigned</option>
+                {% for member in project.members.all %}
+                    <option value="{{ member.user.id }}"
+                        {% if task.assigned_to_id == member.user.id or task.assigned_to.id == member.user.id %}selected{% endif %}>
+                        {{ member.user.email|default:member.user.username }}
+                    </option>
+                {% endfor %}
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-purple-400">
+                <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+<button onclick="closeModal()" class="p-2 hover:bg-slate-100 rounded-full transition">
+    <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+    </svg>
+</button>
+
+
+</div>
+
+<!-- Main Form -->
+
+<form hx-post="{% url 'projects:task_status_update' project.pk task.pk %}"
+hx-swap="none"
+class="space-y-6"
+id="task-detail-form">
+{% csrf_token %}
+
+<!-- Description -->
+{% if task.description %}
+<div class="bg-slate-50 border border-slate-100 rounded-2xl p-4">
+    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Description</h3>
+    <p class="text-xs text-slate-600 leading-relaxed">{{ task.description }}</p>
+</div>
+{% endif %}
+
+<!-- Status Selection -->
+<div class="bg-slate-50/50 p-1 rounded-2xl border border-slate-100 flex gap-1">
+    {% for status_val, status_label in status_choices %}
+    <label class="flex-1 cursor-pointer group">
+        <input type="radio" name="status" value="{{ status_val }}" class="hidden peer"
+               {% if task.status == status_val %}checked{% endif %}>
+        <div class="py-3 text-center rounded-xl transition-all border-2 border-transparent
+                    peer-checked:bg-white peer-checked:border-blue-500 peer-checked:shadow-sm">
+            <span class="text-[10px] font-black uppercase tracking-tighter text-slate-400 group-hover:text-slate-600 peer-checked:text-blue-600">
+                {{ status_label }}
+            </span>
+        </div>
+    </label>
+    {% endfor %}
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Checklist Section -->
+    <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm h-[450px] flex flex-col">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Requirements</h3>
+            <span id="progress-text" class="text-xs font-black text-blue-600">0%</span>
+        </div>
+
+        <div class="w-full bg-slate-100 h-1.5 rounded-full mb-6 overflow-hidden">
+            <div id="progress-bar" class="bg-blue-600 h-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+
+<div id="checklist-container" class="space-y-2 overflow-y-auto custom-scrollbar mb-4 flex-1">
+{% for item in task.checklist_items.all %}
+<div class="flex items-center group bg-slate-50 p-3 rounded-xl border border-transparent hover:border-slate-200 transition-all">
+    <input type="checkbox" name="check_items" value="{{ item.id }}"
+           class="checklist-toggle w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+           {% if item.is_completed %}checked{% endif %}
+           onchange="updateProgressUI()">
+
+    <input type="text" name="edit_description_{{ item.id }}" value="{{ item.description }}"
+           class="ml-3 text-xs font-bold bg-transparent border-none focus:ring-0 text-slate-700 transition-all flex-1 {% if item.is_completed %}line-through text-slate-400{% endif %}">
+
+    <button type="button" onclick="deleteChecklistItem(this, '{{ item.id }}')" class="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-500 transition-all">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+    </button>
+</div>
+{% endfor %}
+</div>
+
+        <div class="flex gap-2">
+            <input type="text" id="new-item-input" placeholder="Add requirement..."
+                   onkeydown="if(event.key==='Enter'){event.preventDefault(); addNewChecklistItem();}"
+                   class="flex-1 bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500/20">
+            <button type="button" onclick="addNewChecklistItem()" class="bg-blue-600 text-white w-10 h-10 rounded-xl flex items-center justify-center hover:bg-blue-700 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="3" d="M12 6v12M6 12h12"></path></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Tabbed Logs -->
+    <div class="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm flex flex-col h-[450px]">
+        <div class="flex border-b border-slate-100">
+            <button type="button" id="tab-activity-btn" onclick="switchTab('activity')"
+                    class="flex-1 py-4 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 border-blue-600 text-blue-600">
+                Activity Logs
+            </button>
+            <button type="button" id="tab-time-btn" onclick="switchTab('time')"
+                    class="flex-1 py-4 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 border-transparent text-slate-400 hover:text-slate-600">
+                Time Log: {{ total_logged_hours }} Hrs
+            </button>
+        </div>
+
+        <div class="p-6 flex-1 flex flex-col overflow-hidden">
+            <div id="tab-activity" class="flex flex-col flex-1 overflow-hidden">
+                <div class="overflow-y-auto custom-scrollbar space-y-3 pr-2 flex-1 mb-4">
+                    {% for note in task.notes.all %}
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="text-[9px] font-black text-blue-600 uppercase">{{ note.user.username|default:"System" }}</span>
+                            <span class="text-[9px] text-slate-400">{{ note.created_at|date:"M d, H:i" }}</span>
+                        </div>
+                        <p class="text-xs text-slate-700 font-medium">{{ note.content }}</p>
+                    </div>
+                    {% empty %}
+                    <p class="text-center py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">No activity notes</p>
+                    {% endfor %}
+                </div>
+                <div class="flex-shrink-0">
+                    <textarea name="note" rows="2" placeholder="Add a comment..."
+                              class="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500/10"></textarea>
+                </div>
+            </div>
+
+            <div id="tab-time" class="hidden flex flex-col flex-1 overflow-hidden">
+                <div class="overflow-y-auto custom-scrollbar space-y-3 pr-2 flex-1 mb-4">
+                    {% for log in task.time_logs.all %}
+                    <div class="flex items-center justify-between bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+                        <div>
+                            <p class="text-xs font-black text-blue-800">{{ log.hours }} Hours</p>
+                            <p class="text-[9px] text-blue-400 font-bold uppercase">{{ log.date|date:"F d, Y" }}</p>
+                        </div>
+                        <span class="text-[9px] font-black text-blue-300 uppercase">{{ log.user.username }}</span>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-12">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No hours logged yet</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="flex-shrink-0 bg-blue-50/30 p-4 rounded-2xl border border-blue-100/50">
+                    <label class="block text-[10px] font-black text-blue-400 uppercase mb-2 tracking-widest">Log Hours</label>
+                    <div class="flex items-center gap-3">
+                        <input type="number" name="hours_worked" step="0.5" placeholder="0.0"
+                               class="w-24 bg-white border border-blue-100 rounded-xl p-3 text-lg font-black text-blue-600 outline-none">
+                        <span class="text-[10px] font-black text-blue-300 uppercase tracking-widest">HRS</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Actions -->
+<div class="flex gap-3 pt-4">
+    <button type="submit" class="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] hover:bg-blue-600 transition-all shadow-xl shadow-slate-200">
+        Save All Changes
+    </button>
+    <button type="button" onclick="closeModal()" class="px-8 bg-white border border-slate-200 text-slate-500 py-4 rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] hover:bg-slate-50 transition-all">
+        Cancel
+    </button>
+</div>
+
+
+</form>
+
+{% autoescape off %}
+<script>
+// Updated to use standard characters for better compatibility with autoescape off
+window.updateProgressUI = function() {
+    var checkboxes = document.querySelectorAll(".checklist-toggle");
+    var checked = document.querySelectorAll(".checklist-toggle:checked");
+    var total = checkboxes.length;
+    var completed = checked.length;
+    var percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    var bar = document.getElementById("progress-bar");
+    var text = document.getElementById("progress-text");
+
+    if (bar) bar.style.width = percent + "%";
+    if (text) text.innerText = percent + "%";
+
+    checkboxes.forEach(function(cb) {
+        var labelSpan = cb.nextElementSibling;
+        if (cb.checked) {
+            labelSpan.classList.add("line-through", "text-slate-400");
+        } else {
+            labelSpan.classList.remove("line-through", "text-slate-400");
+        }
+    });
+};
+
+window.addNewChecklistItem = function() {
+    var input = document.getElementById("new-item-input");
+    var val = input.value.trim();
+    if (!val) return;
+
+    var container = document.getElementById("checklist-container");
+    var empty = document.getElementById("no-tasks-empty");
+    if (empty) empty.remove();
+
+    var div = document.createElement("div");
+    div.className = "flex items-center group bg-white p-3 rounded-xl border border-blue-100 animate-fadeIn";
+    div.innerHTML = `
+        <div class="mr-3 text-blue-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        </div>
+        <div class="flex flex-1 items-center">
+            <span class="text-xs font-bold text-slate-700">${val} <span class="text-[8px] text-blue-400 ml-2 font-black uppercase">(Saving New)</span></span>
+            <input type="hidden" name="bulk_new_items" value="${val}">
+        </div>
+        <button type="button" onclick="this.parentElement.remove(); updateProgressUI();" class="p-1 text-slate-300 hover:text-red-500">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+    `;
+    container.appendChild(div);
+    input.value = "";
+    window.updateProgressUI();
+};
+
+window.deleteChecklistItem = function(btn, id) {
+    var row = btn.closest(".flex");
+    var deleteInput = document.createElement("input");
+    deleteInput.type = "hidden";
+    deleteInput.name = "delete_items";
+    deleteInput.value = id;
+    document.getElementById("task-detail-form").appendChild(deleteInput);
+    row.remove();
+    window.updateProgressUI();
+};
+
+window.switchTab = function(tab) {
+    var activity = document.getElementById("tab-activity");
+    var time = document.getElementById("tab-time");
+    var actBtn = document.getElementById("tab-activity-btn");
+    var timeBtn = document.getElementById("tab-time-btn");
+
+    if (tab === "activity") {
+        activity.classList.remove("hidden");
+        time.classList.add("hidden");
+        actBtn.classList.add("border-blue-600", "text-blue-600");
+        actBtn.classList.remove("border-transparent", "text-slate-400");
+        timeBtn.classList.remove("border-blue-600", "text-blue-600");
+        timeBtn.classList.add("border-transparent", "text-slate-400");
+    } else {
+        time.classList.remove("hidden");
+        activity.classList.add("hidden");
+        timeBtn.classList.add("border-blue-600", "text-blue-600");
+        timeBtn.classList.remove("border-transparent", "text-slate-400");
+        actBtn.classList.remove("border-blue-600", "text-blue-600");
+        actBtn.classList.add("border-transparent", "text-slate-400");
+    }
+};
+
+// Initialize UI manually
+window.updateProgressUI();
+</script>
+{% endautoescape %}

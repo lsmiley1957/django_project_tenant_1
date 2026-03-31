@@ -63,7 +63,7 @@ def pipeline_kanban(request):
     # customers = Acct_customer.objects.all()
     customers = Acct_customer.objects.all().prefetch_related('activities').order_by('-id')
 
-    # Structure the data into a list of dictionaries for the template
+    # Structure the data_seeds into a list of dictionaries for the template
     # This prevents the need for a 'get_item' dictionary filter
     board_data = []
     for stage_code, stage_name in stages:
@@ -246,7 +246,7 @@ def add_customer(request):
             phone=phone,
             address=address
         )
-        return redirect('customer_list')
+        return redirect('acct_customer:customer_list')
 
     return render(request, 'acct_customer/add_customer.html')
 
@@ -262,7 +262,7 @@ def edit_customer(request, pk):
         acct_customer.phone = request.POST.get('phone')
         acct_customer.address = request.POST.get('address')
         acct_customer.save()
-        return redirect('customer_list')
+        return redirect('acct_customer:customer_list')
 
     return render(request, 'acct_customer/edit_customer.html', {'acct_customer': acct_customer})
 
@@ -368,7 +368,7 @@ def get_next_salesperson():
 
 def public_lead_form(request):
     if request.method == 'POST':
-        # Extract data from the POST request
+        # Extract data_seeds from the POST request
         name = request.POST.get('name')
         email = request.POST.get('email')
         phone = request.POST.get('phone', 'N/A')

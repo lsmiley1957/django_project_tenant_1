@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Tracker Pro | Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+        .status-badge-todo { background-color: #f1f5f9; color: #64748b; }
+        .status-badge-progress { background-color: #eff6ff; color: #2563eb; }
+        .status-badge-done { background-color: #f0fdf4; color: #16a34a; }
+
+        .animate-in { animation: slideIn 0.3s ease-out forwards; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-12">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Main Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="px-2 py-1 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded">Project Alpha</span>
+                    <span class="text-slate-400 font-bold text-xs">#TSK-1024</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Redesign User Onboarding Flow</h1>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="toggleModal('taskModal')" class="bg-slate-900 text-white px-6 py-3 rounded-2xl font-bold hover:bg-blue-600 transition-all flex items-center gap-2 shadow-xl shadow-slate-200">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    Update Task
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Left Column: Summary -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Progress Card -->
+                <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                    <div class="flex justify-between items-end mb-4">
+                        <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest">Execution Progress</h3>
+                        <span id="display-progress-text" class="text-2xl font-black text-blue-600">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-4 rounded-full overflow-hidden">
+                        <div id="display-progress-bar" class="bg-blue-600 h-full transition-all duration-700 ease-in-out" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Checklist -->
+                <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                    <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest mb-6">Key Requirements</h3>
+                    <div id="display-checklist" class="space-y-3">
+                        <!-- Dynamic Content -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Metadata -->
+            <div class="space-y-6">
+                <!-- Status & Time -->
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Current Status</p>
+                            <div id="current-status-badge" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase tracking-tighter status-badge-todo">
+                                To Do
+                            </div>
+                        </div>
+                        <div class="pt-4 border-t border-slate-50">
+                            <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Time Logged</p>
+                            <p id="total-time-text" class="text-2xl font-black text-slate-800">0.0 <span class="text-sm text-slate-400">hrs</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Notes -->
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                    <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest mb-4">Internal Notes</h3>
+                    <div id="display-notes" class="space-y-3 max-h-[300px] overflow-y-auto custom-scrollbar">
+                        <!-- Dynamic Content -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UPDATE MODAL (The specific UI requested) -->
+    <div id="taskModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in">
+            <!-- Modal Header -->
+            <div class="p-8 border-b border-slate-50 flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">Update Details</h2>
+                    <p class="text-xs font-bold text-slate-400 uppercase mt-1">Refining: Redesign User Onboarding</p>
+                </div>
+                <button onclick="toggleModal('taskModal')" class="w-10 h-10 flex items-center justify-center bg-slate-50 text-slate-400 rounded-full hover:bg-red-50 hover:text-red-500 transition-all">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body (Scrollable) -->
+            <div class="p-8 max-h-[70vh] overflow-y-auto custom-scrollbar space-y-8">
+
+                <!-- Status Selection -->
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Update Task Status</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <label class="cursor-pointer group">
+                            <input type="radio" name="status" value="todo" class="hidden peer" checked onchange="handleStatusChange('todo')">
+                            <div class="p-4 rounded-2xl border-2 border-slate-50 bg-slate-50 text-center peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all">
+                                <p class="text-xs font-black text-slate-400 group-hover:text-slate-600 peer-checked:text-blue-600 uppercase">To Do</p>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer group">
+                            <input type="radio" name="status" value="in_progress" class="hidden peer" onchange="handleStatusChange('in_progress')">
+                            <div class="p-4 rounded-2xl border-2 border-slate-50 bg-slate-50 text-center peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all">
+                                <p class="text-xs font-black text-slate-400 group-hover:text-slate-600 peer-checked:text-blue-600 uppercase">In Progress</p>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer group">
+                            <input type="radio" name="status" value="done" class="hidden peer" onchange="handleStatusChange('done')">
+                            <div class="p-4 rounded-2xl border-2 border-slate-50 bg-slate-50 text-center peer-checked:border-emerald-500 peer-checked:bg-emerald-50 transition-all">
+                                <p class="text-xs font-black text-slate-400 group-hover:text-slate-600 peer-checked:text-emerald-600 uppercase">Done</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Checklist & Progress -->
+                <div class="bg-slate-50 p-6 rounded-3xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-tight">Checklist</h3>
+                        <span id="modal-progress-text" class="text-xs font-black text-blue-600">0%</span>
+                    </div>
+
+                    <!-- Dynamic Checklist Items -->
+                    <div id="modal-checklist" class="space-y-2 mb-4">
+                        <!-- Added dynamically -->
+                    </div>
+
+                    <!-- Add New Item -->
+                    <div class="flex gap-2">
+                        <input type="text" id="new-item-input" placeholder="Add a subtask..." class="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium">
+                        <button onclick="addNewItem()" class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center hover:bg-blue-700 transition-all">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Time & Notes Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest">Log Hours</label>
+                        <div class="relative">
+                            <input type="number" id="time-input" step="0.5" placeholder="0.0" class="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-xl font-black focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                            <span class="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-slate-300">hrs</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest">Add Note</label>
+                        <textarea id="note-input" placeholder="Any updates?" rows="1" class="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer Actions -->
+            <div class="p-8 bg-slate-50 flex gap-4">
+                <button onclick="saveAllChanges()" class="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] hover:bg-blue-600 transition-all shadow-xl shadow-slate-200">
+                    Apply All Changes
+                </button>
+                <button onclick="toggleModal('taskModal')" class="px-8 bg-white border border-slate-200 text-slate-500 py-4 rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] hover:bg-slate-100 transition-all">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let state = {
+            status: 'todo',
+            checklist: [
+                { id: 1, text: 'Initial wireframes for welcome screen', completed: false },
+                { id: 2, text: 'Define color palette for dark mode', completed: false },
+                { id: 3, text: 'Review accessibility guidelines', completed: true }
+            ],
+            totalHours: 12.5,
+            notes: [
+                { id: 1, user: 'Sarah K.', text: 'Waiting for stakeholder feedback on the secondary button color.', date: '2 hours ago' },
+                { id: 2, user: 'John D.', text: 'Updated the typography for mobile views.', date: 'Yesterday' }
+            ]
+        };
+
+        // UI Handlers
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                renderModalChecklist();
+            }
+        }
+
+        function handleStatusChange(newStatus) {
+            state.status = newStatus;
+        }
+
+        function addNewItem() {
+            const input = document.getElementById('new-item-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            state.checklist.push({
+                id: Date.now(),
+                text: text,
+                completed: false
+            });
+            input.value = '';
+            renderModalChecklist();
+            updateProgress();
+        }
+
+        function toggleChecklistItem(id) {
+            const item = state.checklist.find(i => i.id === id);
+            if (item) {
+                item.completed = !item.completed;
+                updateProgress();
+                renderModalChecklist();
+            }
+        }
+
+        function updateProgress() {
+            const total = state.checklist.length;
+            const completed = state.checklist.filter(i => i.completed).length;
+            const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+            document.getElementById('modal-progress-text').innerText = `${percent}%`;
+            document.getElementById('display-progress-text').innerText = `${percent}%`;
+            document.getElementById('display-progress-bar').style.width = `${percent}%`;
+        }
+
+        function renderModalChecklist() {
+            const container = document.getElementById('modal-checklist');
+            container.innerHTML = state.checklist.map(item => `
+                <div class="flex items-center gap-3 bg-white p-3 rounded-xl border border-slate-100 group">
+                    <input type="checkbox" ${item.completed ? 'checked' : ''}
+                           onchange="toggleChecklistItem(${item.id})"
+                           class="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer">
+                    <span class="text-xs font-bold text-slate-700 ${item.completed ? 'line-through text-slate-400' : ''}">${item.text}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderDisplayChecklist() {
+            const container = document.getElementById('display-checklist');
+            container.innerHTML = state.checklist.map(item => `
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-transparent hover:border-slate-200 transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="w-6 h-6 rounded-lg flex items-center justify-center ${item.completed ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-400'}">
+                            <i class="fa-solid ${item.completed ? 'fa-check text-[10px]' : 'fa-circle text-[6px]'}"></i>
+                        </div>
+                        <span class="text-sm font-bold text-slate-700 ${item.completed ? 'line-through text-slate-400' : ''}">${item.text}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderDisplayNotes() {
+            const container = document.getElementById('display-notes');
+            container.innerHTML = state.notes.map(note => `
+                <div class="bg-slate-50 p-4 rounded-2xl space-y-1">
+                    <p class="text-xs font-medium text-slate-700">${note.text}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-[9px] font-black text-blue-500 uppercase tracking-wider">${note.user}</span>
+                        <span class="text-[9px] font-bold text-slate-400 uppercase">${note.date}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStatusBadge() {
+            const badge = document.getElementById('current-status-badge');
+            badge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase tracking-tighter ";
+
+            if (state.status === 'todo') {
+                badge.innerText = "To Do";
+                badge.classList.add('status-badge-todo');
+            } else if (state.status === 'in_progress') {
+                badge.innerText = "In Progress";
+                badge.classList.add('status-badge-progress');
+            } else {
+                badge.innerText = "Completed";
+                badge.classList.add('status-badge-done');
+            }
+        }
+
+        function saveAllChanges() {
+            // Log Time
+            const timeInput = document.getElementById('time-input');
+            const hours = parseFloat(timeInput.value);
+            if (!isNaN(hours) && hours > 0) {
+                state.totalHours += hours;
+                timeInput.value = '';
+            }
+
+            // Save Note
+            const noteInput = document.getElementById('note-input');
+            const noteText = noteInput.value.trim();
+            if (noteText) {
+                state.notes.unshift({
+                    id: Date.now(),
+                    user: 'You',
+                    text: noteText,
+                    date: 'Just now'
+                });
+                noteInput.value = '';
+            }
+
+            // Sync UI
+            updateStatusBadge();
+            renderDisplayChecklist();
+            renderDisplayNotes();
+            document.getElementById('total-time-text').innerHTML = `${state.totalHours.toFixed(1)} <span class="text-sm text-slate-400">hrs</span>`;
+
+            toggleModal('taskModal');
+        }
+
+        // Init
+        window.onload = () => {
+            renderDisplayChecklist();
+            renderDisplayNotes();
+            updateProgress();
+            updateStatusBadge();
+            document.getElementById('total-time-text').innerHTML = `${state.totalHours.toFixed(1)} <span class="text-sm text-slate-400">hrs</span>`;
+        };
+    </script>
+</body>
+</html>

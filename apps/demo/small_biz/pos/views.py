@@ -113,6 +113,7 @@ def transaction_list(request):
     transactions = POSTransaction.objects.all().order_by('-timestamp')
     return render(request, 'pos/transaction_list.html', {'transactions': transactions})
 
+
 @login_required
 def receipt_detail(request, pk):
     transaction_obj = get_object_or_404(POSTransaction, pk=pk)

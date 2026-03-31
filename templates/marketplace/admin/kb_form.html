@@ -1,0 +1,87 @@
+{% extends "marketplace/admin/admin_layout.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">{% if form.instance.pk %}Edit{% else %}Create{% endif %} KB Article</h2>
+            <p class="text-muted">Draft documentation and guides for marketplace applications.</p>
+        </div>
+        <a href="{% url 'kb_admin_list' %}" class="btn btn-outline-secondary rounded-pill px-4">
+            Cancel
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="row g-4">
+                    <!-- Basic Info -->
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Article Title</label>
+                            {{ form.title }}
+                            {% if form.title.errors %}<div class="text-danger small">{{ form.title.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Content</label>
+                            <!-- Django will render the textarea here, we attach CKEditor to it -->
+                            {{ form.content }}
+                            {% if form.content.errors %}<div class="text-danger small">{{ form.content.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Sidebar Settings -->
+                    <div class="col-md-4">
+                        <div class="bg-light p-3 rounded-3 border">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Target App</label>
+                                {{ form.app }}
+                                <div class="form-text small">Which app does this documentation belong to?</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Category</label>
+                                {{ form.category }}
+                            </div>
+
+                            <hr>
+
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 shadow-sm">
+                                <i data-lucide="save" class="me-2" style="width: 18px;"></i> Save Article
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Load CKEditor -->
+<script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Initialize CKEditor on the content textarea
+        // Note: Replace 'id_content' if your form field has a different ID
+        const contentField = document.querySelector('textarea[name="content"]');
+        if (contentField) {
+            ClassicEditor
+                .create(contentField, {
+                    toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'insertTable', 'undo', 'redo']
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+
+        // Ensure standard form-control styling on Django inputs
+        document.querySelectorAll('input, select, textarea').forEach(el => {
+            el.classList.add('form-control');
+        });
+    });
+</script>
+{% endblock %}

@@ -1,258 +1,420 @@
 {% extends "inventory/base.html" %}
 
 {% block content %}
-<div class="container-fluid py-4" style="background: #f8f9fe; min-height: 100vh;">
-    <!-- Stats Summary -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <h6 class="text-uppercase text-muted ls-1 mb-1 small fw-bold">Products</h6>
-                            <span class="h2 font-weight-bold mb-0">{{ total_products }}</span>
-                        </div>
-                        <div class="col-auto">
-                            <div class="icon icon-shape bg-primary text-white rounded-circle shadow p-3">
-                                <i class="fas fa-boxes"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    /* Professional SaaS "Lift" Effect */
+    .stat-card {
+        transition: all 0.25s ease-in-out;
+        cursor: default;
+        border: 1px solid transparent !important;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.1) !important;
+        border-color: #e9ecef !important;
+    }
+    .legend-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    /* Pulse Row Styling */
+    .dashboard-pulse {
+        background: #f8f9fe;
+        border-radius: 50px;
+        padding: 10px 24px;
+        font-size: 0.85rem;
+        border: 1px solid #e9ecef;
+    }
+    .chart-legend-item {
+        background: #fff;
+        transition: all 0.2s;
+    }
+    .chart-legend-item:hover {
+        background: #f8f9fe;
+    }
+    /* Icon Gradient Backgrounds */
+    .bg-primary-gradient { background: linear-gradient(87deg, #5e72e4 0, #825ee4 100%) !important; }
+    .bg-success-gradient { background: linear-gradient(87deg, #2dce89 0, #2dcecc 100%) !important; }
+    .bg-info-gradient { background: linear-gradient(87deg, #11cdef 0, #1171ef 100%) !important; }
+    .bg-warning-gradient { background: linear-gradient(87deg, #fb6340 0, #fbb140 100%) !important; }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4 px-2">
+    <div>
+        <h2 class="h3 mb-0 text-gray-800">Inventory Dashboard</h2>
+        <p class="text-muted small mb-0">Overview of your current stock and activity.</p>
+    </div>
+    <div>
+        <a href="{% url 'seed_setup' %}" class="btn btn-primary btn-md rounded-pill shadow-sm px-4 fw-bold">
+            <i class="fas fa-magic me-2"></i> Setup Business Data
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="dashboard-pulse d-flex align-items-center justify-content-between shadow-sm">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-bolt text-warning me-3"></i>
+                <span><strong>System Pulse:</strong> Total inventory value is stable. High profitability detected in top categories.</span>
             </div>
+            <span class="text-muted small fw-bold text-uppercase ls-1">Live Status</span>
         </div>
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <h6 class="text-uppercase text-muted ls-1 mb-1 small fw-bold">Categories</h6>
-                            <span class="h2 font-weight-bold mb-0 text-success">{{ total_categories }}</span>
-                        </div>
-                        <div class="col-auto">
-                            <div class="icon icon-shape bg-success text-white rounded-circle shadow p-3">
-                                <i class="fas fa-tags"></i>
-                            </div>
-                        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100 stat-card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h6 class="text-uppercase text-muted ls-1 mb-1 small fw-bold">Total Products</h6>
+                        <span class="h2 font-weight-bold mb-0 text-dark">{{ total_products }}</span>
                     </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <h6 class="text-uppercase text-muted ls-1 mb-1 small fw-bold">Suppliers</h6>
-                            <span class="h2 font-weight-bold mb-0 text-info">{{ total_suppliers }}</span>
-                        </div>
-                        <div class="col-auto">
-                            <div class="icon icon-shape bg-info text-white rounded-circle shadow p-3">
-                                <i class="fas fa-truck"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <h6 class="text-uppercase text-muted ls-1 mb-1 small fw-bold">Low Stock</h6>
-                            <span class="h2 font-weight-bold mb-0 text-danger">{{ low_stock_count }}</span>
-                        </div>
-                        <div class="col-auto">
-                            <div class="icon icon-shape bg-danger text-white rounded-circle shadow p-3">
-                                <i class="fas fa-exclamation-triangle"></i>
-                            </div>
+                    <div class="col-auto">
+                        <div class="icon icon-shape bg-primary-gradient text-white rounded-circle shadow-sm p-3" style="width: 54px; height: 54px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-boxes fa-lg"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="row">
-        <!-- Sales Chart Section -->
-        <div class="col-xl-5 mb-4">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-white border-0 pt-4 px-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0">Category Sales Breakdown</h5>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100 stat-card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h6 class="text-uppercase text-muted ls-1 mb-1 small fw-bold">Categories</h6>
+                        <span class="h2 font-weight-bold mb-0 text-dark">{{ total_categories }}</span>
                     </div>
-                    <!-- Timeframe Navigation -->
-                    <div class="btn-group w-100" id="timeframe-selector">
-                        <button class="btn btn-sm btn-outline-primary active" data-time="24h">24h</button>
-                        <button class="btn btn-sm btn-outline-primary" data-time="7d">7d</button>
-                        <button class="btn btn-sm btn-outline-primary" data-time="14d">14d</button>
-                        <button class="btn btn-sm btn-outline-primary" data-time="30d">30d</button>
-                        <button class="btn btn-sm btn-outline-primary" data-time="90d">90d</button>
-                        <button class="btn btn-sm btn-outline-primary" data-time="365d">Year</button>
-                    </div>
-                </div>
-                <div class="card-body px-4">
-                    <div style="height: 280px; position: relative;">
-                        <canvas id="salesChart"></canvas>
-                        <div id="empty-state" class="d-none position-absolute top-50 start-50 translate-middle text-center">
-                            <p class="text-muted mb-0">No sales data for this period</p>
+                    <div class="col-auto">
+                        <div class="icon icon-shape bg-success-gradient text-white rounded-circle shadow-sm p-3" style="width: 54px; height: 54px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-tags fa-lg"></i>
                         </div>
-                    </div>
-                    <div id="legend-list" class="mt-4" style="max-height: 180px; overflow-y: auto;">
-                        <!-- Legend items injected here -->
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Recent Activity Table -->
-        <div class="col-xl-7 mb-4">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between">
-                    <h5 class="mb-0">Recent Activity</h5>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100 stat-card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h6 class="text-uppercase text-muted ls-1 mb-1 small fw-bold">Active Suppliers</h6>
+                        <span class="h2 font-weight-bold mb-0 text-dark">{{ total_suppliers }}</span>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon icon-shape bg-info-gradient text-white rounded-circle shadow-sm p-3" style="width: 54px; height: 54px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-truck-loading fa-lg"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="table-responsive">
-                    <table class="table align-items-center table-flush">
-                        <thead class="thead-light">
-                            <tr>
-                                <th class="px-4">Product</th>
-                                <th>Category</th>
-                                <th>Qty</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for tx in recent_transactions %}
-                            <tr>
-                                <td class="px-4 py-3"><span class="fw-600 text-dark">{{ tx.product.name }}</span></td>
-                                <td><span class="badge bg-light text-muted">{{ tx.product.category.name|default:"None" }}</span></td>
-                                <td>
-                                    <span class="{% if tx.change < 0 %}text-danger{% else %}text-success{% endif %} fw-bold">
-                                        {{ tx.change }}
-                                    </span>
-                                </td>
-                                <td><small class="text-muted">{{ tx.timestamp|date:"M d, H:i" }}</small></td>
-                            </tr>
-                            {% empty %}
-                            <tr><td colspan="4" class="text-center py-5 text-muted">No activity found.</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100 stat-card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h6 class="text-uppercase text-muted ls-1 mb-1 small fw-bold">Inv. Net Worth</h6>
+                        <span class="h2 font-weight-bold mb-0 text-dark">${{ total_stock_value|default:"0.00" }}</span>
+                    </div>
+                    <div class="col-auto">
+                        <div class="icon icon-shape bg-warning-gradient text-white rounded-circle shadow-sm p-3" style="width: 54px; height: 54px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-dollar-sign fa-lg"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<style>
-    .btn-outline-primary { border-color: #e9ecef; color: #8898aa; }
-    .btn-outline-primary:hover, .btn-outline-primary.active {
-        background-color: #5e72e4 !important;
-        border-color: #5e72e4 !important;
-        color: #fff !important;
-    }
-    .icon-shape { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
-    #legend-list::-webkit-scrollbar { width: 4px; }
-    #legend-list::-webkit-scrollbar-thumb { background: #e9ecef; border-radius: 10px; }
-</style>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Safe Parse JSON
-        const allSalesData = JSON.parse('{{ category_sales_json|safe }}');
-        const canvas = document.getElementById('salesChart');
-        const ctx = canvas.getContext('2d');
-        const legend = document.getElementById('legend-list');
-        const emptyState = document.getElementById('empty-state');
-        const buttons = document.querySelectorAll('#timeframe-selector button');
-
-        let myChart = null;
-        const colors = ['#5e72e4', '#2dce89', '#11cdef', '#fb6340', '#f5365c', '#8965e0', '#32325d', '#ffd600'];
-
-        function updateDisplay(timeKey) {
-            const data = allSalesData[timeKey] || [];
-            legend.innerHTML = '';
-
-            if (data.length === 0) {
-                if (myChart) myChart.destroy();
-                canvas.style.display = 'none';
-                emptyState.classList.remove('d-none');
-                return;
-            }
-
-            canvas.style.display = 'block';
-            emptyState.classList.add('d-none');
-
-            // Generate Legend and Chart Data
-            const labels = data.map(d => d.name);
-            const values = data.map(d => d.value);
-
-            data.forEach((item, i) => {
-                const color = colors[i % colors.length];
-                legend.innerHTML += `
-                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 border-bottom border-light">
-                        <div class="d-flex align-items-center">
-                            <div style="width:10px; height:10px; background:${color}; border-radius:50%; margin-right:10px;"></div>
-                            <span class="small text-dark fw-500">${item.name}</span>
+<div class="row">
+    <div class="col-xl-8 mb-4">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+            <div class="card-header bg-white border-0 pt-4 pb-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase text-muted ls-1 mb-1 small fw-bold">Performance Tracking</h6>
+                        <h5 class="h3 mb-0">Revenue & Profit Margins</h5>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <div class="btn-group btn-group-sm rounded-pill shadow-sm overflow-hidden" id="limit-selector">
+                            <button class="btn btn-outline-secondary active" data-limit="5">Top 5</button>
+                            <button class="btn btn-outline-secondary" data-limit="10">Top 10</button>
                         </div>
-                        <span class="small fw-bold text-primary">${item.value}%</span>
-                    </div>`;
-            });
+                        <div class="btn-group btn-group-sm rounded-pill shadow-sm overflow-hidden" id="timeframe-selector">
+                            <button class="btn btn-outline-primary" data-time="24h">24h</button>
+                            <button class="btn btn-outline-primary active" data-time="7d">7d</button>
+                            <button class="btn btn-outline-primary" data-time="30d">30d</button>
+                            <button class="btn btn-outline-primary" data-time="365d">Year</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <div style="position: relative; height:300px; width:100%">
+                    <canvas id="salesBreakdownChart"></canvas>
+                </div>
+                <div id="sales-legend-container" class="mt-4 row g-3"></div>
+            </div>
+        </div>
+    </div>
 
-            if (myChart) myChart.destroy();
-            myChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: values,
-                        backgroundColor: colors.slice(0, data.length),
-                        borderWidth: 0,
-                        hoverOffset: 15
-                    }]
+    <div class="col-xl-4 mb-4">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+            <div class="card-header bg-white border-0 pt-4 pb-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase text-muted ls-1 mb-1 small fw-bold">Categorical Insights</h6>
+                        <h5 class="h3 mb-0">Stock Distribution</h5>
+                    </div>
+                    <div class="btn-group btn-group-sm rounded-pill shadow-sm overflow-hidden" role="group">
+                        <button type="button" class="btn btn-outline-primary active" id="btn-count">Count</button>
+                        <button type="button" class="btn btn-outline-primary" id="btn-value">Value</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <div style="position: relative; height:240px; width:100%">
+                    <canvas id="chart-orders"></canvas>
+                </div>
+
+                <div class="mt-4 border-top pt-3">
+                    <div class="row g-2" id="dist-legend-row">
+                        {% for item in category_distribution %}
+                        <div class="col-6 mb-2">
+                            <div class="d-flex align-items-start">
+                                <div class="rounded-circle me-2 mt-1" style="width: 8px; height: 8px; background-color: {% cycle '#5e72e4' '#2dce89' '#11cdef' '#fb6340' '#f5365c' '#8965e0' %}; flex-shrink: 0;"></div>
+                                <div class="overflow-hidden w-100">
+                                    <span class="text-xs font-weight-bold d-block text-truncate mb-0" title="{{ item.display_name }}">
+                                        {{ item.display_name }}
+                                    </span>
+
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-xs fw-bold dist-legend-val text-primary" style="font-size: 0.75rem;">{{ item.item_count }}</span>
+                                        <small class="text-muted ms-2" style="font-size: 0.6rem;">${{ item.avg_unit_cost|floatformat:2 }} avg</small>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center border-top mt-1 pt-1" style="border-color: #f1f3f9 !important;">
+                                        <small class="text-muted" style="font-size: 0.65rem;">Total Sold:</small>
+                                        <span class="text-xs fw-bold text-success" style="font-size: 0.7rem;">{{ item.sales_count|default:"0" }} items</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-white border-0 pt-4">
+                <h5 class="h3 mb-0">Recent Stock Movements</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-items-center table-flush">
+                    <thead class="thead-light">
+                        <tr>
+                            <th class="border-0">Product</th>
+                            <th class="border-0">Change</th>
+                            <th class="border-0">Type</th>
+                            <th class="border-0">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tx in recent_transactions %}
+                        <tr>
+                            <td class="fw-bold">{{ tx.product.name }}</td>
+                            <td class="{% if tx.change > 0 %}text-success{% else %}text-danger{% endif %} fw-bold">
+                                {{ tx.change|stringformat:"+d" }}
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill {% if tx.type == 'SALE' %}bg-info{% elif tx.type == 'RESTOCK' %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {{ tx.get_type_display }}
+                                </span>
+                            </td>
+                            <td class="text-muted small">{{ tx.timestamp|date:"M d, H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js and DataLabels Plugin -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Register the datalabels plugin globally
+    Chart.register(ChartDataLabels);
+
+    // --- 1. Revenue & Profit Margin Logic ---
+    const salesData = JSON.parse('{{ category_sales_json|safe }}');
+    const salesCtx = document.getElementById('salesBreakdownChart').getContext('2d');
+    const legendContainer = document.getElementById('sales-legend-container');
+    let salesChart = null;
+    let currentLimit = 5;
+    let currentTime = '7d';
+
+    function updateSalesLegend(data) {
+        legendContainer.innerHTML = '';
+        data.forEach(item => {
+            const col = document.createElement('div');
+            col.className = 'col-md-4 col-6';
+            col.innerHTML = `
+                <div class="p-2 border rounded-3 chart-legend-item shadow-sm">
+                    <div class="d-flex align-items-center mb-1">
+                        <span class="legend-indicator me-2" style="background:${item.color}"></span>
+                        <small class="fw-bold text-truncate" style="max-width: 80px;">${item.name}</small>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">${item.value}% Rev</small>
+                        <small class="text-success fw-bold">${item.margin}% PnL</small>
+                    </div>
+                </div>
+            `;
+            legendContainer.appendChild(col);
+        });
+    }
+
+    function updateSalesChart() {
+        const rawData = salesData[currentTime] || [];
+        const data = rawData.slice(0, currentLimit);
+        updateSalesLegend(data);
+        if (salesChart) salesChart.destroy();
+        salesChart = new Chart(salesCtx, {
+            type: 'bar',
+            data: {
+                labels: data.map(d => d.name),
+                datasets: [{
+                    label: '% Revenue',
+                    data: data.map(d => d.value),
+                    backgroundColor: data.map(d => d.color),
+                    borderRadius: 8,
+                    barThickness: currentLimit === 5 ? 50 : 30
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    // Disable datalabels for this specific bar chart
+                    datalabels: { display: false }
                 },
-                options: {
-                    cutout: '80%',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: (ctx) => ` ${ctx.label}: ${ctx.raw}%`
-                            }
+                scales: {
+                    y: { beginAtZero: true, max: 100, ticks: { callback: (val) => val + '%' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // --- 2. Stock Distribution (Donut Chart) ---
+    const distLabels = {{ dist_labels|safe }};
+    const distCounts = {{ dist_counts_json|safe }};
+    const distValues = {{ dist_values_json|safe }};
+    const distColors = ['#5e72e4', '#2dce89', '#11cdef', '#fb6340', '#f5365c', '#8965e0'];
+    let distChart = null;
+
+    function renderDistChart(mode) {
+        const ctx = document.getElementById('chart-orders').getContext('2d');
+        const dataSet = mode === 'count' ? distCounts : distValues;
+        const prefix = mode === 'count' ? '' : '$';
+
+        if (distChart) distChart.destroy();
+        distChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: distLabels,
+                datasets: [{ data: dataSet, backgroundColor: distColors, borderWidth: 0 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                layout: {
+                    padding: 25 // Added padding to prevent labels from touching edges
+                },
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        color: '#32325d',
+                        anchor: 'end',
+                        align: 'end',
+                        offset: 8,
+                        formatter: (value, context) => {
+                            return context.chart.data.labels[context.dataIndex];
+                        },
+                        font: {
+                            weight: 'bold',
+                            size: 10
                         }
                     }
                 }
-            });
-        }
-
-        // Setup button listeners
-        buttons.forEach(btn => {
-            btn.addEventListener('click', function() {
-                buttons.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                updateDisplay(this.dataset.time);
-            });
+            }
         });
 
-        // Auto-select timeframe with data
-        const priority = ['24h', '7d', '14d', '30d', '90d', '365d'];
-        let activeKey = '24h';
-        for (const k of priority) {
-            if (allSalesData[k] && allSalesData[k].length > 0) {
-                activeKey = k;
-                buttons.forEach(b => {
-                    b.classList.remove('active');
-                    if (b.dataset.time === k) b.classList.add('active');
-                });
-                break;
-            }
-        }
+        // Update Dynamic Numbers in the two-column list
+        document.querySelectorAll('.dist-legend-val').forEach((span, index) => {
+            const val = dataSet[index] || 0;
+            span.innerText = prefix + val.toLocaleString(undefined, {
+                minimumFractionDigits: mode === 'count' ? 0 : 2
+            });
+        });
+    }
 
-        updateDisplay(activeKey);
+    // --- 3. Listeners ---
+    document.querySelectorAll('#timeframe-selector button').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('#timeframe-selector button').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentTime = this.dataset.time;
+            updateSalesChart();
+        });
     });
+
+    document.querySelectorAll('#limit-selector button').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('#limit-selector button').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentLimit = parseInt(this.dataset.limit);
+            updateSalesChart();
+        });
+    });
+
+    document.getElementById('btn-count').addEventListener('click', function() {
+        this.classList.add('active'); document.getElementById('btn-value').classList.remove('active');
+        renderDistChart('count');
+    });
+
+    document.getElementById('btn-value').addEventListener('click', function() {
+        this.classList.add('active'); document.getElementById('btn-count').classList.remove('active');
+        renderDistChart('value');
+    });
+
+    // Initial load
+    updateSalesChart();
+    renderDistChart('count');
+});
 </script>
 {% endblock %}

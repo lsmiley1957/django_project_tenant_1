@@ -1,0 +1,38 @@
+{
+    "categories": [
+        {"name": "Prescription Meds", "description": "Restricted pharmaceutical products"},
+        {"name": "OTC Pain Relief", "description": "Non-prescription analgesics"},
+        {"name": "Vitamins & Supplements", "description": "Dietary and health boosters"},
+        {"name": "First Aid", "description": "Bandages, antiseptics, and emergency care"},
+        {"name": "Skin Care", "description": "Dermatological products"},
+        {"name": "Oral Care", "description": "Toothbrushes, paste, and hygiene"},
+        {"name": "Medical Devices", "description": "Thermometers, monitors, and supports"},
+        {"name": "Baby Care", "description": "Diapers, formula, and infant health"},
+        {"name": "Eye & Ear Care", "description": "Drops and cleaning solutions"},
+        {"name": "Personal Hygiene", "description": "Soaps and sanitizers"}
+    ],
+    "suppliers": [
+        {"name": "PharmaDirect Ltd", "contact_email": "orders@pharmadirect.com", "average_lead_time": 1.0},
+        {"name": "MediHealth Wholesale", "contact_email": "supply@medihealth.com", "average_lead_time": 2.0},
+        {"name": "Global Wellness Inc", "contact_email": "sales@globalwellness.com", "average_lead_time": 3.5},
+        {"name": "BioLabs Distribution", "contact_email": "logistics@biolabs.com", "average_lead_time": 1.5},
+        {"name": "PureCare Supplies", "contact_email": "info@purecare.com", "average_lead_time": 4.0},
+        {"name": "Essential Meds Co", "contact_email": "b2b@essentialmeds.com", "average_lead_time": 2.5},
+        {"name": "DermaPro Wholesalers", "contact_email": "orders@dermapro.com", "average_lead_time": 3.0},
+        {"name": "FirstResponse Gear", "contact_email": "stock@firstresponse.com", "average_lead_time": 2.0},
+        {"name": "NatureVibe Labs", "contact_email": "wholesale@naturevibe.com", "average_lead_time": 5.0},
+        {"name": "Apex Pharma Logistics", "contact_email": "delivery@apexpharma.com", "average_lead_time": 1.0}
+    ],
+    "products": [
+        {"sku": "PH-RX-001", "name": "Amoxicillin 500mg", "category_name": "Prescription Meds", "supplier_name": "PharmaDirect Ltd", "cost_price": "5.50", "sale_price": "15.00", "quantity_in_stock": 100, "reorder_level": 20, "location": "Fridge-01", "expiry_date": "2027-06-01", "date_added": "2026-05-04T12:00:00Z"},
+        {"sku": "PH-OTC-002", "name": "Ibuprofen 400mg (24ct)", "category_name": "OTC Pain Relief", "supplier_name": "MediHealth Wholesale", "cost_price": "2.20", "sale_price": "6.99", "quantity_in_stock": 250, "reorder_level": 50, "location": "Aisle 1-A", "expiry_date": "2028-12-31", "date_added": "2026-05-04T12:00:00Z"},
+        {"sku": "PH-VIT-003", "name": "Vitamin C 1000mg", "category_name": "Vitamins & Supplements", "supplier_name": "Global Wellness Inc", "cost_price": "4.50", "sale_price": "12.50", "quantity_in_stock": 120, "reorder_level": 30, "location": "Aisle 2-B", "expiry_date": "2029-01-15", "date_added": "2026-05-04T12:00:00Z"},
+        {"sku": "PH-FA-004", "name": "Sterile Bandage Kit", "category_name": "First Aid", "supplier_name": "FirstResponse Gear", "cost_price": "3.10", "sale_price": "8.50", "quantity_in_stock": 80, "reorder_level": 15, "location": "Aisle 3-C", "expiry_date": null, "date_added": "2026-05-04T12:00:00Z"},
+        {"sku": "PH-SKN-005", "name": "Hydrating Face Cream", "category_name": "Skin Care", "supplier_name": "DermaPro Wholesalers", "cost_price": "12.00", "sale_price": "24.99", "quantity_in_stock": 45, "reorder_level": 10, "location": "Aisle 4-A", "expiry_date": "2027-11-20", "date_added": "2026-05-04T12:00:00Z"},
+        {"sku": "PH-ORL-006", "name": "Electric Toothbrush", "category_name": "Oral Care", "supplier_name": "Apex Pharma Logistics", "cost_price": "18.50", "sale_price": "45.00", "quantity_in_stock": 30, "reorder_level": 5, "location": "Shelf-09", "expiry_date": null, "date_added": "2026-05-04T12:00:00Z"},
+        {"sku": "PH-DEV-007", "name": "Digital Thermometer", "category_name": "Medical Devices", "supplier_name": "BioLabs Distribution", "cost_price": "4.00", "sale_price": "12.99", "quantity_in_stock": 60, "reorder_level": 12, "location": "Front Counter", "expiry_date": null, "date_added": "2026-05-04T12:00:00Z"},
+        {"sku": "PH-BAB-008", "name": "Infant Formula 400g", "category_name": "Baby Care", "supplier_name": "PureCare Supplies", "cost_price": "15.00", "sale_price": "28.50", "quantity_in_stock": 40, "reorder_level": 10, "location": "Aisle 5-B", "expiry_date": "2026-10-01", "date_added": "2026-05-04T12:00:00Z"},
+        {"sku": "PH-EYE-009", "name": "Saline Eye Drops", "category_name": "Eye & Ear Care", "supplier_name": "Essential Meds Co", "cost_price": "3.50", "sale_price": "9.50", "quantity_in_stock": 90, "reorder_level": 20, "location": "Aisle 1-C", "expiry_date": "2027-05-01", "date_added": "2026-05-04T12:00:00Z"},
+        {"sku": "PH-HYG-010", "name": "Alcohol Hand Gel 500ml", "category_name": "Personal Hygiene", "supplier_name": "NatureVibe Labs", "cost_price": "1.50", "sale_price": "4.99", "quantity_in_stock": 300, "reorder_level": 100, "location": "Warehouse", "expiry_date": "2029-12-01", "date_added": "2026-05-04T12:00:00Z"}
+    ]
+}

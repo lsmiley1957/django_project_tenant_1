@@ -5,14 +5,14 @@
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
-                <a href="{% url 'invoice_list' %}" class="btn btn-outline-secondary rounded-pill">
+                <a href="{% url 'invoicing:invoice_list' %}" class="btn btn-outline-secondary rounded-pill">
                     <i class="fas fa-arrow-left me-2"></i> Back to List
                 </a>
                 <div>
                     <button onclick="window.print()" class="btn btn-white shadow-sm rounded-pill px-4">
                         <i class="fas fa-print me-2"></i> Print Invoice
                     </button>
-                    <a href="{% url 'edit_invoice' invoice.pk %}" class="btn btn-white shadow-sm rounded-pill px-4 me-2">
+                    <a href="{% url 'invoicing:edit_invoice' invoice.pk %}" class="btn btn-white shadow-sm rounded-pill px-4 me-2">
                         <i class="fas fa-edit me-2"></i> Edit Invoice
                     </a>
                 </div>
@@ -101,13 +101,13 @@
             <!-- Quick Status Actions -->
             <div class="mt-4 text-center d-print-none">
                 {% if invoice.status != 'PAID' %}
-                <form action="{% url 'update_invoice_status' invoice.pk %}" method="POST" class="d-inline">
+                <form action="{% url 'invoicing:update_invoice_status' invoice.pk %}" method="POST" class="d-inline">
                     {% csrf_token %}
                     <input type="hidden" name="status" value="PAID">
                     <button class="btn btn-success rounded-pill px-4 me-2">Mark as Paid</button>
                 </form>
                 {% endif %}
-                <form action="{% url 'update_invoice_status' invoice.pk %}" method="POST" class="d-inline">
+                <form action="{% url 'invoicing:update_invoice_status' invoice.pk %}" method="POST" class="d-inline">
                     {% csrf_token %}
                     <input type="hidden" name="status" value="CANCELLED">
                     <button class="btn btn-link text-danger">Cancel Invoice</button>

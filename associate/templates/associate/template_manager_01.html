@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CKTemplate Manager | HCM Library</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/editor.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .ck-editor__editable { min-height: 400px; border-radius: 0 0 1rem 1rem !important; }
+        .ck.ck-toolbar { border-radius: 1rem 1rem 0 0 !important; border-bottom: none !important; }
+        .modal-active { display: flex !important; }
+    </style>
+</head>
+<body class="p-6 md:p-12">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- HEADER -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
+            <div>
+                <h1 class="text-3xl font-black text-slate-900 tracking-tight">Template Library</h1>
+                <p class="text-slate-500 font-medium">Manage CKEditor structures for reviews, policies, and disciplinary actions.</p>
+            </div>
+            <button onclick="openModal()" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Create New Template
+            </button>
+        </header>
+
+        <!-- TEMPLATE LIST GRID -->
+        <div id="template-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Loading State -->
+            <div class="col-span-full py-20 text-center animate-pulse text-slate-400 font-bold">
+                Accessing Library Database...
+            </div>
+        </div>
+    </div>
+
+    <!-- CRUD MODAL -->
+    <div id="template-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white w-full max-w-5xl max-h-[90vh] rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden">
+            <div class="p-8 border-b flex justify-between items-center">
+                <h2 id="modal-title" class="text-2xl font-black text-slate-800">New Template</h2>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-8 custom-scroll">
+                <form id="template-form" class="space-y-6">
+                    <input type="hidden" id="tpl-id">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-black uppercase text-slate-400 tracking-widest">Template Title</label>
+                            <input type="text" id="tpl-title" required class="w-full p-4 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none font-semibold">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-black uppercase text-slate-400 tracking-widest">Category</label>
+                            <select id="tpl-category" class="w-full p-4 rounded-xl border border-slate-200 bg-slate-50 outline-none font-semibold">
+                                <option value="">General</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase text-slate-400 tracking-widest">Short Description</label>
+                        <textarea id="tpl-desc" rows="2" class="w-full p-4 rounded-xl border border-slate-200 bg-slate-50 outline-none font-medium"></textarea>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase text-slate-400 tracking-widest">Structure Content (HTML)</label>
+                        <div id="editor-container">
+                            <textarea id="tpl-content"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="p-8 border-t bg-slate-50 flex justify-end gap-4">
+                <button onclick="closeModal()" class="px-8 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-100 transition-all">Cancel</button>
+                <button onclick="saveTemplate()" class="bg-indigo-600 text-white px-10 py-3 rounded-xl font-bold shadow-lg hover:bg-indigo-700 transition-all">Save Template</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let editor;
+        let allTemplates = [];
+
+        window.onload = async () => {
+            // Initialize Editor
+            editor = await ClassicEditor.create(document.querySelector('#tpl-content'), {
+                toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'insertTable', 'undo', 'redo']
+            });
+            fetchTemplates();
+        };
+
+        async function fetchTemplates() {
+            try {
+                const res = await fetch('/associate/api/templates/');
+                const json = await res.json();
+                allTemplates = json.data || json.templates || [];
+                renderList();
+            } catch (err) {
+                document.getElementById('template-list').innerHTML = `<div class="col-span-full p-10 bg-red-50 text-red-500 rounded-2xl border border-red-100">Failed to load templates. API Error.</div>`;
+            }
+        }
+
+        function renderList() {
+            const list = document.getElementById('template-list');
+            if (allTemplates.length === 0) {
+                list.innerHTML = `<div class="col-span-full py-20 text-center bg-white rounded-3xl border-2 border-dashed border-slate-200 text-slate-400">No templates found. Create your first one above!</div>`;
+                return;
+            }
+
+            list.innerHTML = allTemplates.map(t => `
+                <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-md transition-all group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="editTemplate(${t.id})" class="p-2 bg-slate-100 rounded-lg text-slate-600 hover:bg-indigo-600 hover:text-white transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                            </button>
+                            <button onclick="deleteTemplate(${t.id})" class="p-2 bg-slate-100 rounded-lg text-slate-600 hover:bg-red-600 hover:text-white transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 line-clamp-1">${t.title}</h3>
+                    <p class="text-sm text-slate-500 mt-2 line-clamp-2 min-h-[40px]">${t.description || 'No description provided.'}</p>
+                    <div class="mt-6 pt-6 border-t border-slate-50 flex items-center justify-between">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-indigo-500">${t.category_name || 'General'}</span>
+                        <span class="text-[10px] text-slate-400 font-bold">${new Date(t.updated_at).toLocaleDateString()}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openModal() {
+            document.getElementById('modal-title').innerText = "Create New Template";
+            document.getElementById('tpl-id').value = "";
+            document.getElementById('template-form').reset();
+            editor.setData("");
+            document.getElementById('template-modal').classList.add('modal-active');
+        }
+
+        function closeModal() {
+            document.getElementById('template-modal').classList.remove('modal-active');
+        }
+
+        function editTemplate(id) {
+            const t = allTemplates.find(x => x.id === id);
+            if (!t) return;
+
+            document.getElementById('modal-title').innerText = "Edit Template";
+            document.getElementById('tpl-id').value = t.id;
+            document.getElementById('tpl-title').value = t.title;
+            document.getElementById('tpl-desc').value = t.description;
+            document.getElementById('tpl-category').value = t.category || "";
+            editor.setData(t.content || "");
+
+            document.getElementById('template-modal').classList.add('modal-active');
+        }
+
+        async function saveTemplate() {
+            const id = document.getElementById('tpl-id').value;
+            const payload = {
+                title: document.getElementById('tpl-title').value,
+                description: document.getElementById('tpl-desc').value,
+                category_id: document.getElementById('tpl-category').value,
+                content: editor.getData()
+            };
+
+            const url = id ? `/associate/api/templates/${id}/update/` : '/associate/api/templates/create/';
+
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    closeModal();
+                    fetchTemplates();
+                } else {
+                    alert("Error: " + data.message);
+                }
+            } catch (err) {
+                alert("Network error saving template.");
+            }
+        }
+
+        async function deleteTemplate(id) {
+            if (!confirm("Are you sure you want to delete this template?")) return;
+            try {
+                const res = await fetch(`/associate/api/templates/${id}/delete/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+                });
+                const data = await res.json();
+                if (data.status === 'success') fetchTemplates();
+            } catch (err) { alert("Failed to delete."); }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+{% extends "marketplace/admin/admin_layout.html" %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1" style="font-size: 0.85rem;">
+                    <li class="breadcrumb-item"><a href="#" class="text-decoration-none text-muted">Global Catalog</a></li>
+                    <li class="breadcrumb-item active text-primary">Applications</li>
+                </ol>
+            </nav>
+            <h2 class="fw-bold mb-0" style="letter-spacing: -0.02em; color: #1e293b;">Marketplace Catalog</h2>
+            <p class="text-muted mb-0 small">Manage SaaS offerings and global pricing tiers across all tenants.</p>
+        </div>
+        <a href="{% url 'app_create' %}" class="btn btn-primary d-flex align-items-center px-4 py-2 shadow-sm" style="border-radius: 10px; font-weight: 600;">
+            <i data-lucide="plus" class="me-2" style="width: 18px;"></i>
+            <span>Register App</span>
+        </a>
+    </div>
+
+    <!-- Stats Summary (Subtle) -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3" style="border-radius: 12px; background: #fff;">
+                <div class="small text-muted mb-1">Total Apps</div>
+                <div class="h4 fw-bold mb-0">{{ apps.count }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3" style="border-radius: 12px; background: #fff;">
+                <div class="small text-muted mb-1">Active Installations</div>
+                <div class="h4 fw-bold mb-0 text-success">
+                    {% if apps %}{{ apps.0.assigned_tenants.count|default:"0" }}{% else %}0{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Professional Table Card -->
+    <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 16px; border: 1px solid #e2e8f0 !important;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background-color: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                    <tr>
+                        <th class="ps-4 py-3 text-muted small text-uppercase fw-bold" style="letter-spacing: 0.03em; width: 30%;">Product</th>
+                        <th class="py-3 text-muted small text-uppercase fw-bold" style="letter-spacing: 0.03em;">Pricing Model</th>
+                        <th class="py-3 text-muted small text-uppercase fw-bold" style="letter-spacing: 0.03em; width: 15%;">Visibility</th>
+                        <th class="py-3 text-muted small text-uppercase fw-bold text-center" style="letter-spacing: 0.03em;">Installs</th>
+                        <th class="text-end pe-4 py-3 text-muted small text-uppercase fw-bold" style="letter-spacing: 0.03em;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="border-top-0">
+                    {% for app in apps %}
+                    <tr>
+                        <!-- Product Info -->
+                        <td class="ps-4 py-4">
+                            <div class="d-flex align-items-center">
+                                <div class="p-2 bg-primary bg-opacity-10 rounded-3 me-3 d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                                    <i data-lucide="{{ app.icon_tag|default:'package' }}" class="text-primary" style="width: 22px;"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark mb-0" style="font-size: 1rem;">{{ app.name }}</div>
+                                    <div class="text-muted small">/{{ app.slug }}</div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Pricing/Description -->
+                        <td class="py-4">
+                            {% with first_tier=app.tiers.all.0 %}
+                                {% if first_tier %}
+                                    <div class="d-flex align-items-baseline">
+                                        <span class="fw-bold text-dark">${{ first_tier.price }}</span>
+                                        <span class="text-muted small ms-1">/ {{ first_tier.billing_cycle }}</span>
+                                    </div>
+                                    <div class="text-muted" style="font-size: 0.75rem; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        {{ app.description|striptags|truncatechars:40|default:"Standard Plan" }}
+                                    </div>
+                                {% else %}
+                                    <span class="badge bg-light text-muted border fw-normal">No Tiers Defined</span>
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+
+                        <!-- Status Badge -->
+                        <td class="py-4">
+                            {% if app.is_active %}
+                            <div class="d-flex align-items-center text-success small fw-semibold">
+                                <span class="d-inline-block bg-success rounded-circle me-2" style="width: 8px; height: 8px;"></span>
+                                Live & Public
+                            </div>
+                            {% else %}
+                            <div class="d-flex align-items-center text-muted small fw-semibold">
+                                <span class="d-inline-block bg-secondary rounded-circle me-2" style="width: 8px; height: 8px;"></span>
+                                Draft
+                            </div>
+                            {% endif %}
+                        </td>
+
+                        <!-- Installation Count -->
+                        <td class="py-4 text-center">
+                            <div class="fw-bold text-dark">{{ app.assigned_tenants.count|default:"0" }}</div>
+                            <div class="text-muted" style="font-size: 0.7rem;">Tenants</div>
+                        </td>
+
+                        <!-- Action Buttons -->
+                        <td class="text-end pe-4 py-4">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{% url 'app_edit' app.pk %}" class="btn btn-sm btn-white border shadow-sm px-3 py-1 fw-semibold text-dark" style="font-size: 0.8rem; background: #fff;">
+                                    Edit
+                                </a>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light border shadow-sm px-2 py-1" data-bs-toggle="dropdown">
+                                        <i data-lucide="more-vertical" style="width: 14px;"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2" style="border-radius: 10px; min-width: 160px;">
+                                        <li><a class="dropdown-item rounded-2 py-2 small" href="#"><i data-lucide="eye" class="me-2" style="width: 14px;"></i> View Details</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item rounded-2 py-2 small text-danger" href="{% url 'app_delete' app.pk %}"><i data-lucide="trash-2" class="me-2" style="width: 14px;"></i> Delete App</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="py-4">
+                                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+                                    <i data-lucide="layout-grid" class="text-muted" style="width: 32px; height: 32px; opacity: 0.5;"></i>
+                                </div>
+                                <h5 class="text-dark fw-bold">No Applications Registered</h5>
+                                <p class="text-muted mx-auto" style="max-width: 300px;">Your catalog is currently empty. Start by registering a new SaaS product for your tenants.</p>
+                                <a href="{% url 'app_create' %}" class="btn btn-primary rounded-pill px-4 mt-2">
+                                    Create First App
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-white:hover { background-color: #f8fafc !important; color: #2563eb !important; }
+    .table tbody tr { transition: all 0.2s ease; }
+    .table tbody tr:hover { background-color: #fcfdfe !important; }
+    .breadcrumb-item + .breadcrumb-item::before { content: "›"; font-size: 1.2rem; line-height: 1; vertical-align: text-top; }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Workspace | Enterprise Review</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; overflow-x: hidden; }
+        .dashboard-card { transition: all 0.2s ease; }
+        .dashboard-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
+        .template-card { cursor: pointer; transition: all 0.2s ease; border: 2px solid transparent; }
+        .template-card:hover { border-color: #0d9488; background-color: #f0fdfa; }
+
+        /* Transition States */
+        #dashboard-view, #workspace-view, #editor-view { transition: opacity 0.3s ease; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Top Navigation -->
+    <nav class="glass-nav sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-teal-600 p-2 rounded-lg">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight text-slate-800">NovaSure <span class="text-teal-600">Performance</span></h1>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button onclick="showDashboard()" class="text-sm font-medium text-slate-600 hover:text-teal-600">Dashboard</button>
+                <button onclick="showWorkspace()" class="bg-teal-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-teal-700 transition shadow-sm">
+                    + New Review
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 py-8">
+
+        <!-- STATE 1: DASHBOARD VIEW -->
+        <section id="dashboard-view">
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+                <div class="dashboard-card bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total Reviews</p>
+                    <h3 class="text-3xl font-extrabold text-slate-800" id="stat-total">0</h3>
+                </div>
+                <div class="dashboard-card bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Pending Approval</p>
+                    <h3 class="text-3xl font-extrabold text-teal-600" id="stat-pending">0</h3>
+                </div>
+                <div class="dashboard-card bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Avg. Rating</p>
+                    <h3 class="text-3xl font-extrabold text-slate-800">4.2</h3>
+                </div>
+                <div class="dashboard-card bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Cycle Completion</p>
+                    <h3 class="text-3xl font-extrabold text-slate-800">84%</h3>
+                </div>
+            </div>
+
+            <!-- Recent Reviews Table -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="px-6 py-5 border-bottom border-slate-100 flex justify-between items-center">
+                    <h2 class="font-bold text-slate-800 text-lg">Active Performance Reviews</h2>
+                    <div class="flex gap-2">
+                         <input type="text" placeholder="Search associates..." class="text-sm border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-teal-500/20">
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 border-y border-slate-100">
+                            <tr>
+                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Associate</th>
+                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Review Period</th>
+                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Rating</th>
+                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Status</th>
+                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reviews-table-body" class="divide-y divide-slate-100">
+                            <!-- JS Populated -->
+                            <tr><td colspan="5" class="px-6 py-10 text-center text-slate-400">Loading your workspace...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- STATE 2: WORKSPACE (TEMPLATE SELECTION) -->
+        <section id="workspace-view" class="hidden">
+            <div class="mb-8">
+                <button onclick="showDashboard()" class="text-sm text-teal-600 font-medium flex items-center gap-1 mb-4">
+                    ← Back to Dashboard
+                </button>
+                <h2 class="text-3xl font-extrabold text-slate-800">Select Review Template</h2>
+                <p class="text-slate-500">Choose a document format to begin the performance evaluation.</p>
+            </div>
+
+            <div id="template-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Templates will be loaded here via API -->
+            </div>
+        </section>
+
+        <!-- STATE 3: EDITOR (IFRAME) -->
+        <section id="editor-view" class="hidden h-[calc(100vh-120px)]">
+            <div class="flex justify-between items-center mb-4">
+                <button onclick="showWorkspace()" class="text-sm text-slate-500 font-medium flex items-center gap-1">
+                    ← Back to Templates
+                </button>
+                <div class="flex gap-2">
+                    <span id="active-template-name" class="text-sm font-bold bg-slate-100 px-3 py-1 rounded-full text-slate-600">Template Name</span>
+                </div>
+            </div>
+            <iframe id="editor-frame" src="" class="w-full h-full rounded-2xl border border-slate-200 shadow-lg bg-white"></iframe>
+        </section>
+
+    </main>
+
+    <script>
+        // API Configuration
+        const API_BASE = '/associate/api';
+        let allReviews = [];
+
+        window.onload = () => {
+            fetchReviews();
+            fetchTemplates();
+        };
+
+        /**
+         * Navigation Logic
+         */
+        function showDashboard() {
+            document.getElementById('dashboard-view').classList.remove('hidden');
+            document.getElementById('workspace-view').classList.add('hidden');
+            document.getElementById('editor-view').classList.add('hidden');
+            fetchReviews(); // Refresh stats
+        }
+
+        function showWorkspace() {
+            document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('workspace-view').classList.remove('hidden');
+            document.getElementById('editor-view').classList.add('hidden');
+        }
+
+        function launchEditor(templateId, templateTitle) {
+            document.getElementById('workspace-view').classList.add('hidden');
+            document.getElementById('editor-view').classList.remove('hidden');
+            document.getElementById('active-template-name').innerText = templateTitle;
+
+            // Point the iframe to your existing performance_review.html view
+            // We pass the template ID so the editor knows which content to load
+            document.getElementById('editor-frame').src = `/associate/editor/performance_review?template=${templateId}`;
+        }
+
+        /**
+         * Data Fetching
+         */
+        async function fetchReviews() {
+            try {
+                const response = await fetch(`${API_BASE}/performance-reviews/`);
+                const data = await response.json();
+                if (data.status === 'success') {
+                    allReviews = data.reviews;
+                    renderTable(data.reviews);
+                    updateStats(data.reviews);
+                }
+            } catch (err) {
+                console.error("Failed to fetch reviews:", err);
+            }
+        }
+
+        async function fetchTemplates() {
+            try {
+                const response = await fetch(`${API_BASE}/templates/`);
+                const data = await response.json();
+                renderTemplates(data.templates || []);
+            } catch (err) {
+                console.error("Failed to fetch templates:", err);
+            }
+        }
+
+        /**
+         * Rendering Logic
+         */
+        function renderTemplates(templates) {
+            const grid = document.getElementById('template-grid');
+            if (templates.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-10 text-center text-slate-400">No templates found in library.</div>`;
+                return;
+            }
+
+            grid.innerHTML = templates.map(t => `
+                <div onclick="launchEditor(${t.id}, '${t.title}')" class="template-card bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
+                    <div class="w-12 h-12 bg-teal-50 rounded-xl flex items-center justify-center text-teal-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-800">${t.title}</h4>
+                        <p class="text-sm text-slate-500 mt-1">${t.description || 'Standard evaluation form'}</p>
+                    </div>
+                    <div class="mt-auto pt-4 border-t border-slate-50 flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">${t.category || 'General'}</span>
+                        <span class="text-teal-600 text-sm font-bold">Use Template →</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderTable(reviews) {
+            const tbody = document.getElementById('reviews-table-body');
+            if (reviews.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-10 text-center text-slate-400">No review history found. Click "New Review" to start.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = reviews.map(r => `
+                <tr class="hover:bg-slate-50/50 transition-colors group">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-500">
+                                ${r.associateName.charAt(0)}
+                            </div>
+                            <div>
+                                <div class="font-semibold text-slate-800">${r.associateName}</div>
+                                <div class="text-xs text-slate-400">${r.associateJob}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-600">${r.reviewPeriod}</td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center gap-1 font-bold text-slate-700">
+                            ${r.rating} <span class="text-amber-400">★</span>
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                            r.status === 'Approved' ? 'bg-teal-100 text-teal-700 border border-teal-200' : 'bg-slate-100 text-slate-500 border border-slate-200'
+                        }">
+                            ${r.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="editReview(${r.id})" class="p-1.5 text-slate-400 hover:text-teal-600" title="Edit Content">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            </button>
+                            <button onclick="handleDelete(${r.id})" class="p-1.5 text-slate-400 hover:text-red-500" title="Archive">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats(reviews) {
+            document.getElementById('stat-total').innerText = reviews.length;
+            document.getElementById('stat-pending').innerText = reviews.filter(r => r.status !== 'Approved').length;
+        }
+
+        async function handleDelete(id) {
+            if (!confirm('Archive this review?')) return;
+            // Existing logic...
+            fetchReviews();
+        }
+
+        function editReview(id) {
+            // Future logic for loading existing submission into editor
+            alert("Loading submission " + id + " into workspace...");
+        }
+    </script>
+</body>
+</html>

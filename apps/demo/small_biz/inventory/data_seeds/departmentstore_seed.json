@@ -1,0 +1,128 @@
+{
+    "categories": [
+        {"name": "Apparel", "description": "Men's, women's, and children's fashion"},
+        {"name": "Home & Kitchen", "description": "Cookware, bedding, and small appliances"},
+        {"name": "Beauty & Personal Care", "description": "Cosmetics, perfumes, and skincare"},
+        {"name": "Electronics", "description": "Gadgets, audio, and home tech"},
+        {"name": "Toys & Leisure", "description": "Board games, outdoor toys, and hobbies"}
+    ],
+    "suppliers": [
+        {"name": "Vogue Apparel Group", "contact_email": "sales@vogue-apparel.com", "average_lead_time": 7.0},
+        {"name": "KitchenMaster Wholesalers", "contact_email": "b2b@kitchenmaster.com", "average_lead_time": 4.5},
+        {"name": "Pure Glow Beauty", "contact_email": "orders@pureglow.com", "average_lead_time": 3.0},
+        {"name": "TechCore Electronics", "contact_email": "support@techcore.io", "average_lead_time": 5.5},
+        {"name": "FunTime Imports", "contact_email": "logistics@funtime.com", "average_lead_time": 10.0}
+    ],
+    "products": [
+        {
+            "sku": "DS-APP-TSH-01",
+            "name": "Premium Cotton Crew Neck Tee",
+            "category_name": "Apparel",
+            "supplier_name": "Vogue Apparel Group",
+            "cost_price": "8.00",
+            "sale_price": "24.99",
+            "quantity_in_stock": 150,
+            "reorder_level": 40,
+            "location": "Floor 1-A"
+        },
+        {
+            "sku": "DS-HOM-KTL-02",
+            "name": "Electric Gooseneck Kettle",
+            "category_name": "Home & Kitchen",
+            "supplier_name": "KitchenMaster Wholesalers",
+            "cost_price": "22.50",
+            "sale_price": "49.00",
+            "quantity_in_stock": 30,
+            "reorder_level": 10,
+            "location": "Floor 2-C"
+        },
+        {
+            "sku": "DS-BEA-SRM-03",
+            "name": "Hyaluronic Acid Serum (30ml)",
+            "category_name": "Beauty & Personal Care",
+            "supplier_name": "Pure Glow Beauty",
+            "cost_price": "14.00",
+            "sale_price": "32.00",
+            "quantity_in_stock": 85,
+            "reorder_level": 25,
+            "location": "Beauty Counter"
+        },
+        {
+            "sku": "DS-ELE-HDP-04",
+            "name": "Wireless Noise Canceling Headphones",
+            "category_name": "Electronics",
+            "supplier_name": "TechCore Electronics",
+            "cost_price": "65.00",
+            "sale_price": "129.99",
+            "quantity_in_stock": 20,
+            "reorder_level": 5,
+            "location": "Tech Zone"
+        },
+        {
+            "sku": "DS-TOY-GME-05",
+            "name": "Strategic Board Game: Empire",
+            "category_name": "Toys & Leisure",
+            "supplier_name": "FunTime Imports",
+            "cost_price": "18.00",
+            "sale_price": "39.95",
+            "quantity_in_stock": 45,
+            "reorder_level": 15,
+            "location": "Floor 3-B"
+        },
+        {
+            "sku": "DS-APP-JNS-06",
+            "name": "Slim Fit Denim Jeans",
+            "category_name": "Apparel",
+            "supplier_name": "Vogue Apparel Group",
+            "cost_price": "20.00",
+            "sale_price": "55.00",
+            "quantity_in_stock": 90,
+            "reorder_level": 20,
+            "location": "Floor 1-B"
+        },
+        {
+            "sku": "DS-HOM-PAN-07",
+            "name": "Non-Stick 10-inch Skillet",
+            "category_name": "Home & Kitchen",
+            "supplier_name": "KitchenMaster Wholesalers",
+            "cost_price": "12.00",
+            "sale_price": "29.99",
+            "quantity_in_stock": 55,
+            "reorder_level": 15,
+            "location": "Floor 2-D"
+        },
+        {
+            "sku": "DS-BEA-LPK-08",
+            "name": "Velvet Matte Lipstick Trio",
+            "category_name": "Beauty & Personal Care",
+            "supplier_name": "Pure Glow Beauty",
+            "cost_price": "10.50",
+            "sale_price": "25.00",
+            "quantity_in_stock": 120,
+            "reorder_level": 30,
+            "location": "Beauty Counter"
+        },
+        {
+            "sku": "DS-ELE-SPK-09",
+            "name": "Portable Bluetooth Speaker",
+            "category_name": "Electronics",
+            "supplier_name": "TechCore Electronics",
+            "cost_price": "25.00",
+            "sale_price": "59.99",
+            "quantity_in_stock": 40,
+            "reorder_level": 10,
+            "location": "Tech Zone"
+        },
+        {
+            "sku": "DS-TOY-PUZ-10",
+            "name": "1000-Piece Landscape Puzzle",
+            "category_name": "Toys & Leisure",
+            "supplier_name": "FunTime Imports",
+            "cost_price": "6.00",
+            "sale_price": "19.99",
+            "quantity_in_stock": 75,
+            "reorder_level": 20,
+            "location": "Floor 3-A"
+        }
+    ]
+}

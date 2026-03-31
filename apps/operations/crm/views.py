@@ -10,22 +10,22 @@ from .forms import LeadForm, OpportunityForm, TerritoryForm  # We'll create thes
 
 # --- Dashboard View ---
 class DashboardView(LoginRequiredMixin, ListView):
-    template_name = 'crm/project_dashboard.html'
+    template_name = 'crm/dashboard.html'
     context_object_name = 'dashboard_data'  # This will be a dictionary
 
     def get_queryset(self):
-        # This method is usually for a single model, but we need aggregated data.
+        # This method is usually for a single model, but we need aggregated data_seeds.
         # We'll override get_context_data instead.
         return None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Get data for the current user's leads and opportunities
+        # Get data_seeds for the current user's leads and opportunities
         user_leads = Lead.objects.filter(assigned_to=self.request.user)
         user_opportunities = Opportunity.objects.filter(assigned_to=self.request.user)
 
-        # Aggregate data for the dashboard
+        # Aggregate data_seeds for the dashboard
         context['total_leads'] = Lead.objects.count()
         context['new_leads'] = Lead.objects.filter(status='New').count()
         context['converted_leads'] = Lead.objects.filter(status='Converted').count()
@@ -34,7 +34,7 @@ class DashboardView(LoginRequiredMixin, ListView):
         context['closed_lost_opportunities'] = Opportunity.objects.filter(stage='Closed Lost').count()
         context['total_revenue_won'] = sum(op.amount for op in Opportunity.objects.filter(stage='Closed Won'))
 
-        # User-specific data
+        # User-specific data_seeds
         context['my_total_leads'] = user_leads.count()
         context['my_new_leads'] = user_leads.filter(status='New').count()
         context['my_total_opportunities'] = user_opportunities.count()

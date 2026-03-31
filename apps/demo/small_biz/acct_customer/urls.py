@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 
+app_name = 'acct_customer'
+
 urlpatterns = [
     path('dashboard/', views.crm_dashboard, name='crm_dashboard'),
     path('pipeline/', views.pipeline_kanban, name='pipeline_kanban'), # New entry

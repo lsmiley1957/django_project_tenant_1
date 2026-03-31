@@ -1,0 +1,128 @@
+{
+    "categories": [
+        {"name": "Produce", "description": "Fresh fruits and organic vegetables"},
+        {"name": "Dairy & Eggs", "description": "Milk, cheese, butter, and farm eggs"},
+        {"name": "Meat & Seafood", "description": "Fresh poultry, beef, and sustainable fish"},
+        {"name": "Pantry Essentials", "description": "Canned goods, grains, and baking supplies"},
+        {"name": "Frozen Foods", "description": "Ice cream, ready meals, and frozen veg"},
+        {"name": "Test Foods", "description": "Ice cream, ready meals, and frozen veg"}
+
+    ],
+    "suppliers": [
+        {"name": "Valley Fresh Farms", "contact_email": "orders@valleyfresh.com", "average_lead_time": 1.0},
+        {"name": "Oceanic Catch Ltd", "contact_email": "sales@oceanic.com", "average_lead_time": 2.0},
+        {"name": "Green Leaf Organic", "contact_email": "wholesale@greenleaf.org", "average_lead_time": 1.5},
+        {"name": "Mainland Dairy Co.", "contact_email": "supply@mainland.com", "average_lead_time": 1.2},
+        {"name": "Global Pantry Distro", "contact_email": "info@globalpantry.com", "average_lead_time": 3.0}
+    ],
+    "products": [
+        {
+            "sku": "GR-PRO-ORG-01",
+            "name": "Organic Honeycrisp Apples (3lb Bag)",
+            "category_name": "Produce",
+            "supplier_name": "Green Leaf Organic",
+            "cost_price": "3.50",
+            "sale_price": "6.99",
+            "quantity_in_stock": 45,
+            "reorder_level": 15,
+            "location": "Produce Bin 4"
+        },
+        {
+            "sku": "GR-DAI-MILK-02",
+            "name": "Whole Milk (1 Gallon)",
+            "category_name": "Dairy & Eggs",
+            "supplier_name": "Mainland Dairy Co.",
+            "cost_price": "2.20",
+            "sale_price": "4.50",
+            "quantity_in_stock": 60,
+            "reorder_level": 20,
+            "location": "Fridge-01"
+        },
+        {
+            "sku": "GR-MEA-CHX-03",
+            "name": "Free-Range Chicken Breast (lb)",
+            "category_name": "Meat & Seafood",
+            "supplier_name": "Valley Fresh Farms",
+            "cost_price": "3.10",
+            "sale_price": "5.99",
+            "quantity_in_stock": 25,
+            "reorder_level": 10,
+            "location": "Meat Case A"
+        },
+        {
+            "sku": "GR-PAN-RICE-04",
+            "name": "Basmati Rice (5lb Bag)",
+            "category_name": "Pantry Essentials",
+            "supplier_name": "Global Pantry Distro",
+            "cost_price": "4.25",
+            "sale_price": "8.50",
+            "quantity_in_stock": 100,
+            "reorder_level": 25,
+            "location": "Aisle 3-B"
+        },
+        {
+            "sku": "GR-FRO-PIZ-05",
+            "name": "Wood-Fired Pepperoni Pizza",
+            "category_name": "Frozen Foods",
+            "supplier_name": "Global Pantry Distro",
+            "cost_price": "3.00",
+            "sale_price": "7.49",
+            "quantity_in_stock": 40,
+            "reorder_level": 15,
+            "location": "Freezer-04"
+        },
+        {
+            "sku": "GR-PRO-AVO-06",
+            "name": "Hass Avocados (Each)",
+            "category_name": "Produce",
+            "supplier_name": "Valley Fresh Farms",
+            "cost_price": "0.45",
+            "sale_price": "1.25",
+            "quantity_in_stock": 80,
+            "reorder_level": 20,
+            "location": "Produce Island 2"
+        },
+        {
+            "sku": "GR-DAI-EGG-07",
+            "name": "Grade A Large Eggs (1 Dozen)",
+            "category_name": "Dairy & Eggs",
+            "supplier_name": "Mainland Dairy Co.",
+            "cost_price": "1.80",
+            "sale_price": "3.99",
+            "quantity_in_stock": 50,
+            "reorder_level": 15,
+            "location": "Fridge-03"
+        },
+        {
+            "sku": "GR-MEA-SAL-08",
+            "name": "Wild Caught Salmon Fillet (lb)",
+            "category_name": "Meat & Seafood",
+            "supplier_name": "Oceanic Catch Ltd",
+            "cost_price": "8.50",
+            "sale_price": "14.99",
+            "quantity_in_stock": 15,
+            "reorder_level": 5,
+            "location": "Fish Counter"
+        },
+        {
+            "sku": "GR-PAN-OIL-09",
+            "name": "Extra Virgin Olive Oil (500ml)",
+            "category_name": "Pantry Essentials",
+            "supplier_name": "Global Pantry Distro",
+            "cost_price": "5.50",
+            "sale_price": "11.99",
+            "quantity_in_stock": 35,
+            "reorder_level": 10,
+            "location": "Aisle 2-A"
+        },
+        {"sku": "GR-FRO-VGT-10","name": "Mixed Frozen Vegetables (1lb)",
+            "category_name": "Frozen Foods",
+            "supplier_name": "Green Leaf Organic",
+            "cost_price": "1.10",
+            "sale_price": "2.99",
+            "quantity_in_stock": 120,
+            "reorder_level": 30,
+            "location": "Freezer-02"
+        }
+    ]
+}

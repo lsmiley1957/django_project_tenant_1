@@ -1,0 +1,163 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #5e72e4 0%, #825ee4 100%);
+        --soft-bg: #f8f9fe;
+    }
+    body { background-color: var(--soft-bg); }
+
+    .list-header {
+        background: var(--primary-gradient);
+        padding: 40px 0 80px 0;
+        margin-top: -20px;
+        color: white;
+    }
+
+    .list-container { margin-top: -40px; }
+
+    .search-card {
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        background: #fff;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+
+    .associate-card {
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        background: #fff;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .associate-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    }
+
+    .profile-img-container {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-bottom: 15px;
+        border: 3px solid #fff;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .status-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 5px;
+    }
+</style>
+
+<div class="list-header">
+    <div class="container-fluid px-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold mb-1">Associate Directory</h2>
+                <p class="opacity-8 mb-0">Browse and manage team members across the organization</p>
+            </div>
+            <a href="{% url 'associate:associate_dashboard' %}" class="btn btn-white btn-sm rounded-pill shadow-sm fw-bold">
+                <i class="fas fa-plus me-1"></i> Add Associate
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid list-container px-4 pb-5">
+    <!-- Search and Filter Bar -->
+    <div class="search-card">
+        <form method="GET" class="row g-3">
+            <div class="col-lg-4">
+                <div class="input-group input-group-merge border rounded-pill px-3">
+                    <span class="input-group-text border-0 bg-transparent text-muted">
+                        <i class="fas fa-search"></i>
+                    </span>
+                    <input type="text" name="q" class="form-control border-0 bg-transparent" placeholder="Search name or ID..." value="{{ request.GET.q|default:'' }}">
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <select name="dept" class="form-select border rounded-pill">
+                    <option value="">All Departments</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept.id }}" {% if request.GET.dept == dept.id|slugify %}selected{% endif %}>{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-lg-3">
+                <select name="loc" class="form-select border rounded-pill">
+                    <option value="">All Locations</option>
+                    {% for loc in locations %}
+                    <option value="{{ loc.id }}" {% if request.GET.loc == loc.id|slugify %}selected{% endif %}>{{ loc.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-lg-2">
+                <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold">Filter</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Grid -->
+    <div class="row g-4">
+        {% for assoc in associates %}
+        <div class="col-xl-3 col-md-6">
+            <div class="associate-card p-4">
+                <div class="d-flex flex-column align-items-center text-center">
+                    <div class="profile-img-container">
+                        {% if assoc.profile_picture %}
+                            <img src="{{ assoc.profile_picture.url }}" alt="Profile" class="w-100 h-100 object-fit-cover">
+                        {% else %}
+                            <div class="w-100 h-100 bg-light d-flex align-items-center justify-content-center text-primary fw-bold h4 mb-0">
+                                {{ assoc.user.first_name|default:"?"|first }}{{ assoc.user.last_name|default:""|first }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <h5 class="fw-bold mb-1 text-dark">{{ assoc.user.get_full_name|default:assoc.user.username }}</h5>
+                    <p class="text-muted small mb-3">{{ assoc.associate_id }}</p>
+
+                    <div class="mb-3">
+                        <div class="text-primary fw-bold small mb-1">{{ assoc.position.title|default:"Staff" }}</div>
+                        <div class="d-flex align-items-center justify-content-center small text-muted">
+                            <i class="fas fa-map-marker-alt me-2"></i>{{ assoc.work_location.name|default:"Remote" }}
+                        </div>
+                    </div>
+
+                    <div class="w-100 pt-3 border-top d-flex justify-content-between align-items-center">
+                        <div class="small">
+                            <span class="status-indicator" style="background-color: {{ assoc.status.color_code|default:'#2dce89' }};"></span>
+                            <span class="text-muted">{{ assoc.status.name|default:"Active" }}</span>
+                        </div>
+                        <a href="{% url 'associate:associate_detail' assoc.pk %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                            View Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="card border-0 shadow-sm p-5 rounded-4">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h5 class="fw-bold">No associates found</h5>
+                <p class="text-muted">We couldn't find any associates matching your criteria.</p>
+                <div class="mt-3">
+                    <a href="{% url 'associate:associate_list' %}" class="btn btn-light rounded-pill px-4">Clear All Filters</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

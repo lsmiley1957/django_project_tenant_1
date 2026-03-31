@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Workspace | NovaSure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- CKEditor 5 Decoupled Document Build -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/decoupled-document/ckeditor.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .nav-step.active { border-left: 4px solid #3b82f6; background-color: #eff6ff; color: #1d4ed8; }
+        .step-content { display: none; }
+        .step-content.active { display: flex; flex-direction: column; }
+
+        /* Document Layout Styling */
+        #toolbar-container {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 8px;
+        }
+        #editor-scroller {
+            background: #f1f5f9;
+            padding: 40px 20px;
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+        .ck-editor__editable {
+            width: 8.5in;
+            min-height: 11in;
+            padding: 1in !important;
+            border: 1px solid #cbd5e1 !important;
+            background: white !important;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            margin-bottom: 40px;
+        }
+        .ck.ck-editor__editable_inline { border: none !important; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 px-8 py-3 flex items-center justify-between shrink-0 z-20">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-indigo-200 shadow-lg">N</div>
+            <div>
+                <h1 class="text-sm font-extrabold text-slate-900 leading-tight">NovaSure Performance</h1>
+                <p class="text-[10px] text-indigo-500 font-bold uppercase tracking-widest" id="progress-text">Framework Setup</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="hidden md:flex flex-col items-end mr-4">
+                <span class="text-[10px] font-bold text-slate-400 uppercase">Draft Status</span>
+                <span class="text-xs font-bold text-emerald-600">Autosave Active</span>
+            </div>
+            <button onclick="saveReview('submitted')" class="bg-slate-900 hover:bg-black text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg">
+                Submit Review
+            </button>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <nav class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0">
+            <div class="flex-1 py-6">
+                <div class="px-8 mb-6">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Process</p>
+                </div>
+                <button onclick="goToStep(1)" id="nav-1" class="nav-step active w-full px-8 py-4 flex items-center gap-3 text-left transition-colors">
+                    <span class="text-xs font-bold">1. Select Template</span>
+                </button>
+                <button onclick="goToStep(2)" id="nav-2" class="nav-step w-full px-8 py-4 flex items-center gap-3 text-left transition-colors">
+                    <span class="text-xs font-bold">2. Associate Data</span>
+                </button>
+                <button onclick="goToStep(3)" id="nav-3" class="nav-step w-full px-8 py-4 flex items-center gap-3 text-left transition-colors">
+                    <span class="text-xs font-bold">3. Review Content</span>
+                </button>
+                <button onclick="goToStep(4)" id="nav-4" class="nav-step w-full px-8 py-4 flex items-center gap-3 text-left transition-colors">
+                    <span class="text-xs font-bold">4. Finalization</span>
+                </button>
+
+                <div class="mt-10 px-8">
+                    <a href="/associate/dashboard/" class="text-[11px] font-bold text-slate-400 hover:text-slate-900 flex items-center gap-2 transition-colors">
+                        <span>←</span> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Manage Library Link -->
+            <div class="p-4 bg-slate-50 border-t border-slate-200">
+                <a href="/admin/associate/cktemplate/" target="_blank" class="flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-200 hover:border-indigo-400 hover:shadow-md group transition-all">
+                    <div class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center text-sm group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-900">Manage Library</p>
+                        <p class="text-[9px] text-slate-400">Open Admin Panel</p>
+                    </div>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-hidden flex flex-col">
+
+            <!-- Step 1: Template Selection -->
+            <div id="step-1" class="step-content active overflow-y-auto p-12">
+                <div class="max-w-5xl mx-auto">
+                    <header class="mb-10 flex justify-between items-end">
+                        <div>
+                            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Select Framework</h2>
+                            <p class="text-slate-500 mt-2">Choose the baseline template for this performance evaluation.</p>
+                        </div>
+                    </header>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for t in templates %}
+                        <div onclick="selectTemplate('{{ t.content|escapejs }}')" class="bg-white p-6 rounded-2xl border-2 border-transparent hover:border-indigo-500 shadow-sm hover:shadow-xl cursor-pointer transition-all group relative">
+                            <div class="w-12 h-12 bg-slate-50 rounded-xl mb-4 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            </div>
+                            <h3 class="font-bold text-slate-900 text-lg">{{ t.title }}</h3>
+                            <p class="text-xs text-slate-500 mt-2 leading-relaxed">{{ t.description|truncatewords:20 }}</p>
+                            <div class="mt-4 flex items-center text-indigo-600 text-[10px] font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
+                                Use Template &rarr;
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Associate Details -->
+            <div id="step-2" class="step-content overflow-y-auto p-12">
+                <div class="max-w-2xl mx-auto">
+                    <div class="bg-white p-10 rounded-[2.5rem] border border-slate-200 shadow-sm space-y-8">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-900">Associate Profile</h2>
+                            <p class="text-sm text-slate-500 mt-1">Provide the logistics for this performance record.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-6">
+                            <div>
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Subject Associate</label>
+                                <select id="associate-id" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl font-bold focus:ring-2 focus:ring-indigo-500 outline-none">
+                                    <option value="">Select Employee...</option>
+                                    {% for a in associates %}
+                                    <option value="{{ a.id }}">{{ a.user.get_full_name|default:a.user.username }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Performance Rating</label>
+                                    <select id="overall-rating" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl font-bold text-indigo-600">
+                                        <option value="1">1 - Unsatisfactory</option>
+                                        <option value="2">2 - Needs Improvement</option>
+                                        <option value="3" selected>3 - Meets Expectations</option>
+                                        <option value="4">4 - Exceeds Expectations</option>
+                                        <option value="5">5 - Exceptional</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Adjusted Salary (USD)</label>
+                                    <input type="number" id="new-salary" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl font-bold" placeholder="0.00">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="nextStep()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-black transition-all shadow-lg">
+                            Open Editor Framework
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: THE DOCUMENT EDITOR -->
+            <div id="step-3" class="step-content flex-1 overflow-hidden">
+                <div id="toolbar-container"></div>
+                <div id="editor-scroller">
+                    <div id="editor">
+                        {% if review %}{{ review.content|safe }}{% else %}<p>Select a template to begin writing...</p>{% endif %}
+                    </div>
+                </div>
+                <div class="px-8 py-4 bg-white border-t border-slate-200 flex justify-between items-center shrink-0">
+                    <button onclick="goToStep(2)" class="text-[10px] font-bold text-slate-400 uppercase hover:text-indigo-600 tracking-widest">← Back to Profile</button>
+                    <button onclick="nextStep()" class="bg-indigo-600 text-white px-10 py-2.5 rounded-xl text-xs font-bold shadow-indigo-100 shadow-xl hover:bg-indigo-700 transition-all">Review & Finalize</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Submission -->
+            <div id="step-4" class="step-content overflow-y-auto items-center justify-center p-12">
+                <div class="bg-white p-12 rounded-[3rem] border border-slate-200 shadow-2xl text-center max-w-lg">
+                    <div class="w-24 h-24 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-8">✓</div>
+                    <h2 class="text-3xl font-black text-slate-900 tracking-tight">Review Complete</h2>
+                    <p class="text-slate-500 mt-4 mb-10 leading-relaxed text-sm">You are about to finalize this performance review. Once submitted, the content will be locked and filed under the associate's permanent digital record.</p>
+                    <div class="flex gap-4">
+                        <button onclick="goToStep(3)" class="flex-1 border-2 border-slate-200 py-4 rounded-2xl font-bold text-slate-600 hover:bg-slate-50 transition-all">Review Again</button>
+                        <button onclick="saveReview('submitted')" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-xl hover:bg-indigo-700 transition-all">Submit Now</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let editorInstance;
+
+        // Initialize Decoupled Editor
+        DecoupledEditor
+            .create(document.querySelector('#editor'))
+            .then(editor => {
+                const toolbarContainer = document.querySelector('#toolbar-container');
+                toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+                editorInstance = editor;
+            })
+            .catch(error => console.error(error));
+
+        function selectTemplate(content) {
+            if(editorInstance) {
+                editorInstance.setData(content);
+                goToStep(3);
+            }
+        }
+
+        function goToStep(s) {
+            currentStep = s;
+            const titles = ["Framework Setup", "Associate Data", "Review Content", "Finalization"];
+            document.getElementById('progress-text').innerText = titles[s-1];
+            document.querySelectorAll('.nav-step').forEach((el, i) => el.classList.toggle('active', (i+1) === s));
+            document.querySelectorAll('.step-content').forEach((el, i) => el.classList.toggle('active', (i+1) === s));
+        }
+
+        function nextStep() { if(currentStep < 4) goToStep(currentStep + 1); }
+
+        async function saveReview(status) {
+            const url = "/associate/save_performance_review/";
+
+            const payload = {
+                associate_id: document.getElementById('associate-id').value,
+                overall_rating: document.getElementById('overall-rating').value,
+                content: editorInstance.getData(),
+                new_salary: document.getElementById('new-salary').value,
+                status: status
+            };
+
+            if(!payload.associate_id) {
+                alert("Validation Error: Please select an associate before submitting.");
+                goToStep(2);
+                return;
+            }
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if(response.ok) {
+                    window.location.href = "/associate/dashboard/";
+                } else {
+                    const data = await response.json();
+                    alert("Submission failed: " + (data.error || "Internal Server Error"));
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Network Exception: Could not reach the server.");
+            }
+        }
+    </script>
+</body>
+</html>

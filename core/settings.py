@@ -32,6 +32,9 @@ ALLOWED_HOSTS = ["127.0.0.1", 'localhost', '.localhost']
 # Ensure django_tenants is at the top
 SHARED_APPS = (
     'django_tenants',  # mandatory
+    'tailwind',
+    'django_ckeditor_5',
+    'theme',
     'customers',       # your app containing Client/Domain models
     'django.contrib.contenttypes',
     'django.contrib.auth',
@@ -41,8 +44,10 @@ SHARED_APPS = (
     'django.contrib.staticfiles',  # Added to ensure static files are handled
 
     # --- GLOBAL REGISTRY & MARKETPLACE ---
+    'registry',  # Global registry of Depts/Roles
     'marketplace',  # Global catalog of apps/services
-    'registry',     # Global registry of Depts/Roles
+    # 'billing',   # New Software Library and Billing
+
 )
 
 TENANT_APPS = (
@@ -53,6 +58,9 @@ TENANT_APPS = (
     'django.contrib.admin',
     'django.contrib.staticfiles',  # Added to ensure static files are handled
     # Add your tenant-specific apps here
+    'tailwind',
+    'theme',
+    'django_ckeditor_5',
     'chores',
     'apps.finance.accounting',
     'apps.finance.payroll',
@@ -63,9 +71,10 @@ TENANT_APPS = (
     'apps.demo.small_biz.acct_customer',
     'apps.demo.small_biz.invoicing',
     'apps.demo.small_biz.branding',
-    # 'registry',
-    # Adding it here ensures 'Branding', 'UserAppAssignment', etc.,
-    # are created in every new tenant schema you create.
+    # 'apps.demo.small_biz.employee',
+    # 'apps.demo.small_biz.expense',
+    'associate',
+
 
 )
 
@@ -75,6 +84,11 @@ INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in S
 
 TENANT_MODEL = 'customers.Client'
 TENANT_DOMAIN_MODEL = 'customers.Domain'
+
+
+# Default is often 'DENY'. Change it to allow iframes on the same domain.
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 
 MIDDLEWARE = [
     'django_tenants.middleware.main.TenantMainMiddleware', # MUST BE FIRST
@@ -88,12 +102,7 @@ MIDDLEWARE = [
     'core.middleware.PlanAccessMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-
-
 ]
-
-
 
 # --- ROUTING ---
 # This tells django-tenants to ignore the port when looking up the tenant
@@ -202,6 +211,18 @@ USE_I18N = True
 
 USE_TZ = True
 
+# CKEditor Configuration
+CKEDITOR_UPLOAD_PATH = "uploads/ckeditor_5/"  # This is relative to your MEDIA_ROOT
+CKEDITOR_IMAGE_BACKEND = "pillow"           # Requires 'pip install pillow'
+
+# Optional: Default Config for the RichTextField
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+        'height': 300,
+        'width': '100%',
+    },
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
@@ -209,21 +230,147 @@ USE_TZ = True
 # STATIC_URL = 'static/'
 
 
+# --- TAILWIND CONFIGURATION ---
+# This must match the name of the app you created with 'tailwind init'
+TAILWIND_APP_NAME = 'theme'
+
+# Required for the tailwind hot-reload and debug tools
+INTERNAL_IPS = [
+    "127.0.0.1",
+    "localhost",
+]
+
 # --- STATIC FILES CONFIGURATION ---
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Ensure Django looks in the global static folder for shared assets
+# Use the / operator for reliable Windows path joining
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    BASE_DIR / 'static',
+    BASE_DIR / 'theme' / 'static',
+]
+
+# Ensure these finders are active
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
 # --- MEDIA FILES CONFIGURATION ---
-# Base directory for all media
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 # URL prefix for media files
 MEDIA_URL = '/media/'
+# Base directory for all media
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+DEFAULT_FILE_STORAGE = 'django_tenants.storage.TenantFileSystemStorage'
+
+# This defines the subfolder structure inside your MEDIA_ROOT.
+# Leaving it as an empty string "" is common, or you can use "tenants"
+MULTITENANT_RELATIVE_MEDIA_ROOT = ""
+
+customColorPalette = [
+        {
+            'color': 'hsl(4, 90%, 58%)',
+            'label': 'Red'
+        },
+        {
+            'color': 'hsl(340, 82%, 52%)',
+            'label': 'Pink'
+        },
+        {
+            'color': 'hsl(291, 64%, 42%)',
+            'label': 'Purple'
+        },
+        {
+            'color': 'hsl(262, 52%, 47%)',
+            'label': 'Deep Purple'
+        },
+        {
+            'color': 'hsl(231, 48%, 48%)',
+            'label': 'Indigo'
+        },
+        {
+            'color': 'hsl(207, 90%, 54%)',
+            'label': 'Blue'
+        },
+    ]
+
+CKEDITOR_5_CUSTOM_CSS = 'path_to.css' # optional
+CKEDITOR_5_FILE_STORAGE = "path_to_storage.CustomStorage" # optional
+CKEDITOR_5_UPLOAD_FILE_VIEW_NAME = "custom_upload_file" # Optional: if using custom view
+
+licenseKey: 'GPL'
+CKEDITOR_5_CONFIGS = {
+    'default': {
+        'licenseKey': 'GPL',  # Required for CKEditor 5 v37+
+        'toolbar': {
+            'items': [
+                'heading', '|', 'bold', 'italic', 'link',
+                'bulletedList', 'numberedList', 'blockQuote', 'imageUpload',
+            ],
+        }
+    },
+    'extends': {
+        'licenseKey': 'GPL', # Required here as well
+        'blockToolbar': [
+            'paragraph', 'heading1', 'heading2', 'heading3',
+            '|',
+            'bulletedList', 'numberedList',
+            '|',
+            'blockQuote',
+        ],
+        "toolbar": [
+            "heading", "|", "outdent", "indent", "|", "bold", "italic", "link", "underline", "strikethrough",
+            "code", "subscript", "superscript", "highlight", "|", "codeBlock", "sourceEditing", "insertImage",
+            "imageUpload", "blockQuote", "insertTable", "mediaEmbed", "list", "numberedList", "todoList", "|",
+            "fontSize", "fontFamily", "fontColor", "fontBackgroundColor", "alignment", "|", "linkImage", "uploadImage",
+        ],
+         "image": {
+            "toolbar": [
+                "imageTextAlternative", "|", "imageStyle:alignLeft",
+                "imageStyle:alignRight", "imageStyle:alignCenter", "imageStyle:side", "|",
+            ],
+            "styles": [
+                "full", "side", "alignLeft", "alignRight", "alignCenter",
+            ],
+        },
+        'table': {
+            'contentToolbar': [
+                'tableColumn', 'tableRow', 'mergeTableCells',
+                'tableProperties', 'tableCellProperties'
+            ],
+            'tableProperties': {
+                'borderColors': customColorPalette,
+                'backgroundColors': customColorPalette
+            },
+            'tableCellProperties': {
+                'borderColors': customColorPalette,
+                'backgroundColors': customColorPalette
+            }
+        },
+        'heading': {
+            'options': [
+                {'model': 'paragraph', 'title': 'Paragraph', 'class': 'ck-heading_paragraph'},
+                {'model': 'heading1', 'view': 'h1', 'title': 'Heading 1', 'class': 'ck-heading_heading1'},
+                {'model': 'heading2', 'view': 'h2', 'title': 'Heading 2', 'class': 'ck-heading_heading2'},
+                {'model': 'heading3', 'view': 'h3', 'title': 'Heading 3', 'class': 'ck-heading_heading3'}
+            ]
+        }
+    },
+    'list': {
+        'licenseKey': 'GPL',
+        'properties': {
+            'styles': True,
+            'startIndex': True,
+            'reversed': True,
+        }
+    }
+}
+
+# Define a constant in settings.py to specify file upload permissions
+CKEDITOR_5_FILE_UPLOAD_PERMISSION = "staff", "authenticated",
+
+# Possible values: "staff", "authenticated", "any"
+CK_EDITOR_5_UPLOAD_FILE_VIEW_NAME = "custom_upload_file"
 
 # For development, you can output emails to the console:
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

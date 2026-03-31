@@ -1,0 +1,179 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Associate Profile Header -->
+    <div class="card shadow-sm border-0 mb-4 overflow-hidden">
+        <div class="card-body bg-light border-bottom">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mr-3" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                    {{ associate.first_name|first }}{{ associate.last_name|first }}
+                </div>
+                <div>
+                    <h3 class="mb-0">{{ associate.first_name }} {{ associate.last_name }}</h3>
+                    <p class="text-muted mb-0">Associate ID: #{{ associate.id }} | Joined: {{ associate.date_joined|date:"M Y" }}</p>
+                </div>
+                <div class="ml-auto">
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#addReviewModal">
+                        <i class="fas fa-plus mr-2"></i>New Performance Review
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Review Statistics -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white font-weight-bold">Performance Summary</div>
+                <div class="card-body text-center">
+                    <h1 class="display-4 text-primary font-weight-bold">{{ avg_rating|default:"N/A" }}</h1>
+                    <p class="text-muted">Average Rating</p>
+                    <hr>
+                    <div class="text-left">
+                        <small class="text-uppercase font-weight-bold text-muted">Key Metrics</small>
+                        <div class="mt-2">
+                            <label class="small d-block">Efficiency <span class="float-right">85%</span></label>
+                            <div class="progress mb-2" style="height: 5px;">
+                                <div class="progress-bar bg-success" style="width: 85%"></div>
+                            </div>
+                            <label class="small d-block">Reliability <span class="float-right">92%</span></label>
+                            <div class="progress" style="height: 5px;">
+                                <div class="progress-bar bg-info" style="width: 92%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Review Timeline -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white font-weight-bold">Review History</div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Reviewer</th>
+                                    <th>Rating</th>
+                                    <th>Comments</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for review in reviews %}
+                                <tr>
+                                    <td>{{ review.created_at|date:"M d, Y" }}</td>
+                                    <td>{{ review.reviewer.get_full_name|default:review.reviewer.username }}</td>
+                                    <td>
+                                        <div class="text-warning">
+                                            {% for i in "12345" %}
+                                                <i class="{% if forloop.counter <= review.rating %}fas{% else %}far{% endif %} fa-star"></i>
+                                            {% endfor %}
+                                        </div>
+                                    </td>
+                                    <td><small>{{ review.comments }}</small></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-5 text-muted">
+                                        No performance reviews found for this associate.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Review Modal -->
+<div class="modal fade" id="addReviewModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">New Performance Evaluation</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <form id="reviewForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="font-weight-bold">Rating</label>
+                        <select name="rating" id="rating" class="form-control" required>
+                            <option value="5">5 - Exceptional</option>
+                            <option value="4">4 - Exceeds Expectations</option>
+                            <option value="3" selected>3 - Meets Expectations</option>
+                            <option value="2">2 - Needs Improvement</option>
+                            <option value="1">1 - Unsatisfactory</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Reviewer Comments</label>
+                        <textarea name="comments" id="comments" class="form-control" rows="4" placeholder="Provide detailed feedback on performance..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" id="submitBtn" class="btn btn-primary px-4">Submit Review</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('reviewForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const btn = document.getElementById('submitBtn');
+    const originalText = btn.innerHTML;
+
+    // Disable to prevent double submission
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
+
+    const formData = new FormData(this);
+
+    // Get CSRF token from the generated input
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch('', {  // Posting to empty string targets the current URL correctly
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrftoken
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success' || data.status === true) {
+            window.location.reload();
+        } else {
+            // Show error message if view returns status: false
+            alert('Error: ' + (data.message || 'Could not save review.'));
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please check the console or your network connection.');
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+});
+</script>
+{% endblock %}

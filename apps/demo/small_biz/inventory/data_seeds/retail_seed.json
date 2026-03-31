@@ -1,0 +1,83 @@
+{
+    "categories": [
+        {"name": "Electronics", "description": "Laptops, smartphones, and accessories"},
+        {"name": "Office Furniture", "description": "Desks, chairs, and storage solutions"},
+        {"name": "Stationery", "description": "Pens, notebooks, and paper products"},
+        {"name": "Networking", "description": "Routers, cables, and switchgear"},
+        {"name": "Peripherals", "description": "Keyboards, mice, and monitors"}
+    ],
+    "suppliers": [
+        {"name": "TechFlow Distributions", "contact_email": "orders@techflow.com", "average_lead_time": 2.5},
+        {"name": "Modern Office Wholesale", "contact_email": "sales@modernoffice.com", "average_lead_time": 5.0},
+        {"name": "Global Stationery Ltd", "contact_email": "support@globalstat.com", "average_lead_time": 1.5},
+        {"name": "NetGear Solutions", "contact_email": "wholesale@netgear-sol.com", "average_lead_time": 3.0},
+        {"name": "Prime Peripherals", "contact_email": "logistics@prime-p.com", "average_lead_time": 2.0}
+    ],
+    "products": [
+        {
+            "sku": "EL-LAP-001",
+            "name": "Ultrabook Pro 13",
+            "category_name": "Electronics",
+            "supplier_name": "TechFlow Distributions",
+            "cost_price": "750.00",
+            "sale_price": "1199.99",
+            "quantity_in_stock": 10,
+            "reorder_level": 3,
+            "location": "Aisle 1-A",
+            "expiry_date": "2028-12-31",
+            "date_added": "2026-05-04T12:00:00Z"
+        },
+        {
+            "sku": "OF-CHR-042",
+            "name": "Ergonomic Mesh Chair",
+            "category_name": "Office Furniture",
+            "supplier_name": "Modern Office Wholesale",
+            "cost_price": "120.00",
+            "sale_price": "249.50",
+            "quantity_in_stock": 15,
+            "reorder_level": 5,
+            "location": "Warehouse-B2",
+            "expiry_date": null,
+            "date_added": "2026-05-04T12:00:00Z"
+        },
+        {
+            "sku": "ST-NBK-005",
+            "name": "A5 Leather Journal 5-Pack",
+            "category_name": "Stationery",
+            "supplier_name": "Global Stationery Ltd",
+            "cost_price": "12.50",
+            "sale_price": "29.99",
+            "quantity_in_stock": 50,
+            "reorder_level": 15,
+            "location": "Shelf-C4",
+            "expiry_date": null,
+            "date_added": "2026-05-04T12:00:00Z"
+        },
+        {
+            "sku": "NW-RTR-009",
+            "name": "Dual-Band WiFi 6 Router",
+            "category_name": "Networking",
+            "supplier_name": "NetGear Solutions",
+            "cost_price": "45.00",
+            "sale_price": "89.00",
+            "quantity_in_stock": 20,
+            "reorder_level": 8,
+            "location": "Aisle 2-C",
+            "expiry_date": "2029-06-01",
+            "date_added": "2026-05-04T12:00:00Z"
+        },
+        {
+            "sku": "PR-MS-011",
+            "name": "Wireless Vertical Mouse",
+            "category_name": "Peripherals",
+            "supplier_name": "Prime Peripherals",
+            "cost_price": "18.00",
+            "sale_price": "45.00",
+            "quantity_in_stock": 30,
+            "reorder_level": 10,
+            "location": "Front Counter",
+            "expiry_date": null,
+            "date_added": "2026-05-04T12:00:00Z"
+        }
+    ]
+}

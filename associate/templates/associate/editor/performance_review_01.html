@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Review System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #fdfdfd; color: #1e293b; }
+        .nav-step.active { color: #0d9488; border-bottom: 3px solid #0d9488; }
+        .step-content { display: none; }
+        .step-content.active { display: block; }
+        input[type="radio"]:checked + div { background-color: #0d9488; color: white; border-color: #0d9488; }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-slate-50/50">
+
+    <form id="review-form" method="POST" class="min-h-screen flex flex-col">
+        {% csrf_token %}
+
+        <!-- HEADER / NAV -->
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+            <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-teal-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-teal-200">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h1 class="text-xl font-extrabold tracking-tight text-slate-800">Performance<span class="text-teal-600">Review</span></h1>
+                </div>
+
+                <div class="hidden md:flex items-center gap-8">
+                    <button type="button" onclick="goToStep(1)" class="nav-step active py-7 px-1 text-[11px] font-bold uppercase tracking-widest transition-all">1. Administrative</button>
+                    <button type="button" onclick="goToStep(2)" class="nav-step py-7 px-1 text-[11px] font-bold uppercase tracking-widest text-slate-400 transition-all">2. KPIs & OKRs</button>
+                    <button type="button" onclick="goToStep(3)" class="nav-step py-7 px-1 text-[11px] font-bold uppercase tracking-widest text-slate-400 transition-all">3. Competencies</button>
+                    <button type="button" onclick="goToStep(4)" class="nav-step py-7 px-1 text-[11px] font-bold uppercase tracking-widest text-slate-400 transition-all">4. Narrative & Development</button>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <span class="text-[10px] font-black bg-slate-100 px-3 py-1.5 rounded-full text-slate-500 uppercase">Status: Draft</span>
+                    <button type="submit" class="bg-teal-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-teal-700 transition-all shadow-md">Submit Review</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 p-6 overflow-hidden">
+
+            <!-- LEFT: ASSOCIATE INFO (From Associate Model) -->
+            <aside class="lg:col-span-3 space-y-6 overflow-y-auto custom-scroll pb-10">
+                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm text-center">
+                    <img id="side-avatar" src="https://ui-avatars.com/api/?name=User&background=f1f5f9&color=cbd5e1" class="w-24 h-24 rounded-2xl mx-auto mb-4 border-4 border-slate-50 shadow-inner">
+                    <h2 id="side-name" class="text-lg font-bold text-slate-800">Select Associate</h2>
+                    <p id="side-pos" class="text-xs font-semibold text-teal-600 uppercase tracking-wider mt-1">Pending...</p>
+
+                    <div class="mt-6 pt-6 border-t border-slate-100 text-left space-y-4">
+                        <div class="flex justify-between items-center text-[10px] font-bold">
+                            <span class="text-slate-400 uppercase">ID</span>
+                            <span id="side-id" class="text-slate-700 font-mono text-xs">---</span>
+                        </div>
+                        <div class="flex justify-between items-center text-[10px] font-bold">
+                            <span class="text-slate-400 uppercase">Hired</span>
+                            <span id="side-hired" class="text-slate-700">---</span>
+                        </div>
+                        <div class="flex justify-between items-center text-[10px] font-bold">
+                            <span class="text-slate-400 uppercase">Manager</span>
+                            <span id="side-reports" class="text-slate-700">---</span>
+                        </div>
+                        <div class="flex justify-between items-center text-[10px] font-bold">
+                            <span class="text-slate-400 uppercase">Location</span>
+                            <span id="side-loc" class="text-slate-700">---</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PTO & Financial Stats (From Associate Model) -->
+                <div class="bg-slate-900 rounded-3xl p-6 text-white shadow-xl shadow-slate-200">
+                    <h3 class="text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-teal-400">Leave Balance</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-[9px] font-bold text-slate-400 uppercase">Accrued</p>
+                            <p id="side-accrued" class="text-xl font-bold">0.0</p>
+                        </div>
+                        <div>
+                            <p class="text-[9px] font-bold text-slate-400 uppercase">Balance</p>
+                            <p id="side-balance" class="text-xl font-bold text-teal-400">0.0</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-700">
+                        <p class="text-[9px] font-bold text-slate-400 uppercase">Current Salary</p>
+                        <p id="side-salary" class="text-lg font-bold">---</p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- RIGHT: REVIEW CONTENT (From PerformanceReview Model) -->
+            <main class="lg:col-span-9 bg-white rounded-3xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+                <div class="flex-1 overflow-y-auto p-8 md:p-12 custom-scroll">
+
+                    <!-- STEP 1: ADMINISTRATIVE -->
+                    <div id="step-1" class="step-content active space-y-10">
+                        <section class="space-y-6">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-teal-50 text-teal-700 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm">01</span>
+                                <h3 class="text-lg font-bold text-slate-800">Administrative Tracking</h3>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Associate</label>
+                                    <select name="associate" id="associate-select" onchange="updateProfile()" class="w-full bg-slate-50 border-2 border-transparent focus:border-teal-500 rounded-2xl p-4 text-sm font-bold outline-none transition-all" required>
+                                        <option value="">-- Choose Employee --</option>
+                                        {% for person in associates %}
+                                            <option value="{{ person.id }}"
+                                                    data-name="{{ person.user.get_full_name|default:person.user.username }}"
+                                                    data-pos="{{ person.position.title|default:'N/A' }}"
+                                                    data-empid="{{ person.associate_id }}"
+                                                    data-hire="{{ person.hire_date|date:'M d, Y' }}"
+                                                    data-reports="{{ person.reports_to.user.get_full_name|default:'N/A' }}"
+                                                    data-loc="{{ person.work_location.name|default:'Office' }}"
+                                                    data-accrued="{{ person.pto_accrued }}"
+                                                    data-balance="{{ person.pto_balance }}"
+                                                    data-salary="${{ person.current_salary }}"
+                                                    data-avatar="https://ui-avatars.com/api/?name={{ person.user.first_name }}+{{ person.user.last_name }}&background=0d9488&color=fff">
+                                                {{ person.get_dropdown_label }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Review Date</label>
+                                    <input type="date" name="review_date" value="{{ timezone.now|date:'Y-m-d' }}" class="w-full bg-slate-50 border-2 border-transparent focus:border-teal-500 rounded-2xl p-4 text-sm font-bold outline-none transition-all">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Period Start</label>
+                                    <input type="date" name="review_period_start" class="w-full bg-slate-50 border-2 border-transparent focus:border-teal-500 rounded-2xl p-4 text-sm font-bold outline-none transition-all">
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Period End</label>
+                                    <input type="date" name="review_period_end" class="w-full bg-slate-50 border-2 border-transparent focus:border-teal-500 rounded-2xl p-4 text-sm font-bold outline-none transition-all">
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Next Review</label>
+                                    <input type="date" name="next_review_date" class="w-full bg-slate-50 border-2 border-transparent focus:border-teal-500 rounded-2xl p-4 text-sm font-bold outline-none transition-all">
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- STEP 2: KPIs & OKRs -->
+                    <div id="step-2" class="step-content space-y-10">
+                        <section class="space-y-8">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-teal-50 text-teal-700 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm">02</span>
+                                <h3 class="text-lg font-bold text-slate-800">Objectives & Metrics</h3>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div class="bg-teal-50/50 rounded-3xl p-8 border border-teal-100">
+                                    <label class="text-[11px] font-black text-teal-700 uppercase tracking-[0.15em] mb-4 block">Project Completion Rate (%)</label>
+                                    <input type="number" step="0.01" name="project_completion_rate" class="w-full bg-white border-2 border-teal-200 focus:border-teal-500 rounded-2xl p-4 text-3xl font-black text-teal-700 outline-none transition-all" placeholder="0.00">
+                                </div>
+                                <div class="bg-slate-50 rounded-3xl p-8 border border-slate-100">
+                                    <label class="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-4 block">Performance Rating</label>
+                                    <select name="performance_rating" class="w-full bg-white border-2 border-slate-200 rounded-2xl p-4 text-sm font-bold outline-none">
+                                        <option value="1">1 - Unsatisfactory</option>
+                                        <option value="2">2 - Needs Improvement</option>
+                                        <option value="3" selected>3 - Meets Expectations</option>
+                                        <option value="4">4 - Exceeds Expectations</option>
+                                        <option value="5">5 - Exceptional</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="space-y-6">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">OKR Summary</label>
+                                    <textarea name="okr_summary" rows="4" class="w-full bg-slate-50 border-2 border-slate-100 focus:border-teal-500 rounded-2xl p-6 text-sm outline-none transition-all" placeholder="Summarize objectives and key results achieved..."></textarea>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Role Specific Metrics (JSON)</label>
+                                    <textarea name="kpi_metrics" rows="3" class="w-full bg-slate-50 font-mono border-2 border-slate-100 focus:border-teal-500 rounded-2xl p-6 text-xs outline-none transition-all" placeholder='{"Sales": 50000, "Errors": 2}'></textarea>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- STEP 3: COMPETENCIES -->
+                    <div id="step-3" class="step-content space-y-10">
+                        <section class="space-y-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="bg-teal-50 text-teal-700 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm">03</span>
+                                <h3 class="text-lg font-bold text-slate-800">Competency Ratings</h3>
+                            </div>
+
+                            <!-- Leadership Rating -->
+                            <div class="flex flex-col md:flex-row md:items-center justify-between p-8 bg-slate-50 rounded-3xl border border-slate-100 gap-6">
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-sm">Leadership & Influence</h4>
+                                    <p class="text-[11px] text-slate-400 mt-1">Ability to inspire and guide team members.</p>
+                                </div>
+                                <div class="flex gap-2">
+                                    {% for v in "12345" %}
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="leadership_rating" value="{{ v }}" class="sr-only" {% if v == "3" %}checked{% endif %}>
+                                        <div class="w-12 h-12 rounded-xl bg-white border-2 border-slate-200 flex items-center justify-center transition-all font-black text-sm text-slate-600">{{ v }}</div>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- Communication Rating -->
+                            <div class="flex flex-col md:flex-row md:items-center justify-between p-8 bg-slate-50 rounded-3xl border border-slate-100 gap-6">
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-sm">Communication</h4>
+                                    <p class="text-[11px] text-slate-400 mt-1">Clarity, conciseness, and effectiveness of delivery.</p>
+                                </div>
+                                <div class="flex gap-2">
+                                    {% for v in "12345" %}
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="communication_rating" value="{{ v }}" class="sr-only" {% if v == "3" %}checked{% endif %}>
+                                        <div class="w-12 h-12 rounded-xl bg-white border-2 border-slate-200 flex items-center justify-center transition-all font-black text-sm text-slate-600">{{ v }}</div>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- Technical Ability -->
+                            <div class="flex flex-col md:flex-row md:items-center justify-between p-8 bg-slate-50 rounded-3xl border border-slate-100 gap-6">
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-sm">Technical Ability</h4>
+                                    <p class="text-[11px] text-slate-400 mt-1">Domain expertise and software/hardware proficiency.</p>
+                                </div>
+                                <div class="flex gap-2">
+                                    {% for v in "12345" %}
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="technical_ability_rating" value="{{ v }}" class="sr-only" {% if v == "3" %}checked{% endif %}>
+                                        <div class="w-12 h-12 rounded-xl bg-white border-2 border-slate-200 flex items-center justify-center transition-all font-black text-sm text-slate-600">{{ v }}</div>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- STEP 4: NARRATIVE & DEVELOPMENT -->
+                    <div id="step-4" class="step-content space-y-10">
+                        <section class="space-y-6">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-teal-50 text-teal-700 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm">04</span>
+                                <h3 class="text-lg font-bold text-slate-800">Feedback & Development</h3>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Self Assessment Score</label>
+                                    <select name="self_assessment_score" class="w-full bg-slate-50 border-2 border-slate-100 focus:border-teal-500 rounded-2xl p-4 text-sm font-bold outline-none transition-all">
+                                        <option value="">-- Choose Rating --</option>
+                                        <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-end pb-4">
+                                    <label class="flex items-center gap-3 cursor-pointer">
+                                        <input type="checkbox" name="goals_met" class="w-6 h-6 rounded-lg text-teal-600 focus:ring-teal-500 border-slate-300">
+                                        <span class="text-sm font-bold text-slate-700">Previous Period Goals Met</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Executive Feedback (CKEditor)</label>
+                                <textarea name="feedback" rows="6" class="w-full bg-slate-50 border-2 border-slate-100 focus:border-teal-500 rounded-2xl p-6 text-sm outline-none transition-all"></textarea>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Self Assessment Comments</label>
+                                    <textarea name="self_assessment_comments" rows="3" class="w-full bg-slate-50 border-2 border-slate-100 focus:border-teal-500 rounded-2xl p-6 text-sm outline-none transition-all"></textarea>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Peer Feedback Summary</label>
+                                    <textarea name="peer_feedback_summary" rows="3" class="w-full bg-slate-50 border-2 border-slate-100 focus:border-teal-500 rounded-2xl p-6 text-sm outline-none transition-all"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Skills Gap Analysis</label>
+                                    <textarea name="skills_gap_analysis" rows="3" class="w-full bg-slate-50 border-2 border-slate-100 focus:border-teal-500 rounded-2xl p-6 text-sm outline-none transition-all"></textarea>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Training Progress</label>
+                                    <textarea name="training_progress" rows="3" class="w-full bg-slate-50 border-2 border-slate-100 focus:border-teal-500 rounded-2xl p-6 text-sm outline-none transition-all"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Goals for Next Period</label>
+                                <textarea name="goals_for_next_period" rows="4" class="w-full bg-slate-50 border-2 border-slate-100 focus:border-teal-500 rounded-2xl p-6 text-sm outline-none transition-all" placeholder="List specific, measurable goals..."></textarea>
+                            </div>
+                        </section>
+                    </div>
+
+                </div>
+
+                <!-- FOOTER -->
+                <footer class="p-6 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+                    <button type="button" onclick="prevStep()" id="prev-btn" style="visibility:hidden;" class="text-slate-400 font-black text-[10px] uppercase tracking-widest hover:text-slate-800 transition-colors">
+                        ← Previous Section
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <div class="flex gap-1">
+                            <div class="w-2 h-2 rounded-full bg-teal-500"></div>
+                            <div class="w-2 h-2 rounded-full bg-slate-200"></div>
+                            <div class="w-2 h-2 rounded-full bg-slate-200"></div>
+                            <div class="w-2 h-2 rounded-full bg-slate-200"></div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="nextStep()" id="next-btn" class="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-teal-600 transition-all">
+                        Continue →
+                    </button>
+                </footer>
+            </main>
+        </div>
+    </form>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+
+        function goToStep(step) {
+            currentStep = step;
+            document.querySelectorAll('.nav-step').forEach((el, i) => {
+                el.classList.toggle('active', (i + 1) === step);
+                el.classList.toggle('text-slate-400', (i + 1) !== step);
+            });
+            document.querySelectorAll('.step-content').forEach((el, i) => {
+                el.classList.toggle('active', (i + 1) === step);
+            });
+
+            document.getElementById('prev-btn').style.visibility = (step === 1) ? 'hidden' : 'visible';
+            document.getElementById('next-btn').innerText = (step === totalSteps) ? 'Review Final Entry' : 'Continue →';
+
+            // Update mini dots
+            const dots = document.querySelectorAll('footer .rounded-full');
+            dots.forEach((dot, i) => {
+                dot.className = `w-2 h-2 rounded-full ${ (i+1) <= step ? 'bg-teal-500' : 'bg-slate-200' }`;
+            });
+        }
+
+        function nextStep() { if (currentStep < totalSteps) goToStep(currentStep + 1); }
+        function prevStep() { if (currentStep > 1) goToStep(currentStep - 1); }
+
+        function updateProfile() {
+            const select = document.getElementById('associate-select');
+            const opt = select.options[select.selectedIndex];
+
+            if (!opt.value) return;
+
+            // Associate ID from model
+            document.getElementById('side-name').innerText = opt.getAttribute('data-name');
+            document.getElementById('side-pos').innerText = opt.getAttribute('data-pos');
+            document.getElementById('side-id').innerText = opt.getAttribute('data-empid');
+            document.getElementById('side-hired').innerText = opt.getAttribute('data-hire');
+            document.getElementById('side-reports').innerText = opt.getAttribute('data-reports');
+            document.getElementById('side-loc').innerText = opt.getAttribute('data-loc');
+
+            // Financials & Leave
+            document.getElementById('side-accrued').innerText = opt.getAttribute('data-accrued');
+            document.getElementById('side-balance').innerText = opt.getAttribute('data-balance');
+            document.getElementById('side-salary').innerText = opt.getAttribute('data-salary');
+
+            // Avatar
+            document.getElementById('side-avatar').src = opt.getAttribute('data-avatar');
+        }
+    </script>
+</body>
+</html>

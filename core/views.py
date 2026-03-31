@@ -1,6 +1,12 @@
+from django.http import JsonResponse
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+
+from core import settings
+
+
 # from marketplace.models import App
 
 
@@ -13,7 +19,7 @@ class LandingPageView(TemplateView):
     # def get_context_data(self, **kwargs):
     #     context = super().get_context_data(**kwargs)
     #     context['services'] = [
-    #         {'title': 'Cloud Hosting', 'description': 'Secure and scalable hosting for your data.'},
+    #         {'title': 'Cloud Hosting', 'description': 'Secure and scalable hosting for your data_seeds.'},
     #         {'title': 'API Access', 'description': 'Connect your workflow with our robust REST API.'},
     #         {'title': 'Custom Domains', 'description': 'Branding made easy with dedicated subdomains.'},
     #     ]
@@ -60,3 +66,20 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['tenant'] = self.request.tenant
         return context
+
+
+@csrf_exempt
+def custom_upload_function(request):
+    """
+    Custom upload view for django-ckeditor-5.
+    Adjust permissions as needed.
+    """
+    if request.method == "POST" and request.FILES.get("upload"):
+        # Handle file storage and return URL
+        # Example logic, customize based on needs
+        uploaded_file = request.FILES["upload"]
+        # ... save file ...
+        return JsonResponse({
+            "url": settings.MEDIA_URL + uploaded_file.name
+        })
+    return JsonResponse({"error": "Upload failed"}, status=400)

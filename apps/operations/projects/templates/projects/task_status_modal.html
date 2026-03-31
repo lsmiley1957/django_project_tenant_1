@@ -1,158 +1,143 @@
-<div class="space-y-8 max-w-2xl mx-auto max-h-[85vh] overflow-y-auto px-1 scrollbar-hide">
-    <!-- Header -->
-    <div class="flex justify-between items-start border-b border-slate-100 pb-6 sticky top-0 bg-white z-10">
-        <div>
-            <h3 class="text-2xl font-black text-slate-800 tracking-tight">{{ task.name }}</h3>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Project: {{ task.project.name }}</p>
-        </div>
-        <button type="button" onclick="closeModal()" class="text-slate-300 hover:text-slate-500 transition-colors p-2 rounded-full hover:bg-slate-50">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
+<div class="flex justify-between items-start mb-8">
+    <div>
+        <h2 class="text-2xl font-black text-slate-900">{{ task.name }}</h2>
+        <p class="text-sm text-slate-500 mt-1">Update status, track progress, and log time.</p>
     </div>
-
-    <!-- Main Update Form -->
-    <form hx-post="{% url 'projects:task_status_update' task.project.pk task.pk %}"
-          hx-target="#modal-body"
-          hx-swap="innerHTML"
-          hx-on::after-request="if(event.detail.xhr.status === 204) closeModal()"
-          class="space-y-6">
-        {% csrf_token %}
-
-        <!-- Status Selection -->
-        <div>
-            <label class="block text-xs font-black uppercase text-slate-500 mb-3 ml-1">Current Status</label>
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="status-selector">
-                {% for val, label in status_choices %}
-                <label class="status-label relative flex items-center justify-center p-3 rounded-2xl border-2 cursor-pointer transition-all
-                    {% if task.status == val %}border-blue-600 bg-blue-50 text-blue-700 shadow-sm{% else %}border-slate-100 bg-slate-50 text-slate-400 hover:border-slate-200{% endif %}">
-                    <input type="radio" name="status" value="{{ val }}"
-                           class="absolute opacity-0 w-full h-full cursor-pointer"
-                           {% if task.status == val %}checked{% endif %}
-                           onclick="updateStatusUI(this)">
-                    <span class="text-[10px] font-black uppercase tracking-wider pointer-events-none">{{ label }}</span>
-                </label>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- Meta Info Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 bg-slate-50/50 rounded-[2rem] border border-slate-100">
-            <div class="md:col-span-2">
-                <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-1">Assigned To</label>
-                <div class="relative">
-                    <select name="assigned_to" class="w-full p-4 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-50 focus:border-blue-500 outline-none transition-all font-bold text-slate-700 text-sm appearance-none">
-                        <option value="">Unassigned</option>
-                        {% for member in project_members %}
-                        <option value="{{ member.id }}" {% if task.assigned_to_id == member.id %}selected{% endif %}>
-                            {{ member.name }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-1">Start Date</label>
-                <input type="date" name="start_date" value="{{ task.start_date|date:'Y-m-d' }}"
-                    class="w-full p-3 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-50 outline-none transition-all font-bold text-slate-700 text-sm">
-            </div>
-
-            <div>
-                <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-1">Due Date</label>
-                <input type="date" name="due_date" value="{{ task.due_date|date:'Y-m-d' }}"
-                    class="w-full p-3 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-50 outline-none transition-all font-bold text-slate-700 text-sm">
-            </div>
-        </div>
-
-        <!-- Progress Input & Note -->
-        <div class="bg-blue-50/50 p-6 rounded-[2rem] border border-blue-100/50 space-y-4">
-            <div>
-                <label class="block text-xs font-black uppercase text-blue-600 mb-2 ml-1">Work Note / Progress Update</label>
-                <textarea name="note" rows="2"
-                    class="w-full p-4 bg-white border border-blue-100 rounded-2xl focus:ring-4 focus:ring-blue-100 outline-none transition-all font-medium text-slate-700 text-sm placeholder:text-blue-300"
-                    placeholder="Describe what you've completed..."></textarea>
-            </div>
-
-            <div class="flex items-center justify-between gap-4">
-                <div class="flex-1">
-                    <button type="button"
-                        onclick="document.getElementById('quick-log-container').classList.toggle('hidden');"
-                        class="px-4 py-2 border-2 border-blue-600 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all">
-                        + Log Time
-                    </button>
-                </div>
-
-                <div id="quick-log-container" class="hidden flex-1 animate-in slide-in-from-right-4 duration-300">
-                    <div class="bg-white p-2 border border-blue-200 rounded-xl flex items-center gap-2 shadow-inner">
-                        <input type="number" name="hours_worked" step="0.5" min="0"
-                            class="w-full bg-transparent border-none p-2 focus:ring-0 font-black text-lg text-blue-700 text-center"
-                            placeholder="0.0">
-                        <span class="text-[10px] font-black text-blue-300 uppercase pr-3">hrs</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- History Sections -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Time Logs History -->
-            <div class="space-y-4">
-                <div class="flex items-center justify-between px-1">
-                    <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Time Logs</h4>
-                    <span class="text-xs font-black text-blue-600">{{ task.total_hours }}h Total</span>
-                </div>
-                <div class="bg-slate-50/50 rounded-2xl p-4 border border-slate-100 max-h-48 overflow-y-auto scrollbar-hide">
-                    {% for log in task.time_logs.all %}
-                    <div class="flex justify-between items-center py-2 border-b border-slate-100 last:border-0">
-                        <div>
-                            <p class="text-xs font-black text-slate-700">{{ log.hours }}h <span class="text-slate-400 font-medium">— {{ log.date|date:"M d" }}</span></p>
-                            <p class="text-[10px] text-slate-400 italic truncate w-32">{{ log.description|default:"No description" }}</p>
-                        </div>
-                        <span class="text-[9px] font-black bg-white px-1.5 py-0.5 rounded border border-slate-100 text-slate-500 uppercase">{{ log.user.username|slice:":6" }}</span>
-                    </div>
-                    {% empty %}
-                    <p class="text-[10px] text-center py-4 font-bold text-slate-300 uppercase">No logs yet</p>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- Notes History -->
-            <div class="space-y-4">
-                <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest px-1">Recent Notes</h4>
-                <div class="bg-slate-50/50 rounded-2xl p-4 border border-slate-100 max-h-48 overflow-y-auto scrollbar-hide">
-                    {% for note in task.notes.all %}
-                    <div class="mb-3 last:mb-0">
-                        <p class="text-xs font-medium text-slate-600 bg-white p-2 rounded-lg border border-slate-100">{{ note.content }}</p>
-                        <div class="flex justify-between items-center mt-1 px-1">
-                            <span class="text-[9px] font-black text-blue-400 uppercase">{{ note.user.username|slice:":8" }}</span>
-                            <span class="text-[8px] font-bold text-slate-300">{{ note.created_at|date:"M d, H:i" }}</span>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <p class="text-[10px] text-center py-4 font-bold text-slate-300 uppercase">No notes yet</p>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-
-        <button type="submit"
-            class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] shadow-xl shadow-slate-200 hover:bg-blue-600 transition-all active:scale-[0.98] htmx-request:opacity-50">
-            Update Task Status
-        </button>
-    </form>
+    <button onclick="closeModal()" class="p-2 hover:bg-slate-100 rounded-full transition">
+        <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    </button>
 </div>
 
+<form hx-post="{% url 'task_status_update' task.pk %}"
+      hx-swap="none"
+      class="space-y-8">
+    {% csrf_token %}
+
+    <!-- Status & Real-time Progress -->
+    <div class="grid grid-cols-2 gap-4">
+        <div>
+            <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Status</label>
+            <select name="status" class="w-full border-2 border-slate-100 rounded-xl p-3 text-sm font-bold focus:border-blue-500 outline-none transition bg-white">
+                {% for code, label in status_choices %}
+                <option value="{{ code }}" {% if task.status == code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Completion</label>
+            <div class="h-[46px] flex items-center px-4 bg-slate-50 rounded-xl border border-slate-100">
+                <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                    <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: {{ task.completion_percentage }}%"></div>
+                </div>
+                <span id="progress-text" class="ml-3 text-xs font-black text-slate-700 min-w-[35px]">{{ task.completion_percentage }}%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checklist Items -->
+    <div>
+        <div class="flex justify-between items-center mb-4">
+            <label class="text-[10px] font-black text-slate-400 uppercase">Sub-tasks / Checklist</label>
+            <span class="text-[10px] font-bold text-blue-600 px-2 py-0.5 bg-blue-50 rounded-full">
+                {{ task.checklist_items.count }} STEPS
+            </span>
+        </div>
+        <div class="space-y-2" id="checklist-container">
+            {% for item in task.checklist_items.all %}
+            <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100 hover:border-slate-200 transition">
+                <input type="checkbox"
+                       name="item_{{ item.id }}"
+                       {% if item.is_completed %}checked{% endif %}
+                       class="w-5 h-5 rounded-md border-2 border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer checklist-toggle"
+                       onchange="updateProgressUI()">
+                <span class="ml-3 text-sm font-medium text-slate-700 {% if item.is_completed %}line-through text-slate-400{% endif %}">
+                    {{ item.description }}
+                </span>
+            </div>
+            {% empty %}
+            <p class="text-xs text-slate-400 italic py-2">No checklist items defined.</p>
+            {% endfor %}
+
+            <div class="pt-2">
+                <input type="text" name="new_checklist_item" placeholder="+ Add new sub-step..." class="w-full bg-white border border-dashed border-slate-300 rounded-xl p-3 text-xs focus:border-blue-400 outline-none transition">
+            </div>
+        </div>
+    </div>
+
+    <!-- Time & Dates -->
+    <div class="grid grid-cols-2 gap-6">
+        <div>
+            <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Log Hours (Today)</label>
+            <div class="relative">
+                <input type="number" step="0.25" name="hours_worked" placeholder="0.00" class="w-full border-2 border-slate-100 rounded-xl p-3 pr-10 text-sm font-bold focus:border-blue-500 outline-none transition">
+                <span class="absolute right-4 top-3.5 text-xs font-bold text-slate-400">HRS</span>
+            </div>
+        </div>
+        <div>
+            <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Due Date</label>
+            <input type="date" name="due_date" value="{{ task.due_date|date:'Y-m-d' }}" class="w-full border-2 border-slate-100 rounded-xl p-3 text-sm font-bold focus:border-blue-500 outline-none transition">
+        </div>
+    </div>
+
+    <!-- Notes -->
+    <div>
+        <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Progress Update / Note</label>
+        <textarea name="note" rows="3" placeholder="What was achieved?" class="w-full border-2 border-slate-100 rounded-xl p-3 text-sm focus:border-blue-500 outline-none transition resize-none bg-white"></textarea>
+    </div>
+
+    <!-- Activity Log -->
+    <div class="pt-6 border-t border-slate-100">
+        <label class="block text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest">History</label>
+        <div class="space-y-4 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+            {% for note in task.notes.all|dictsort:"created_at" reversed %}
+            <div class="flex space-x-3">
+                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold">
+                    {{ note.user.username|slice:":1"|upper }}
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black">{{ note.user.username }}</span>
+                        <span class="text-[10px] text-slate-400">{{ note.created_at|timesince }} ago</span>
+                    </div>
+                    <p class="text-xs text-slate-600 mt-0.5 leading-relaxed">{{ note.content }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex space-x-3 sticky bottom-0 bg-white pt-4 pb-2 border-t border-slate-50">
+        <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl transition shadow-lg shadow-blue-200">
+            Save Task
+        </button>
+        <button type="button" onclick="closeModal()" class="px-6 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-4 rounded-xl transition">
+            Close
+        </button>
+    </div>
+</form>
+
 <script>
-    function updateStatusUI(radio) {
-        document.querySelectorAll('.status-label').forEach(label => {
-            label.classList.remove('border-blue-600', 'bg-blue-50', 'text-blue-700', 'shadow-sm');
-            label.classList.add('border-slate-100', 'bg-slate-50', 'text-slate-400');
+    function updateProgressUI() {
+        const checkboxes = document.querySelectorAll('.checklist-toggle');
+        const checked = document.querySelectorAll('.checklist-toggle:checked');
+        const percentage = checkboxes.length > 0 ? Math.round((checked.length / checkboxes.length) * 100) : 0;
+
+        const bar = document.getElementById('progress-bar');
+        const text = document.getElementById('progress-text');
+
+        if (bar && text) {
+            bar.style.width = percentage + '%';
+            text.innerText = percentage + '%';
+        }
+
+        checkboxes.forEach(cb => {
+            const span = cb.nextElementSibling;
+            if (cb.checked) {
+                span.classList.add('line-through', 'text-slate-400');
+            } else {
+                span.classList.remove('line-through', 'text-slate-400');
+            }
         });
-        const parent = radio.closest('.status-label');
-        parent.classList.remove('border-slate-100', 'bg-slate-50', 'text-slate-400');
-        parent.classList.add('border-blue-600', 'bg-blue-50', 'text-blue-700', 'shadow-sm');
     }
 </script>

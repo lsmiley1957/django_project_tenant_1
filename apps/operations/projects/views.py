@@ -6,9 +6,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Project, Task, TASK_STATUS_CHOICES, ProjectMember, TaskNote, TimeLog
+from .models import Project, Task, TASK_STATUS_CHOICES, ProjectMember, TaskNote, TimeLog, TaskChecklistItem
 from .forms import ProjectForm, TaskForm, ProjectMemberForm
-
+from django.db.models import Sum
 
 
 class ProjectMemberCreateView(CreateView):
@@ -210,6 +210,7 @@ class TaskCreateView(CreateView):
         context['project'] = project # Pass the project object to the template
         return context
 
+
 class TaskUpdateView(UpdateView):
     """
     Handles the updating of an existing task.
@@ -240,6 +241,7 @@ class TaskUpdateView(UpdateView):
         context['title'] = 'Update Task'
         context['project'] = self.object.project # Pass the project object to the template
         return context
+
 
 # --- TASK DELETION ---
 class TaskDeleteView(DeleteView):
@@ -275,68 +277,93 @@ class ProjectDataView(View):
 # --- Task Status & Notes (HTMX) ---
 class TaskStatusUpdateView(View):
     def get(self, request, project_pk, pk):
+        project = get_object_or_404(Project, pk=project_pk)
         task = get_object_or_404(Task, pk=pk)
-        # We must ensure project_members is in context for the dropdown
-        project_members = ProjectMember.objects.filter(project_id=project_pk)
+
+        # FIX: Calculate total hours in Python to avoid TemplateSyntaxError
+        total_hours = task.time_logs.aggregate(total=Sum('hours'))['total'] or 0
 
         context = {
+            'project': project,
             'task': task,
             'status_choices': TASK_STATUS_CHOICES,
-            'project_members': project_members,
+            'checklist_items': task.checklist_items.all(),
+            'notes': task.notes.all().order_by('-created_at'),
+            'time_logs': task.time_logs.all().order_by('-date'),
+            'total_logged_hours': total_hours,  # Use this in your HTML
         }
-        return render(request, 'projects/task_status_modal.html', context)
+        return render(request, 'projects/task_detail_enhanced.html', context)
 
     def post(self, request, project_pk, pk):
         task = get_object_or_404(Task, pk=pk)
 
-        # 1. Update Status
-        new_status = request.POST.get('status')
-        if new_status:
-            task.status = new_status
+        # 1. Update Basic Task Info & Ownership
+        task.status = request.POST.get('status', task.status)
 
-        # 2. Update Assignment
-        member_id = request.POST.get('assigned_to')
-        if member_id:
-            # Safer fetch to avoid 500 if ID is invalid
-            member = ProjectMember.objects.filter(id=member_id).first()
-            if member:
-                task.assigned_to = member
+        assigned_to_id = request.POST.get('assigned_to')
+        if assigned_to_id:
+            task.assigned_to_id = assigned_to_id
         elif 'assigned_to' in request.POST:
             task.assigned_to = None
 
-        # Update dates and description if provided
-        start_date = request.POST.get('start_date')
-        due_date = request.POST.get('due_date')
-        description = request.POST.get('description')
+        # 2. Handle Checklist Deletions
+        delete_ids = request.POST.getlist('delete_items')
+        if delete_ids:
+            task.checklist_items.filter(id__in=delete_ids).delete()
 
-        if start_date: task.start_date = start_date
-        if due_date: task.due_date = due_date
-        if description is not None: task.description = description
+        # 3. Update Existing Checklist Items (Completion & Description Editing)
+        checked_ids = request.POST.getlist('check_items')
+        all_items = task.checklist_items.all()
 
-        task.save()
+        for item in all_items:
+            # Sync completion status
+            item.is_completed = (str(item.id) in checked_ids)
 
-        # 3. Create Task Note (History)
+            # Update description if edited in the UI
+            new_desc = request.POST.get(f'edit_description_{item.id}')
+            if new_desc:
+                item.description = new_desc.strip()
+            item.save()
+
+        # 4. Create New Checklist Items
+        new_items = request.POST.getlist('bulk_new_items')
+        for text_content in new_items:
+            if text_content.strip():
+                TaskChecklistItem.objects.create(
+                    task=task,
+                    description=text_content.strip(),
+                    is_completed=False
+                )
+
+        # 5. Save New Note
         note_content = request.POST.get('note')
         if note_content and note_content.strip():
             TaskNote.objects.create(
                 task=task,
-                user=request.user,
+                user=request.user if request.user.is_authenticated else None,
                 content=note_content.strip()
             )
 
-        # 4. Create Time Log
+        # 6. Save Time Log
         hours = request.POST.get('hours_worked')
-        if hours and float(hours) > 0:
-            TimeLog.objects.create(
-                task=task,
-                user=request.user,
-                hours=hours,
-                date=timezone.now().date(),
-                description=note_content if note_content else f"Updated status to {task.get_status_display()}"
-            )
+        if hours:
+            try:
+                h_val = float(hours)
+                if h_val > 0:
+                    TimeLog.objects.create(
+                        task=task,
+                        user=request.user if request.user.is_authenticated else None,
+                        hours=h_val,
+                        date=timezone.now().date(),
+                        description="Logged via status update"
+                    )
+            except (ValueError, TypeError):
+                pass
 
-        # Return 204 with the trigger to refresh the background dashboard
+        task.save()
         return HttpResponse(status=204, headers={'HX-Trigger': 'taskUpdated'})
+
+
 # --- TIME LOGGING ---
 class LogTimeView(View):
     def post(self, request, pk):

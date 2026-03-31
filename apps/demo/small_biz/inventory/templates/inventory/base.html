@@ -1,116 +1,177 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory Manager | SaaS</title>
-    <!-- Fonts and Icons -->
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventory Manager | SaaS</title>
+<!-- Fonts and Icons -->
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <style>
-        :root {
-            --primary: #5e72e4;
-            --darker: #172b4d;
-            --gradient-main: linear-gradient(87deg, #5e72e4 0, #825ee4 100%);
-        }
-        body {
-            background-color: #f8f9fe;
-            font-family: 'Open Sans', sans-serif;
-            color: #32325d;
-        }
-        .navbar-main {
-            background: var(--gradient-main);
-            padding: 1rem 0;
-        }
-        .navbar-brand {
-            font-weight: 700;
-            letter-spacing: .05em;
-            text-transform: uppercase;
-        }
-        .main-content {
-            min-height: calc(100vh - 160px);
-        }
-        footer {
-            padding: 2rem 0;
-            background: #f8f9fe;
-            color: #8898aa;
-        }
-    </style>
+<style>
+    :root {
+        --primary: #5e72e4;
+        --darker: #172b4d;
+        --gradient-main: linear-gradient(87deg, #5e72e4 0, #825ee4 100%);
+    }
+    body {
+        background-color: #f8f9fe;
+        font-family: 'Open Sans', sans-serif;
+        color: #32325d;
+    }
+    .navbar-main {
+        background: var(--gradient-main);
+        padding: 1rem 0;
+    }
+    .navbar-brand {
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+    .main-content {
+        min-height: calc(100vh - 160px);
+    }
+    footer {
+        padding: 2rem 0;
+        background: #f8f9fe;
+        color: #8898aa;
+    }
+    /* Custom CKEditor height adjustment */
+    .ck-editor__editable_inline {
+        min-height: 200px;
+    }
+</style>
+
+
 </head>
 <body>
 
-   <!-- Updated Dashboard Nav with Management Links -->
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-main sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'dashboard' %}">
-                <i class="fas fa-warehouse me-2"></i> Inventory Manager
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'dashboard' %}">
-                            <i class="fas fa-tv me-1"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'product_list' %}">
-                            <i class="fas fa-boxes me-1"></i> Catalog
-                        </a>
-                    </li>
-
-                    <!-- Management Dropdown -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-cogs me-1"></i> Management
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li>
-                                <a class="dropdown-item" href="{% url 'manage_categories' %}">
-                                    <i class="fas fa-tags me-2 text-primary"></i> Categories
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% url 'manage_suppliers' %}">
-                                    <i class="fas fa-truck-field me-2 text-info"></i> Suppliers
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item" href="{% url 'add_product' %}">
-                                    <i class="fas fa-plus-circle me-2 text-success"></i> New Product
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <li class="nav-item">
-                        <span class="nav-link text-white-50">|</span>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-user-circle me-1"></i> Profile</a>
-                    </li>
-                </ul>
-            </div>
+<!-- Nav with Management Links -->
+<nav class="navbar navbar-expand-lg navbar-dark navbar-main sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'dashboard' %}">
+            <i class="fas fa-warehouse me-2"></i> Inventory Manager
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'dashboard' %}">
+                        <i class="fas fa-tv me-1"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'pos:transaction_list' %}">
+                        <i class="fa-solid fa-cart-shopping"></i> POS
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'invoicing:invoice_list' %}">
+                        <i class="fa-brands fa-shopify"></i> Invoicing
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'product_list' %}">
+                        <i class="fas fa-boxes me-1"></i> Product Catalog
+                    </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-cogs me-1"></i> Management
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="{% url 'manage_categories' %}"><i class="fas fa-tags me-2 text-primary"></i> Categories</a></li>
+                        <li><a class="dropdown-item" href="{% url 'acct_customer:customer_list' %}"><i class="fas fa-users me-2 text-info"></i> Customers</a></li>
+                        <li><a class="dropdown-item" href="{% url 'manage_suppliers' %}"><i class="fas fa-warehouse me-2 text-dark"></i> Suppliers</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'add_product' %}"><i class="fas fa-plus-circle me-2 text-success"></i> New Product</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item"><span class="nav-link text-white-50">|</span></li>
+                <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-user-circle me-1"></i> Profile</a></li>
+            </ul>
         </div>
-    </nav>
-
-    <div class="main-content">
-        {% block content %}{% endblock %}
     </div>
+</nav>
 
-    <footer class="text-center mt-5">
-        <div class="container">
-            <small>&copy; 2025 Inventory SaaS. Built for Business Efficiency.</small>
-        </div>
-    </footer>
+<div class="main-content">
+    {% block content %}{% endblock %}
+</div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<footer class="text-center mt-5">
+    <div class="container">
+        <small>&copy; 2025 Inventory SaaS. Built for Business Efficiency.</small>
+    </div>
+</footer>
+
+<!-- Essential Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+<script>
+    /**
+     * GLOBAL CKEDITOR CONFIGURATION
+     * This handles the 'license-key-missing' error and provides
+     * automatic initialization for all textareas with .editor-target
+     */
+    const editorInstances = {};
+
+    async function initializeGlobalEditors() {
+        const targets = document.querySelectorAll('.editor-target');
+        for (const el of targets) {
+            // Prevent double-initialization
+            if (editorInstances[el.id || el.name]) continue;
+
+            try {
+                const editor = await ClassicEditor.create(el, {
+                    licenseKey: 'GPL', // Fix for license key error
+                    toolbar: {
+                        items: [
+                            'heading', '|', 'bold', 'italic', 'link',
+                            'bulletedList', 'numberedList', 'blockQuote', '|',
+                            'undo', 'redo'
+                        ]
+                    }
+                });
+
+                // Map instance to element ID or Name for easy retrieval
+                editorInstances[el.id || el.name] = editor;
+            } catch (error) {
+                console.error('CKEditor initialization failed:', error);
+            }
+        }
+    }
+
+    $(document).ready(() => {
+        initializeGlobalEditors();
+
+        // Re-run for dynamic content (like Bootstrap modals opening)
+        $(document).on('shown.bs.modal', function () {
+            initializeGlobalEditors();
+        });
+    });
+
+    /**
+     * Helper to sync data before AJAX submissions
+     */
+    function syncEditorData() {
+        Object.keys(editorInstances).forEach(key => {
+            const editor = editorInstances[key];
+            if (editor) {
+                // Update the hidden textarea with content from the editor
+                editor.updateSourceElement();
+            }
+        });
+    }
+</script>
+
+
 </body>
 </html>

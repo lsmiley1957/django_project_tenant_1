@@ -11,7 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 #
 #     def get_context_data(self, **kwargs):
 #         context = super().get_context_data(**kwargs)
-#         # Mock data for SaaS Health and Purchased Apps
+#         # Mock data_seeds for SaaS Health and Purchased Apps
 #         context['purchased_apps'] = [
 #             {'name': 'Cloud Shield', 'status': 'Healthy', 'uptime': '99.9%', 'health_score': 98},
 #             {'name': 'Data Analytics Pro', 'status': 'Warning', 'uptime': '94.2%', 'health_score': 72},
@@ -24,7 +24,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 #     """
 #     Marketplace for tenants to browse and purchase additional services.
 #     """
-#     template_name = 'marketplace.html'
+#     template_name = 'app_catalog.html'
 #
 #     def get_context_data(self, **kwargs):
 #         context = super().get_context_data(**kwargs)
@@ -64,10 +64,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 #         slug = self.kwargs.get('slug')
 #
 #         # In a real app, you would query your models: App.objects.get(slug=slug)
-#         # Here is the mock data for the requested features:
+#         # Here is the mock data_seeds for the requested features:
 #         context['app'] = {
 #             'name': slug.replace('-', ' ').title(),
-#             'desc': 'This high-performance module integrates directly with your existing workspace data.',
+#             'desc': 'This high-performance module integrates directly with your existing workspace data_seeds.',
 #             'features': [
 #                 'Automated Data Processing',
 #                 'Advanced Security Encryption',
@@ -88,7 +88,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 #             ],
 #             'kb_articles': [
 #                 {'title': 'How to configure your first sync', 'cat': 'Setup'},
-#                 {'title': 'Best practices for data security', 'cat': 'Security'},
+#                 {'title': 'Best practices for data_seeds security', 'cat': 'Security'},
 #                 {'title': 'Troubleshooting connection errors', 'cat': 'Support'},
 #             ]
 #         }

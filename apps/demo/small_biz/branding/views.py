@@ -173,7 +173,7 @@ def marketplace(request):
 
     branding = Branding.objects.first()
 
-    return render(request, 'registry/marketplace.html', {
+    return render(request, 'registry/app_catalog.html', {
         'available_apps': available_apps,
         'user_assignments': list(user_assignments),
         'branding': branding
@@ -222,7 +222,7 @@ def marketplace(request):
         user=request.user
     ).values_list('app_id', flat=True)
 
-    return render(request, 'branding/marketplace.html', {
+    return render(request, 'branding/app_catalog.html', {
         'available_apps': available_apps,
         'installed_app_ids': list(installed_app_ids),
     })

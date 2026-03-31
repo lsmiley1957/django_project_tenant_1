@@ -1,0 +1,102 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+
+<div class="card shadow-sm border-0">
+    <!-- Header Section -->
+    <div class="card-header bg-white border-bottom py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h3 class="h5 mb-0">Review for {{ review.associate.user.get_full_name }}</h3>
+                <p class="text-muted small mb-0">
+                    Conducted by <strong>{{ review.reviewer.get_full_name }}</strong> on {{ review.review_date|date:"F d, Y" }}
+                </p>
+            </div>
+            <div class="btn-group">
+                <a href="{% url 'associate:review_edit' review.id %}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-edit mr-1"></i> Edit
+                </a>
+                <a href="{% url 'associate:review_list' review.associate.id %}" class="btn btn-outline-secondary btn-sm">
+                    Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body p-4">
+        <!-- Row 1: Period & Rating -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="p-3 bg-light rounded text-center">
+                    <label class="text-muted small font-weight-bold text-uppercase d-block mb-1">Review Period</label>
+                    <span class="h6 mb-0">
+                        {{ review.review_period_start|date:"M d, Y" }} – {{ review.review_period_end|date:"M d, Y" }}
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3 bg-light rounded text-center">
+                    <label class="text-muted small font-weight-bold text-uppercase d-block mb-1">Rating</label>
+                    <span class="badge badge-pill px-3 py-2
+                        {% if review.rating >= 4 %}badge-success
+                        {% elif review.rating == 3 %}badge-info
+                        {% else %}badge-warning{% endif %}" style="font-size: 0.9rem;">
+                        {{ review.get_rating_display }}
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3 bg-light rounded text-center">
+                    <label class="text-muted small font-weight-bold text-uppercase d-block mb-1">Goals Status</label>
+                    {% if review.goals_met %}
+                        <span class="text-success font-weight-bold">
+                            <i class="fas fa-check-circle mr-1"></i> All Goals Met
+                        </span>
+                    {% else %}
+                        <span class="text-secondary font-weight-bold">
+                            <i class="fas fa-clock mr-1"></i> Goals In Progress
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Feedback -->
+        <div class="mb-5">
+            <h6 class="text-primary font-weight-bold border-bottom pb-2 mb-3">
+                <i class="fas fa-comment-alt mr-2"></i>General Feedback
+            </h6>
+            <div class="p-4 border rounded bg-white shadow-sm review-text-content">
+                {% if review.feedback %}
+                    {{ review.feedback|safe }}
+                {% else %}
+                    <p class="text-muted italic mb-0">No feedback was provided for this session.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Section: Future Goals -->
+        <div class="mb-0">
+            <h6 class="text-primary font-weight-bold border-bottom pb-2 mb-3">
+                <i class="fas fa-bullseye mr-2"></i>Goals for Next Period
+            </h6>
+            <div class="p-4 border rounded bg-light">
+                {% if review.goals_for_next_period %}
+                    <div class="text-dark" style="white-space: pre-wrap;">{{ review.goals_for_next_period }}</div>
+                {% else %}
+                    <p class="text-muted mb-0">No specific goals were outlined for the upcoming period.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="card-footer bg-white border-top py-3 text-center">
+        <small class="text-muted">
+            Last modified: {{ review.updated_at|date:"F d, Y @ H:i" }}
+        </small>
+    </div>
+</div>
+
+
+{% endblock %}

@@ -70,7 +70,7 @@ def create_invoice(request):
             invoice.total_amount = total_amount
             invoice.save()
 
-        return redirect('invoice_list')
+        return redirect('invoicing:invoice_list')
 
     return render(request, 'invoicing/create_invoice.html', {
         'acct_customers': customers_list,

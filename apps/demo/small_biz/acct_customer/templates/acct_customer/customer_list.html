@@ -20,7 +20,7 @@
 </form>
 </div>
 <div class="col text-end">
-<a href="{% url 'add_customer' %}" class="btn btn-primary rounded-pill px-4" style="background: linear-gradient(87deg, #5e72e4 0, #825ee4 100%); border: none;">
+<a href="{% url 'acct_customer:add_customer' %}" class="btn btn-primary rounded-pill px-4" style="background: linear-gradient(87deg, #5e72e4 0, #825ee4 100%); border: none;">
 <i class="fas fa-user-plus me-2"></i> New Customer
 </a>
 </div>
@@ -54,10 +54,10 @@ ${{ customer.balance }}
 </span>
 </td>
 <td class="text-center">
-<a href="{% url 'edit_customer' customer.pk %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+<a href="{% url 'acct_customer:edit_customer' customer.pk %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
 <i class="fas fa-edit me-1"></i> Edit
 </a>
-<a href="{% url 'delete_customer' customer.pk %}" class="btn btn-sm btn-link text-danger ms-2" title="Delete">
+<a href="{% url 'acct_customer:delete_customer' customer.pk %}" class="btn btn-sm btn-link text-danger ms-2" title="Delete">
 <i class="fas fa-trash"></i>
 </a>
 </td>

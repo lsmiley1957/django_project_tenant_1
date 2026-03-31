@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Hub | Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #1e293b; }
+        .stat-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05); }
+        .status-pill { font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 4px 10px; border-radius: 9999px; }
+        .status-approved { background-color: #ccfbf1; color: #0d9488; }
+        .status-draft { background-color: #f1f5f9; color: #64748b; }
+    </style>
+</head>
+<body class="p-6 md:p-10">
+
+    <div class="max-w-[1400px] mx-auto space-y-8">
+
+        <!-- TOP HEADER -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+            <div>
+                <div class="flex items-center gap-3 mb-1">
+                    <div class="w-2 h-2 bg-teal-500 rounded-full animate-pulse"></div>
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Management Portal</span>
+                </div>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight">Performance Dashboard</h1>
+                <p class="text-slate-500 text-sm font-medium mt-1">Overview of organizational reviews and evaluations.</p>
+            </div>
+
+            <a href="{% url 'associate:performance_review' %}" class="bg-teal-600 text-white px-8 py-4 rounded-2xl font-bold text-sm hover:bg-teal-700 transition-all shadow-xl shadow-teal-600/20 flex items-center gap-3">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                New Performance Review
+            </a>
+        </header>
+
+        <!-- STATS GRID -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="stat-card bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Total Reviews</p>
+                <h3 class="text-3xl font-black text-slate-800">128</h3>
+                <div class="flex items-center gap-2 mt-4 text-emerald-600 text-xs font-bold">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z"></path></svg>
+                    +12% from last month
+                </div>
+            </div>
+            <div class="stat-card bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Pending Approval</p>
+                <h3 class="text-3xl font-black text-slate-800">14</h3>
+                <div class="flex items-center gap-2 mt-4 text-amber-600 text-xs font-bold">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"></path></svg>
+                    Action Required
+                </div>
+            </div>
+            <div class="stat-card bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Avg Score</p>
+                <h3 class="text-3xl font-black text-slate-800">4.2</h3>
+                <div class="flex items-center gap-2 mt-4 text-slate-400 text-xs font-bold">
+                    Stable performance
+                </div>
+            </div>
+            <div class="stat-card bg-teal-600 p-6 rounded-3xl shadow-lg shadow-teal-600/20 text-white">
+                <p class="text-[10px] font-black opacity-70 uppercase mb-1">Team Coverage</p>
+                <h3 class="text-3xl font-black">94%</h3>
+                <div class="w-full bg-white/20 h-1.5 rounded-full mt-4 overflow-hidden">
+                    <div class="bg-white h-full" style="width: 94%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RECENT REVIEWS TABLE -->
+        <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-8 border-b border-slate-100 flex justify-between items-center">
+                <h2 class="text-xl font-black text-slate-800">Recent Evaluations</h2>
+                <div class="flex gap-2">
+                    <input type="text" placeholder="Search associate..." class="text-xs font-medium px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 outline-none w-64">
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50">
+                            <th class="px-8 py-5">Associate</th>
+                            <th class="px-8 py-5">Period</th>
+                            <th class="px-8 py-5 text-center">Rating</th>
+                            <th class="px-8 py-5">Status</th>
+                            <th class="px-8 py-5 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="review-table-body" class="divide-y divide-slate-50">
+                        <!-- Items rendered by JS from api/reviews -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchReviews() {
+            try {
+                const response = await fetch('/associate/api/reviews/');
+                const data = await response.json();
+                renderTable(data.reviews);
+            } catch (e) { console.error("Error fetching reviews", e); }
+        }
+
+        function renderTable(reviews) {
+            const body = document.getElementById('review-table-body');
+            if (!reviews || reviews.length === 0) {
+                body.innerHTML = `<tr><td colspan="5" class="py-20 text-center text-slate-400 font-medium">No reviews found.</td></tr>`;
+                return;
+            }
+
+            body.innerHTML = reviews.map(r => `
+                <tr class="hover:bg-slate-50/50 transition-colors group">
+                    <td class="px-8 py-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center font-bold text-slate-500">
+                                ${r.associateName.charAt(0)}
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">${r.associateName}</p>
+                                <p class="text-[10px] text-slate-500 font-medium uppercase">${r.associateJob}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-8 py-5 text-sm font-semibold text-slate-600">${r.reviewPeriod}</td>
+                    <td class="px-8 py-5 text-center">
+                        <span class="inline-flex items-center gap-1 text-sm font-black text-slate-800">
+                            ${r.rating} <span class="text-amber-400">★</span>
+                        </span>
+                    </td>
+                    <td class="px-8 py-5">
+                        <span class="status-pill ${r.status.toLowerCase() === 'approved' ? 'status-approved' : 'status-draft'}">
+                            ${r.status}
+                        </span>
+                    </td>
+                    <td class="px-8 py-5 text-right">
+                        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="p-2 text-slate-400 hover:text-teal-600 transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg></button>
+                            <button class="p-2 text-slate-400 hover:text-rose-600 transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.onload = fetchReviews;
+    </script>
+</body>
+</html>
